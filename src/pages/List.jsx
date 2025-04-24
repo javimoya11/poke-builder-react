@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import fetchPokemonList from "../hooks/fetchPokemonList";
-import Pokemon from "../components/Pokemon";
+import Pokemon from "../components/Pokemon/Pokemon";
 
 function List() {
   const results = useQuery({queryKey: ["list"], queryFn: fetchPokemonList});
   const pokemons = results?.data ?? [];
 
   return (
-    <div>
+    <div className="pokemon-list">
       {!pokemons.length ? (
         <h1>No Pokemons Found</h1>
       ) : (pokemons.map((pokemon) => {
