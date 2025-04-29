@@ -1,0 +1,18 @@
+.pokemon-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+@media (max-width: 360px) {
+
+}
+@media (min-width: 361px) {
+
+}
+@media (min-width: 769px) {
+    .pokemon-list {
+        gap: 16px;
+    }
+}

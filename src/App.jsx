@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Details from "./pages/Details";
-import List from "./pages/List";
+import Details from "./pages/Details/Details";
+import List from "./pages/List/List";
 import Header from "./feature/Header";
+import "./App.css"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,7 +16,7 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <div>
+    <div className="app-container">
       <BrowserRouter>
         <QueryClientProvider client={queryClient}>
           <header>

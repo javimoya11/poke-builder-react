@@ -12,10 +12,27 @@ function Pokemon(props) {
   });
   const pokemon = results?.data ?? {};
 
-  let poke = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+  let poke = "";
   
   if (pokemon.sprites) {
     poke = pokemon.sprites.other["official-artwork"].front_default;
+  }
+
+  const cachedImg = async ({ queryKey }) => {
+    const imgExists = await caches.match(queryKey[1].img).finally(() => true).catch(() => false);
+    return imgExists ? caches.match(queryKey[1].img) : queryKey[1].img;
+  }
+
+  const image = useQuery({
+    queryKey: ["image", { img: poke }],
+    queryFn: cachedImg,
+  });
+  const imageUrl = () => {
+    let path = image.data;
+    if (image?.data) {
+      return path.url ?? path;
+    }
+    return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
   }
 
   let typesText = "Normal";
@@ -30,7 +47,7 @@ function Pokemon(props) {
     <Link to={`/details/${pokemon.id}`}>
       <div className="pokemon-card">
         <div className="sprite-container">
-          <img src={poke} alt={name} />
+          <img src={imageUrl()} alt={name} />
         </div>
         <div className="info">
           <h2>{`#${pokemon.id}`}</h2>
