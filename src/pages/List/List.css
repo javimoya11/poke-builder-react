@@ -1,9 +1,24 @@
-.pokemon-list {
+.search-list-wrapper {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+    flex-direction: column;
+    gap: 16px;
+    padding: 10px;
+    .search-container {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        .search-input, .search-button {
+            padding: 5px 10px;
+        }
+    }
+    .pokemon-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
 }
+
 
 @media (max-width: 360px) {
 

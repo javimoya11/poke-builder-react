@@ -8,8 +8,9 @@ async function fetchPokemonList() {
         limit: 1024,
     });
 
-    if (!response.results)
+    if (!response.results) {
         throw new Error(`poke search not okay`);
+    }
     
     return new Promise((resolve) => {
         resolve(response.results);

@@ -20,7 +20,7 @@
     }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 431px) {
     .pokemon-card {
         padding: 12px;
         width: 131px;
@@ -29,7 +29,7 @@
         font-size: 0.7rem;
     }
 }
-@media (min-width: 361px) {
+@media (min-width: 432px) {
     .pokemon-card {
         padding: 16px;
         width: 186px;
