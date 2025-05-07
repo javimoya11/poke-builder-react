@@ -23,8 +23,8 @@ function App() {
             <Header />
           </header>
           <Routes>
+            <Route path="/details/:id" element={<Details />} />
             <Route path="/" element={<List />} />
-            <Route path="/details:id" element={<Details />} />
           </Routes>
         </QueryClientProvider>
       </BrowserRouter>

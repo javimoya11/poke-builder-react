@@ -7,6 +7,11 @@ import "./List.css";
 function List() {
   const [pokemonSearch, setPokemonSearch] = useState("");
   const results = useQuery({ queryKey: ["list"], queryFn: fetchPokemonList });
+  if (results.isLoading) {
+    return (
+        <h1 >Loading...</h1>
+    );
+  }
   let pokemons = results?.data ?? [];
   let pokemonsLength = 151;
   if (pokemonSearch.length) {
@@ -20,7 +25,7 @@ function List() {
   if (pokemonsLength) {
     for (let i = 0; i < pokemonsLength; i++) {
       const pokemon = pokemons[i];
-      if (pokemon)
+      if (pokemon) {
         list.push(
           <Pokemon
             key={pokemon.name}
@@ -28,6 +33,7 @@ function List() {
             name={pokemon.name}
           />
         );
+      }
     }
   }
 

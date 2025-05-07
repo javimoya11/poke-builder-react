@@ -43,20 +43,28 @@ function Pokemon(props) {
         : `${pokemon.types[0].type.name}`;
   }
 
-  return (
-    <Link to={`/details/${pokemon.id}`}>
-      <div className="pokemon-card">
-        <div className="sprite-container">
-          <img src={imageUrl()} alt={name} />
+  let card = undefined;
+
+  if (pokemon.id) {
+    card = (
+      <Link to={`/details/${pokemon.id}`}>
+        <div className="pokemon-card">
+          <div className="sprite-container">
+            <img src={imageUrl()} alt={pokemon.name} />
+          </div>
+          <div className="info">
+            <h2 className="number-text">{`#${pokemon.id}`}</h2>
+            <h1 className="name-text">{pokemon.name}</h1>
+            <h2 className="type-text">{typesText}</h2>
+          </div>
         </div>
-        <div className="info">
-          <h2>{`#${pokemon.id}`}</h2>
-          <h1>{pokemon.name}</h1>
-          <h2>{typesText}</h2>
-        </div>
-      </div>
-    </Link>
-  );
+      </Link>
+    );
+  } else {
+    card = (<div></div>);
+  }
+
+  return card;
 }
 
 export default Pokemon;
