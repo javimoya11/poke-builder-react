@@ -4,10 +4,10 @@ import "./Pokemon.css";
 import fetchPokemon from "../../hooks/fetchPokemon";
 
 function Pokemon(props) {
-  const { name } = props;
+  const { id } = props;
 
   const results = useQuery({
-    queryKey: ["pokemon", { name }],
+    queryKey: ["pokemon", { id }],
     queryFn: fetchPokemon,
   });
   const pokemon = results?.data ?? {};
@@ -51,7 +51,7 @@ function Pokemon(props) {
         </div>
         <div className="info">
           <h2>{`#${pokemon.id}`}</h2>
-          <h1>{name}</h1>
+          <h1>{pokemon.name}</h1>
           <h2>{typesText}</h2>
         </div>
       </div>

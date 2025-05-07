@@ -11,6 +11,10 @@ async function fetchPokemonList() {
     if (!response.results) {
         throw new Error(`poke search not okay`);
     }
+
+    response.results.forEach((poke) => {
+        caches.open("poke-cache").then((cache) => cache.add(poke.url));
+    });
     
     return new Promise((resolve) => {
         resolve(response.results);

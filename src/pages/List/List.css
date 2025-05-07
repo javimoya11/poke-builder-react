@@ -10,6 +10,9 @@
         .search-input, .search-button {
             padding: 5px 10px;
         }
+        .search-button {
+            cursor: pointer; 
+        }
     }
     .pokemon-list {
         display: flex;

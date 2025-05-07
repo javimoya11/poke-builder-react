@@ -1,18 +1,14 @@
-import usePokedex from "./usePokedex";
-
 async function fetchPokemon({queryKey}) {
-    const pokedex = usePokedex();
+    const  [_key, { id }]  = queryKey;
 
-    const  [_key, { name }]  = queryKey;
-
-    const response = await pokedex.getPokemonByName(name);
+    const response = await caches.match(`https://pokeapi.co/api/v2/pokemon/${id}/`);
     
-    if (!Object.keys(response).length) {
+    if (!id || !response.ok) {
         throw new Error(`poke search not okay`);
     }
     
     return new Promise((resolve) => {
-        resolve(response);
+        resolve(response.json());
     });
 }
 

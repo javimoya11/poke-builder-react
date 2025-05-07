@@ -8,7 +8,7 @@ function List() {
   const [pokemonSearch, setPokemonSearch] = useState("");
   const results = useQuery({ queryKey: ["list"], queryFn: fetchPokemonList });
   let pokemons = results?.data ?? [];
-  let pokemonsLength = 30;
+  let pokemonsLength = 151;
   if (pokemonSearch.length) {
     pokemons = pokemons.filter((poke) => {
       return poke.name.includes(pokemonSearch.trim());
@@ -20,7 +20,14 @@ function List() {
   if (pokemonsLength) {
     for (let i = 0; i < pokemonsLength; i++) {
       const pokemon = pokemons[i];
-      if (pokemon) list.push(<Pokemon key={pokemon.name} name={pokemon.name} />);
+      if (pokemon)
+        list.push(
+          <Pokemon
+            key={pokemon.name}
+            id={pokemon.url.match(/(?<=\/pokemon\/)(\d+|\d)/gm)}
+            name={pokemon.name}
+          />
+        );
     }
   }
 
@@ -42,13 +49,11 @@ function List() {
             type="text"
             placeholder="Enter a Pokémon name..."
           />
-          <button type="" className="search-button">
-            Search
-          </button>
+          <button className="search-button">Search</button>
         </div>
       </form>
       <div className="pokemon-list">
-        {!list.length ? <h1>No Pokemons Found</h1> : list}
+        {!list.length ? <h1>No Pokémon Found</h1> : list}
       </div>
     </div>
   );
