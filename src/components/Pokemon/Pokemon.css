@@ -23,6 +23,16 @@
         text-transform: capitalize;
         height: 100%;
 
+        .type-text {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            max-width: 162px;
+            img {
+                max-width: 75px;
+            }
+        }
+
         .number-text .type-text {
             flex-grow: 0;
         }

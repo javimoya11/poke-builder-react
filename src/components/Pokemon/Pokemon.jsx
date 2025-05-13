@@ -12,35 +12,68 @@ function Pokemon(props) {
   });
   const pokemon = results?.data ?? {};
 
-  let poke = "";
-  
-  if (pokemon.sprites) {
-    poke = pokemon.sprites.other["official-artwork"].front_default;
+  let pokeUrlImg = "";
+  let pokeTypesUrl = ["", ""];
+
+  if (pokemon.sprites && pokemon.types) {
+    pokeUrlImg = pokemon.sprites.other["official-artwork"].front_default;
+    pokeTypesUrl = pokemon.types.map((type) => type.type.url);
   }
 
-  const cachedImg = async ({ queryKey }) => {
-    const imgExists = await caches.match(queryKey[1].img).finally(() => true).catch(() => false);
-    return imgExists ? caches.match(queryKey[1].img) : queryKey[1].img;
-  }
+  const cachedImages = async ({ queryKey }) => {
+    const imgExists = await caches
+      .match(queryKey[1].img)
+      .finally(() => true)
+      .catch(() => false);
+    let typesExists = [false, false];
+    let typesUrls = [];
+    for (const type of queryKey[1].typesImg) {
+      typesExists = await caches
+        .match(type)
+        .finally(() => true)
+        .catch(() => false);
+        if (typesExists.ok) {
+          typesExists = await typesExists.json();
+          typesUrls.push(typesExists.sprites['generation-viii']['brilliant-diamond-and-shining-pearl']['name_icon']);
+        }
+    }
+    return imgExists && typesUrls[0] instanceof String
+      ? [caches.match(queryKey[1].img), typesUrls]
+      : [queryKey[1].img, typesUrls];
+  };
 
-  const image = useQuery({
-    queryKey: ["image", { img: poke }],
-    queryFn: cachedImg,
+  const images = useQuery({
+    queryKey: ["images", { img: pokeUrlImg, typesImg: pokeTypesUrl }],
+    queryFn: cachedImages,
   });
   const imageUrl = () => {
-    let path = image.data;
-    if (image?.data) {
-      return path.url ?? path;
+    let path = images.data;
+    if (images?.data) {
+      return path;
     }
-    return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
-  }
+    return [
+      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
+      ["https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"],
+    ];
+  };
 
-  let typesText = "Normal";
+  let typesImage = [
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
+  ];
   if (pokemon.types) {
-    typesText =
-      pokemon.types.length > 1
-        ? `${pokemon.types[0].type.name} / ${pokemon.types[1].type.name}`
-        : `${pokemon.types[0].type.name}`;
+    typesImage = imageUrl()[1];
+    typesImage =
+      pokemon.types.length > 1 ? (
+        <div className="type-text">
+          <img src={imageUrl()[1][0]} alt={pokemon.types[0].type.name} />
+          <img src={imageUrl()[1][1]} alt={pokemon.types[1].type.name} />
+        </div>
+      ) : (
+        <div className="type-text">
+          <img src={imageUrl()[1][0]} alt={pokemon.types[0].type.name} />
+        </div>
+      );
   }
 
   let card = undefined;
@@ -50,18 +83,18 @@ function Pokemon(props) {
       <Link to={`/details/${pokemon.id}`}>
         <div className="pokemon-card">
           <div className="sprite-container">
-            <img src={imageUrl()} alt={pokemon.name} />
+            <img src={imageUrl()[0]} alt={pokemon.name} />
           </div>
           <div className="info">
             <h2 className="number-text">{`#${pokemon.id}`}</h2>
             <h1 className="name-text">{pokemon.name}</h1>
-            <h2 className="type-text">{typesText}</h2>
+            {typesImage}
           </div>
         </div>
       </Link>
     );
   } else {
-    card = (<div></div>);
+    card = <div></div>;
   }
 
   return card;

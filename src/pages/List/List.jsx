@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import fetchPokemonList from "../../hooks/fetchPokemonList";
+import fetchTypesList from "../../hooks/fetchTypesList";
 import Pokemon from "../../components/Pokemon/Pokemon";
 import "./List.css";
 
 function List() {
   const [pokemonSearch, setPokemonSearch] = useState("");
-  const results = useQuery({ queryKey: ["list"], queryFn: fetchPokemonList });
-  if (results.isLoading) {
+  const pokeResults = useQuery({ queryKey: ["list"], queryFn: fetchPokemonList });
+  const typeResults = useQuery({ queryKey: ["type-list"], queryFn: fetchTypesList });
+  if (pokeResults.isLoading || typeResults.isLoading) {
     return (
         <h1 >Loading...</h1>
     );
   }
-  let pokemons = results?.data ?? [];
+  let pokemons = pokeResults?.data ?? [];
   let pokemonsLength = 151;
   if (pokemonSearch.length) {
     pokemons = pokemons.filter((poke) => {

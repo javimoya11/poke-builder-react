@@ -11,6 +11,10 @@ async function fetchTypesList() {
     if (!response.results){
         throw new Error(`poke search not okay`);
     }
+
+    for (const type of response.results) {
+        caches.open("poke-type-cache").then((cache) => cache.add(type.url));
+    }
     
     return new Promise((resolve) => {
         resolve(response.results);
