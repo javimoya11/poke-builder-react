@@ -87,7 +87,7 @@ function Pokemon(props) {
           </div>
           <div className="info">
             <h2 className="number-text">{`#${pokemon.id}`}</h2>
-            <h1 className="name-text">{pokemon.name}</h1>
+            <h1 className="name-text">{pokemon.name.replace('-', ' ')}</h1>
             {typesImage}
           </div>
         </div>

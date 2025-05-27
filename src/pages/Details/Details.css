@@ -1,0 +1,14 @@
+.details-container {
+    .bio-container {
+        display: flex;
+        .data-container {
+            .name-text {
+                text-transform: capitalize;
+            }
+            .stats-container {
+                height: 200px;
+                width: 300px;
+            }
+        }
+    }
+}

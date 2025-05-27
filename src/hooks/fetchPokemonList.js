@@ -5,7 +5,7 @@ async function fetchPokemonList() {
 
     const response = await pokedex.getPokemonsList({
         offset: 0,
-        limit: 1024,
+        limit: 1025,
     });
 
     if (!response.results) {

@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import fetchPokemon from "../../hooks/fetchPokemon";
+import Range from "../../components/Range/Range";
+import "./Details.css";
 
 function Details() {
   const { id } = useParams();
@@ -10,17 +12,27 @@ function Details() {
     queryFn: fetchPokemon,
   });
   if (results.isLoading) {
-    return (
-        <h1 >Loading...</h1>
-    );
+    return <h1>Loading...</h1>;
   }
   const pokemon = results?.data ?? {};
 
   return (
-    <div>
-      <div className="info">
-        <h2 className="number-text">{`#${pokemon.id}`}</h2>
-        <h1 className="name-text">{pokemon.name}</h1>
+    <div className="details-container">
+      <div className="bio-container">
+        <div className="data-container">
+          <h2 className="number-text">{`#${pokemon.id}`}</h2>
+          <h1 className="name-text">{pokemon.name.replace('-', ' ')}</h1>
+          <div className="stats-container">
+            <h2>Base Stats</h2>
+            {pokemon.stats.map((stat) => {
+              return <Range key={stat.stat.name} name={stat.stat.name} range={stat.base_stat} />;
+            })}
+          </div>
+        </div>
+        <img
+          src={`${pokemon.sprites.other["official-artwork"].front_default}`}
+          alt={pokemon.name}
+        />
       </div>
     </div>
   );
