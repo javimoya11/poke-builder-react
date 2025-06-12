@@ -11,6 +11,13 @@
     width: 100%;
     -moz-box-flex: 1;
     flex-grow: 1;
+
+    button {
+      cursor: pointer; 
+      box-sizing: content-box;
+      width: fit-content;
+      padding: 5px 10px;
+    }
 }
 
 @media (min-width: 528px) {

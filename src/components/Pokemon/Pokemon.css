@@ -24,7 +24,6 @@
         height: 100%;
 
         .type-text {
-            display: flex;
             align-items: center;
             gap: 5px;
             max-width: 162px;
@@ -38,6 +37,7 @@
         }
         .name-text {
             flex-grow: 2;
+            text-align: center;
         }
     }
 }
@@ -49,6 +49,13 @@
     }
     .info {
         font-size: 0.7rem;
+        .type-text {
+            display: block;
+            img {
+                padding-top: 3px;
+                padding-bottom: 3px;
+            }
+        }
     }
 }
 @media (min-width: 432px) {
@@ -58,6 +65,9 @@
     }
     .info {
         font-size: 0.9rem;
+        .type-text {
+            display: flex;
+        }
     }
 }
 @media (min-width: 769px) {
@@ -67,5 +77,8 @@
     }
     .info {
         font-size: 1rem;
+        .type-text {
+            display: flex;
+        }
     }
 }
