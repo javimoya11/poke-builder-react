@@ -38,6 +38,8 @@
         .name-text {
             flex-grow: 2;
             text-align: center;
+            padding-top: 3px;
+            padding-bottom: 3px;
         }
     }
 }
@@ -55,6 +57,10 @@
                 padding-top: 3px;
                 padding-bottom: 3px;
             }
+        }
+
+        .type-text:has(img:only-child) {
+            flex-grow: 1;
         }
     }
 }
