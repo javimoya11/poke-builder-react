@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import "./Pokemon.css";
 import fetchPokemon from "../../shared/hooks/fetchPokemon";
+import {cachedImage} from "../../shared/utils/cachedImage"
 
 function Pokemon(props) {
   const { id } = props;
@@ -32,10 +33,14 @@ function Pokemon(props) {
         .match(type)
         .finally(() => true)
         .catch(() => false);
-        if (typesExists.ok) {
-          typesExists = await typesExists.json();
-          typesUrls.push(typesExists.sprites['generation-viii']['brilliant-diamond-and-shining-pearl']['name_icon']);
-        }
+      if (typesExists.ok) {
+        typesExists = await typesExists.json();
+        typesUrls.push(
+          typesExists.sprites["generation-viii"][
+            "brilliant-diamond-and-shining-pearl"
+          ]["name_icon"],
+        );
+      }
     }
     return imgExists && typesUrls[0] instanceof String
       ? [caches.match(queryKey[1].img), typesUrls]
@@ -53,7 +58,9 @@ function Pokemon(props) {
     }
     return [
       "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
-      ["https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"],
+      [
+        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
+      ],
     ];
   };
 
@@ -83,12 +90,18 @@ function Pokemon(props) {
       <Link to={`/details/${pokemon.id}`}>
         <div className="pokemon-card">
           <div className="sprite-container">
-            <img src={imageUrl()[0]} alt={pokemon.name} />
+            <img
+              src={cachedImage(pokeUrlImg, 100)}
+              loading={props.index < 10 ? "eager" : "lazy"}
+              decoding="async"
+              fetchPriority={props.index < 10 ? "high" : "low"}
+              alt={pokemon.name}
+            />
           </div>
           <div className="info">
             <h2 className="number-text">{`#${pokemon.id}`}</h2>
-            <h1 className="name-text">{pokemon.name.replace('-', ' ')}</h1>
-            {typesImage}
+            <h1 className="name-text">{pokemon.name.replace("-", " ")}</h1>
+            {typesImage || ''}
           </div>
         </div>
       </Link>

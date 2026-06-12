@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import fetchPokemonList from "../../hooks/fetchPokemonList";
-import fetchTypesList from "../../hooks/fetchTypesList";
+import fetchPokemonList from "../../shared/hooks/fetchPokemonList";
+import fetchTypesList from "../../shared/hooks/fetchTypesList";
 import Pokemon from "../../components/Pokemon/Pokemon";
 import pokedexNumbers from "./pokedexNumbers.json";
 import "./List.css";
@@ -39,6 +39,7 @@ function List() {
             key={pokemon.name}
             id={pokemon.url.match(/(?<=\/pokemon\/)(\d+|\d)/gm)}
             name={pokemon.name}
+            index={i}
           />
         );
       }

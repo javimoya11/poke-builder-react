@@ -1,7 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import fetchPokemon from "../../hooks/fetchPokemon";
+import fetchPokemon from "../../shared/hooks/fetchPokemon";
 import Range from "../../components/Range/Range";
+import {cachedImage} from "../../shared/utils/cachedImage"
 import "./Details.css";
 
 function Details() {
@@ -30,7 +31,7 @@ function Details() {
           </div>
         </div>
         <img
-          src={`${pokemon.sprites.other["official-artwork"].front_default}`}
+          src={cachedImage(`${pokemon.sprites.other["official-artwork"].front_default}`, 400)}
           alt={pokemon.name}
         />
       </div>
