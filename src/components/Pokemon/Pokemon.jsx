@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import "./Pokemon.css";
-import fetchPokemon from "../../hooks/fetchPokemon";
+import fetchPokemon from "../../shared/hooks/fetchPokemon";
 
 function Pokemon(props) {
   const { id } = props;
