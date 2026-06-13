@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import fetchPokemon from "../../shared/hooks/fetchPokemon";
+import { usePokemon } from "../../shared/hooks/usePokemon";
 import Range from "../../components/Range/Range";
 import {cachedImage} from "../../shared/utils/cachedImage"
 import "./Details.css";
@@ -8,10 +7,7 @@ import "./Details.css";
 function Details() {
   const { id } = useParams();
 
-  const results = useQuery({
-    queryKey: ["details", { id }],
-    queryFn: fetchPokemon,
-  });
+  const results = usePokemon(id);
   if (results.isLoading) {
     return <h1>Loading...</h1>;
   }

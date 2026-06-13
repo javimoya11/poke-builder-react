@@ -19,6 +19,29 @@
     }
     .load-gen-button {
         align-self: center;
+        min-width: 130px;
+        min-height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .load-gen-button:disabled {
+        cursor: default;
+        opacity: 0.8;
+    }
+    .button-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: button-spin 0.7s linear infinite;
+    }
+}
+
+@keyframes button-spin {
+    to {
+        transform: rotate(360deg);
     }
 }
 

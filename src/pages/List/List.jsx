@@ -1,47 +1,72 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { usePokemonList } from "../../shared/hooks/usePokemonList";
-import fetchTypesList from "../../shared/hooks/fetchTypesList";
+import usePrefetchGen from "../../shared/hooks/usePrefetchGen";
 import Pokemon from "../../components/Pokemon/Pokemon";
 import pokedexNumbers from "./pokedexNumbers.json";
 import "./List.css";
 
+const idFromUrl = (url) => url.match(/(?<=\/pokemon\/)(\d+|\d)/gm)?.[0];
+const FIRST_GEN = pokedexNumbers[0];
+const LAST_GEN = pokedexNumbers[pokedexNumbers.length - 1];
+
 function List() {
   const [pokemonSearch, setPokemonSearch] = useState("");
-  const [genNumber, setGenNumber] = useState(pokedexNumbers[0]);
+  const [genReady, setGenReady] = useState(0);
+  const [loadingGen, setLoadingGen] = useState(false);
+
   const pokeResults = usePokemonList();
-  const typeResults = useQuery({
-    queryKey: ["type-list"],
-    queryFn: fetchTypesList,
-  });
-  if (pokeResults.isLoading || typeResults.isLoading) {
+  const prefetchGen = usePrefetchGen();
+
+  const allPokemons = (pokeResults?.data ?? []).filter(
+    (poke) => Number(idFromUrl(poke.url)) <= LAST_GEN
+  );
+
+  useEffect(() => {
+    if (!allPokemons.length || genReady > 0) return;
+    let cancelled = false;
+
+    prefetchGen(allPokemons.slice(0, FIRST_GEN)).then(() => {
+      if (!cancelled) setGenReady(FIRST_GEN);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [allPokemons, genReady, prefetchGen]);
+
+  const isInitialLoading = pokeResults.isLoading || genReady === 0;
+
+  if (isInitialLoading) {
     return <h1>Loading...</h1>;
   }
-  let pokemons = pokeResults?.data ?? [];
-  let pokemonsLength = genNumber || pokedexNumbers[pokedexNumbers.length - 1];
-  if (pokemonSearch.length) {
-    pokemons = pokemons.filter((poke) => {
-      return poke.name.includes(pokemonSearch.trim());
-    });
-    pokemonsLength = pokemons.length;
-  }
 
-  const list = [];
-  if (pokemonsLength) {
-    for (let i = 0; i < pokemonsLength; i++) {
-      const pokemon = pokemons[i];
-      if (pokemon) {
-        list.push(
-          <Pokemon
-            key={pokemon.name}
-            id={pokemon.url.match(/(?<=\/pokemon\/)(\d+|\d)/gm)}
-            name={pokemon.name}
-            index={i}
-          />
-        );
-      }
+  const filtered = pokemonSearch.length
+    ? allPokemons.filter((poke) => poke.name.includes(pokemonSearch.trim()))
+    : allPokemons;
+
+  const limit = pokemonSearch.length ? filtered.length : genReady;
+  const visible = filtered.slice(0, limit);
+
+  const canLoadMore = !pokemonSearch.length && genReady < LAST_GEN;
+
+  const loadNextGen = async () => {
+    const nextLimit = pokedexNumbers.find((n) => n > genReady) ?? LAST_GEN;
+
+    setLoadingGen(true);
+    try {
+      await prefetchGen(allPokemons.slice(genReady, nextLimit));
+      setGenReady(nextLimit);
+    } finally {
+      setLoadingGen(false);
     }
-  }
+  };
+
+  const list = visible.map((pokemon, i) => {
+    const id = idFromUrl(pokemon.url);
+    return (
+      <Pokemon key={pokemon.name} id={id} name={pokemon.name} index={i} />
+    );
+  });
 
   return (
     <div className="search-list-wrapper">
@@ -50,7 +75,7 @@ function List() {
           e.preventDefault();
           const formData = new FormData(e.target);
           const pokemon = formData.get("pokemon-search") ?? "";
-          setPokemonSearch(pokemon.replace(' ', '-'));
+          setPokemonSearch(pokemon.replace(" ", "-"));
         }}
       >
         <div className="search-container">
@@ -64,23 +89,23 @@ function List() {
           <button className="search-button">Search</button>
         </div>
       </form>
+
       <div className="pokemon-list">
         {!list.length ? <h1>No Pokémon Found</h1> : list}
-        {pokeResults.isFetched ? pokeResults.data.map((poke) => <p>{poke.name}</p>) : "culo"}
       </div>
-      {!pokemonSearch.length && list.length < pokedexNumbers[pokedexNumbers.length - 1] ? (
+
+      {canLoadMore && (
         <button
           className="load-gen-button"
-          onClick={(e) => {
-            e.preventDefault();
-            const number = pokedexNumbers.find((element) => element > pokemonsLength);
-            setGenNumber(number);
-          }}
+          onClick={loadNextGen}
+          disabled={loadingGen}
         >
-          Load next gen
+          {loadingGen ? (
+            <span className="button-spinner" aria-label="Loading" />
+          ) : (
+            "Load next gen"
+          )}
         </button>
-      ) : (
-        <div></div>
       )}
     </div>
   );

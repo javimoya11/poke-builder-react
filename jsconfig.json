@@ -1,19 +1,19 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "assets/*": ["./src/assets/*"],
       "components/*": ["./src/components/*"],
-      "utils": ["src/shared/utils"],
-      "utils/*": ["src/shared/utils/*"],
+      "utils": ["./src/shared/utils"],
+      "utils/*": ["./src/shared/utils/*"],
       "hooks": ["./src/shared/hooks"],
-      "feature/*": ["src/feature/*"],
+      "hooks/*": ["./src/shared/hooks/*"],
+      "feature/*": ["./src/feature/*"]
     },
     "target": "ES2022",
-    "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "esnext",
+    "moduleResolution": "bundler",
 
     /* Bundler mode */
     "isolatedModules": true,
@@ -27,5 +27,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
-  }
+  },
+  "include": ["src"]
 }

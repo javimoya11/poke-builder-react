@@ -1,116 +1,120 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import "./Pokemon.css";
-import fetchPokemon from "../../shared/hooks/fetchPokemon";
-import {cachedImage} from "../../shared/utils/cachedImage"
+import { usePokemon } from "../../shared/hooks/usePokemon";
+import { useSpecies } from "../../shared/hooks/useSpecies";
+import { useTypeIconMap } from "../../shared/hooks/useTypeIconMap";
+import { cachedImage, artworkUrl } from "../../shared/utils/cachedImage";
+import { PLACEHOLDER_IMG } from "./const.Pokemon";
+
+const prettify = (name) => name.replace(/-/g, " ");
 
 function Pokemon(props) {
-  const { id } = props;
+  const { id, name, index } = props;
 
-  const results = useQuery({
-    queryKey: ["pokemon", { id }],
-    queryFn: fetchPokemon,
-  });
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [formIndex, setFormIndex] = useState(0);
+  const [slideDir, setSlideDir] = useState(0);
+
+  const { data: species } = useSpecies(id);
+  const forms = species?.varieties ?? [{ name, id, isDefault: true }];
+  const safeIndex = Math.min(formIndex, forms.length - 1);
+  const current = forms[safeIndex] ?? { name, id };
+  const hasForms = forms.length > 1;
+
+  const results = usePokemon(current.id);
   const pokemon = results?.data ?? {};
 
-  let pokeUrlImg = "";
-  let pokeTypesUrl = ["", ""];
+  const { data: typeIconMap = {} } = useTypeIconMap();
+  const typeIcons = pokemon.types
+    ? pokemon.types.map((entry) => ({
+        name: entry.type.name,
+        icon: typeIconMap[entry.type.url] ?? null,
+      }))
+    : [];
 
-  if (pokemon.sprites && pokemon.types) {
-    pokeUrlImg = pokemon.sprites.other["official-artwork"].front_default;
-    pokeTypesUrl = pokemon.types.map((type) => type.type.url);
-  }
+  const ready = imgLoaded && !results.isPending;
 
-  const cachedImages = async ({ queryKey }) => {
-    const imgExists = await caches
-      .match(queryKey[1].img)
-      .finally(() => true)
-      .catch(() => false);
-    let typesExists = [false, false];
-    let typesUrls = [];
-    for (const type of queryKey[1].typesImg) {
-      typesExists = await caches
-        .match(type)
-        .finally(() => true)
-        .catch(() => false);
-      if (typesExists.ok) {
-        typesExists = await typesExists.json();
-        typesUrls.push(
-          typesExists.sprites["generation-viii"][
-            "brilliant-diamond-and-shining-pearl"
-          ]["name_icon"],
-        );
-      }
-    }
-    return imgExists && typesUrls[0] instanceof String
-      ? [caches.match(queryKey[1].img), typesUrls]
-      : [queryKey[1].img, typesUrls];
+  const changeForm = (delta) => {
+    setImgLoaded(false);
+    setSlideDir(delta);
+    setFormIndex((i) => (i + delta + forms.length) % forms.length);
   };
 
-  const images = useQuery({
-    queryKey: ["images", { img: pokeUrlImg, typesImg: pokeTypesUrl }],
-    queryFn: cachedImages,
-  });
-  const imageUrl = () => {
-    let path = images.data;
-    if (images?.data) {
-      return path;
-    }
-    return [
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
-      [
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
-      ],
-    ];
-  };
+  const slideClass =
+    slideDir === 0 ? "" : slideDir > 0 ? "slide-next" : "slide-prev";
 
-  let typesImage = [
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
-  ];
-  if (pokemon.types) {
-    typesImage = imageUrl()[1];
-    typesImage =
-      pokemon.types.length > 1 ? (
-        <div className="type-text">
-          <img src={imageUrl()[1][0]} alt={pokemon.types[0].type.name} />
-          <img src={imageUrl()[1][1]} alt={pokemon.types[1].type.name} />
+  return (
+    <div className="pokemon-card">
+      <div
+        className={ready ? "card-skeleton hidden" : "card-skeleton"}
+        aria-hidden="true"
+      />
+      <Link
+        key={current.id}
+        className={`card-link ${slideClass}`}
+        to={`/details/${current.id}`}
+      >
+        <div className="sprite-container">
+          <img
+            src={cachedImage(artworkUrl(current.id), 100)}
+            loading={index < 8 ? "eager" : "lazy"}
+            decoding="async"
+            fetchPriority={index < 8 ? "high" : "low"}
+            width={100}
+            height={100}
+            alt={current.name}
+            onLoad={() => {
+              if (!imgLoaded) setImgLoaded(true);
+            }}
+            onError={(e) => {
+              if (e.currentTarget.src !== PLACEHOLDER_IMG) {
+                e.currentTarget.src = PLACEHOLDER_IMG;
+              }
+              if (!imgLoaded) setImgLoaded(true);
+            }}
+          />
         </div>
-      ) : (
-        <div className="type-text">
-          <img src={imageUrl()[1][0]} alt={pokemon.types[0].type.name} />
-        </div>
-      );
-  }
 
-  let card = undefined;
-
-  if (pokemon.id) {
-    card = (
-      <Link to={`/details/${pokemon.id}`}>
-        <div className="pokemon-card">
-          <div className="sprite-container">
-            <img
-              src={cachedImage(pokeUrlImg, 100)}
-              loading={props.index < 10 ? "eager" : "lazy"}
-              decoding="async"
-              fetchPriority={props.index < 10 ? "high" : "low"}
-              alt={pokemon.name}
-            />
-          </div>
-          <div className="info">
-            <h2 className="number-text">{`#${pokemon.id}`}</h2>
-            <h1 className="name-text">{pokemon.name.replace("-", " ")}</h1>
-            {typesImage || ''}
-          </div>
+        <div className="info">
+          <h2 className="number-text">{`#${id}`}</h2>
+          <h1 className="name-text">{prettify(current.name)}</h1>
+          {typeIcons.length > 0 && (
+            <div className="type-text">
+              {typeIcons.map((type) => (
+                <img
+                  key={type.name}
+                  src={type.icon ?? PLACEHOLDER_IMG}
+                  alt={type.name}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </Link>
-    );
-  } else {
-    card = <div></div>;
-  }
 
-  return card;
+      {hasForms && (
+        <>
+          <button
+            type="button"
+            className="form-arrow form-arrow-left"
+            aria-label="Previous form"
+            onClick={() => changeForm(-1)}
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            className="form-arrow form-arrow-right"
+            aria-label="Next form"
+            onClick={() => changeForm(1)}
+          >
+            ›
+          </button>
+        </>
+      )}
+    </div>
+  );
 }
 
 export default Pokemon;
