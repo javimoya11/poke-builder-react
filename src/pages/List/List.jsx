@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import fetchPokemonList from "../../shared/hooks/fetchPokemonList";
+import { usePokemonList } from "../../shared/hooks/usePokemonList";
 import fetchTypesList from "../../shared/hooks/fetchTypesList";
 import Pokemon from "../../components/Pokemon/Pokemon";
 import pokedexNumbers from "./pokedexNumbers.json";
@@ -9,10 +9,7 @@ import "./List.css";
 function List() {
   const [pokemonSearch, setPokemonSearch] = useState("");
   const [genNumber, setGenNumber] = useState(pokedexNumbers[0]);
-  const pokeResults = useQuery({
-    queryKey: ["list"],
-    queryFn: fetchPokemonList,
-  });
+  const pokeResults = usePokemonList();
   const typeResults = useQuery({
     queryKey: ["type-list"],
     queryFn: fetchTypesList,
@@ -69,6 +66,7 @@ function List() {
       </form>
       <div className="pokemon-list">
         {!list.length ? <h1>No Pokémon Found</h1> : list}
+        {pokeResults.isFetched ? pokeResults.data.map((poke) => <p>{poke.name}</p>) : "culo"}
       </div>
       {!pokemonSearch.length && list.length < pokedexNumbers[pokedexNumbers.length - 1] ? (
         <button
