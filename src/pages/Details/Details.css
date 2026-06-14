@@ -1,4 +1,5 @@
 .details-container {
+    position: relative;
     .bio-container {
         display: flex;
         .data-container {

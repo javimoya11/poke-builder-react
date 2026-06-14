@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { usePokemon } from "../../shared/hooks/usePokemon";
 import Range from "../../components/Range/Range";
 import {cachedImage} from "../../shared/utils/cachedImage"
@@ -6,19 +6,30 @@ import "./Details.css";
 
 function Details() {
   const { id } = useParams();
+  const navigate = useNavigate()
+  const [formId, baseId] = id.split('_')
 
-  const results = usePokemon(id);
-  if (results.isLoading) {
-    return <h1>Loading...</h1>;
-  }
+  const results = usePokemon(formId);
+  
+
   const pokemon = results?.data ?? {};
 
-  return (
+  return !results.isLoading ? (
     <div className="details-container">
+      <button 
+        className="back-button"
+        type="button"
+        onClick={
+          () => {
+            navigate('/')
+          }
+        }
+      >
+        Exit
+      </button>
       <div className="bio-container">
         <div className="data-container">
-          <h2 className="number-text">{`#${pokemon.id}`}</h2>
-          <h1 className="name-text">{pokemon.name.replace('-', ' ')}</h1>
+          <h1 className="name-text">{`#${baseId ?? formId} - ${pokemon.name.replace('-', ' ')}`}</h1>
           <div className="stats-container">
             <h2>Base Stats</h2>
             {pokemon.stats.map((stat) => {
@@ -32,7 +43,7 @@ function Details() {
         />
       </div>
     </div>
-  );
+  ): (<h1>Loading...</h1>);
 }
 
 export default Details;

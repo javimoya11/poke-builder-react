@@ -53,7 +53,7 @@ function Pokemon(props) {
       <Link
         key={current.id}
         className={`card-link ${slideClass}`}
-        to={`/details/${current.id}`}
+        to={`/details/${current.id}${forms.length > 1  ? '_' + forms.find((f) => f.isDefault).id : ''}`}
       >
         <div className="sprite-container">
           <img
