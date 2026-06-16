@@ -5,8 +5,8 @@ import { usePokemon } from "../../shared/hooks/usePokemon";
 import { useSpecies } from "../../shared/hooks/useSpecies";
 import { useTypeIconMap } from "../../shared/hooks/useTypeIconMap";
 import { cachedImage, artworkUrl } from "../../shared/utils/cachedImage";
-import { prettify } from "../../shared/utils/string-utils"
-import { PLACEHOLDER_IMG } from "./const.Pokemon";
+import { prettify } from "../../shared/utils/string-utils";
+import { PLACEHOLDER_IMG, POKEMON_FILTER } from "./const.Pokemon";
 
 function Pokemon(props) {
   const { id, name, index } = props;
@@ -16,8 +16,8 @@ function Pokemon(props) {
   const [slideDir, setSlideDir] = useState(0);
 
   const { data: species } = useSpecies(id);
-  const forms = species?.varieties.filter((vari) => !vari.name.includes('-cap'))
-   ?? [{ name, id, isDefault: true }];
+  const forms = species?.varieties.filter((vari) => !POKEMON_FILTER(vari.name))
+    ?? [{ name, id, isDefault: true }];
   const safeIndex = Math.min(formIndex, forms.length - 1);
   const current = forms[safeIndex] ?? { name, id };
   const hasForms = forms.length > 1;
@@ -28,9 +28,9 @@ function Pokemon(props) {
   const { data: typeIconMap = {} } = useTypeIconMap();
   const typeIcons = pokemon.types
     ? pokemon.types.map((entry) => ({
-        name: entry.type.name,
-        icon: typeIconMap[entry.type.url] ?? null,
-      }))
+      name: entry.type.name,
+      icon: typeIconMap[entry.type.url] ?? null,
+    }))
     : [];
 
   const ready = imgLoaded && !results.isPending;
@@ -53,7 +53,7 @@ function Pokemon(props) {
       <Link
         key={current.id}
         className={`card-link ${slideClass}`}
-        to={`/details/${current.id}${forms.length > 1  ? '_' + forms.find((f) => f.isDefault).id : ''}`}
+        to={`/details/${current.id}${forms.length > 1 ? '_' + forms.find((f) => f.isDefault).id : ''}`}
       >
         <div className="sprite-container">
           <img

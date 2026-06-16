@@ -36,6 +36,8 @@ export default [
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      'no-unused-vars': "warn",
+      'unused-imports': 'warn',
       'react-hooks/exhaustive-deps': 'warn',
       'react-hooks/static-components': 'off',
       'react-hooks/use-memo': 'off',

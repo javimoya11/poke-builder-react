@@ -97,7 +97,7 @@
             text-align: center;
             padding-top: 3px;
             padding-bottom: 3px;
-            height: calc(1.5em * 2 + 6px);
+            height: calc(1.5em * 2 + 7px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -111,7 +111,7 @@
         width: 131px;
     }
     .info {
-        font-size: 0.7rem;
+        font-size: 0.5rem;
         .type-text {
             display: block;
             img {
@@ -131,7 +131,7 @@
         width: 186px;
     }
     .info {
-        font-size: 0.9rem;
+        font-size: 0.6rem;
         .type-text {
             display: flex;
         }
@@ -143,7 +143,7 @@
         width: 210px;
     }
     .info {
-        font-size: 1rem;
+        font-size: 0.8rem;
         .type-text {
             display: flex;
         }

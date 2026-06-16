@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { usePokemon } from "../../shared/hooks/usePokemon";
 import Range from "../../components/Range/Range";
-import {cachedImage} from "../../shared/utils/cachedImage"
+import { cachedImage } from "../../shared/utils/cachedImage";
+import { prettify } from "../../shared/utils/string-utils";
 import "./Details.css";
 
 function Details() {
@@ -10,13 +11,13 @@ function Details() {
   const [formId, baseId] = id.split('_')
 
   const results = usePokemon(formId);
-  
+
 
   const pokemon = results?.data ?? {};
 
   return !results.isLoading ? (
     <div className="details-container">
-      <button 
+      <button
         className="back-button"
         type="button"
         onClick={
@@ -29,7 +30,7 @@ function Details() {
       </button>
       <div className="bio-container">
         <div className="data-container">
-          <h1 className="name-text">{`#${baseId ?? formId} - ${pokemon.name.replace('-', ' ')}`}</h1>
+          <h1 className="name-text">{`#${baseId ?? formId} - ${prettify(pokemon.name)}`}</h1>
           <div className="stats-container">
             <h2>Base Stats</h2>
             {pokemon.stats.map((stat) => {
@@ -43,7 +44,7 @@ function Details() {
         />
       </div>
     </div>
-  ): (<h1>Loading...</h1>);
+  ) : (<h1>Loading...</h1>);
 }
 
 export default Details;
