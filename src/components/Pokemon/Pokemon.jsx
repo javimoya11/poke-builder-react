@@ -5,9 +5,8 @@ import { usePokemon } from "../../shared/hooks/usePokemon";
 import { useSpecies } from "../../shared/hooks/useSpecies";
 import { useTypeIconMap } from "../../shared/hooks/useTypeIconMap";
 import { cachedImage, artworkUrl } from "../../shared/utils/cachedImage";
+import { prettify } from "../../shared/utils/string-utils"
 import { PLACEHOLDER_IMG } from "./const.Pokemon";
-
-const prettify = (name) => name.replace(/-/g, " ");
 
 function Pokemon(props) {
   const { id, name, index } = props;
@@ -17,7 +16,8 @@ function Pokemon(props) {
   const [slideDir, setSlideDir] = useState(0);
 
   const { data: species } = useSpecies(id);
-  const forms = species?.varieties ?? [{ name, id, isDefault: true }];
+  const forms = species?.varieties.filter((vari) => !vari.name.includes('-cap'))
+   ?? [{ name, id, isDefault: true }];
   const safeIndex = Math.min(formIndex, forms.length - 1);
   const current = forms[safeIndex] ?? { name, id };
   const hasForms = forms.length > 1;
