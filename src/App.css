@@ -23,6 +23,14 @@
     position: absolute;
     right: 0;
   }
+  button.button-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: button-spin 0.7s linear infinite;
+  }
 }
 
 @media (min-width: 528px) {
