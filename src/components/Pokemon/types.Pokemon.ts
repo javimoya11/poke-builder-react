@@ -17,4 +17,12 @@ export const POKEMON_FILTER = (name: string): boolean =>
   name.includes('-zen') ||
   name.includes('gourgeist-super') ||
   name.includes('gourgeist-small') ||
-  name.includes('gourgeist-large');
+  name.includes('gourgeist-large') ||
+  name.includes('-meteor') ||
+  name.includes('-busted') ||
+  name.includes('-original') ||
+  name.includes('-low-key-gmax') ||
+  name.includes('-curly-mega') ||
+  name.includes('-droopy-mega') ||
+  name.includes('-build') ||
+  name.includes('-mode');

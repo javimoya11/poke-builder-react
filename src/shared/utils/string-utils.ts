@@ -1,9 +1,9 @@
 // Words moved to front (optionally renamed)
-const PREFIXES: Record<string, string> = { mega: 'mega', primal: 'primal', alola: 'alolan', galar: 'galarian', hisui: 'hisuian' };
+const PREFIXES: Record<string, string> = { mega: 'mega', ultra: 'ultra', primal: 'primal', alola: 'alolan', galar: 'galarian', hisui: 'hisuian', paldea: 'paldean' };
 // Words replaced in-place
-const REPLACEMENTS: Record<string, string> = { gmax: 'g-Max' };
+const REPLACEMENTS: Record<string, string> = { gmax: 'g-Max', two: '2', three: '3' };
 // Words removed entirely
-const REMOVALS = new Set<string>(['striped', 'standard', 'average']);
+const REMOVALS = new Set<string>(['striped', 'strike', 'mask', 'plumage', 'standard', 'average', 'breed', 'combat', 'ordinary', 'male', 'disguised', 'amped']);
 
 /**
  * Formats a raw Pokémon name into a display name: replaces hyphens with spaces,
