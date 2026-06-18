@@ -10,14 +10,11 @@ export const POKEMON_FILTER = (name: string): boolean =>
   name.includes('-cap') ||
   name.includes('-totem') ||
   name.includes('-own-tempo') ||
-  name.includes('pumpkaboo-super') ||
-  name.includes('pumpkaboo-small') ||
-  name.includes('pumpkaboo-large') ||
   name.includes('-power-construct') ||
   name.includes('-zen') ||
-  name.includes('gourgeist-super') ||
-  name.includes('gourgeist-small') ||
-  name.includes('gourgeist-large') ||
+  name.includes('-super') ||
+  name.includes('-small') ||
+  name.includes('-large') ||
   name.includes('-meteor') ||
   name.includes('-busted') ||
   name.includes('-original') ||
