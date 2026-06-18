@@ -12,7 +12,9 @@ const PREFIXES: Record<string, string> = {
 const REPLACEMENTS: Record<string, string> = {
   gmax: 'g-Max',
   two: '2',
-  three: '3'
+  three: '3',
+  m: '♂',
+  f: '♀'
 };
 // Words removed entirely
 const REMOVALS = new Set<string>([
