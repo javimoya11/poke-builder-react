@@ -4,7 +4,8 @@ export interface PokemonProps {
   index: number;
 }
 
-export const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+export const PLACEHOLDER_IMG =
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';
 
 export const POKEMON_FILTER = (name: string): boolean =>
   name.includes('-cap') ||

@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
-import { usePokemonList } from "hooks/usePokemonList";
-import usePrefetchGen from "hooks/usePrefetchGen";
-import { idFromUrl } from "utils/idFromUrl";
-import Pokemon from "components/Pokemon/Pokemon";
-import pokedexNumbers from "./pokedexNumbers.json";
-import "./List.css";
+import Pokemon from 'components/Pokemon/Pokemon';
+import { usePokemonList } from 'hooks/usePokemonList';
+import usePrefetchGen from 'hooks/usePrefetchGen';
+import { useEffect, useState } from 'react';
+import { idFromUrl } from 'utils/idFromUrl';
+import './List.css';
+import pokedexNumbers from './pokedexNumbers.json';
 
 const FIRST_GEN = pokedexNumbers[0];
 const LAST_GEN = pokedexNumbers[pokedexNumbers.length - 1];
 
 function List() {
-  const [pokemonSearch, setPokemonSearch] = useState("");
+  const [pokemonSearch, setPokemonSearch] = useState('');
   const [genReady, setGenReady] = useState(0);
   const [loadingGen, setLoadingGen] = useState(false);
 
@@ -63,9 +63,7 @@ function List() {
 
   const list = visible.map((pokemon, i) => {
     const id = idFromUrl(pokemon.url);
-    return (
-      <Pokemon key={pokemon.name} id={id} name={pokemon.name} index={i} />
-    );
+    return <Pokemon key={pokemon.name} id={id} name={pokemon.name} index={i} />;
   });
 
   return (
@@ -74,8 +72,8 @@ function List() {
         onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
-          const pokemon = String(formData.get("pokemon-search") ?? "");
-          setPokemonSearch(pokemon.replace(" ", "-"));
+          const pokemon = String(formData.get('pokemon-search') ?? '');
+          setPokemonSearch(pokemon.replace(' ', '-'));
         }}
       >
         <div className="search-container">
@@ -103,7 +101,7 @@ function List() {
           {loadingGen ? (
             <span className="button-spinner" aria-label="Loading" />
           ) : (
-            "Load next gen"
+            'Load next gen'
           )}
         </button>
       )}

@@ -1,14 +1,17 @@
-import getPokedex from "./getPokedex";
-import { useQuery } from "@tanstack/react-query";
-import type { QueryFunctionContext, UseQueryOptions } from "@tanstack/react-query";
-import type { Pokemon } from "pokeapi-js-wrapper";
+import type {
+  QueryFunctionContext,
+  UseQueryOptions
+} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import type { Pokemon } from 'pokeapi-js-wrapper';
+import getPokedex from './getPokedex';
 
 /**
  * Builds the React Query key for a single Pokémon.
  * @param id - The Pokémon ID (name or numeric id as a string).
  * @returns A stable, readonly query key tuple.
  */
-export const pokemonQueryKey = (id?: string) => ["pokemon", { id }] as const;
+export const pokemonQueryKey = (id?: string) => ['pokemon', { id }] as const;
 
 type PokemonQueryKey = ReturnType<typeof pokemonQueryKey>;
 
@@ -19,7 +22,7 @@ type PokemonQueryKey = ReturnType<typeof pokemonQueryKey>;
  * @throws If the ID is missing or the Pokémon cannot be found.
  */
 export async function fetchPokemon({
-  queryKey,
+  queryKey
 }: QueryFunctionContext<PokemonQueryKey>): Promise<Pokemon> {
   const [, { id }] = queryKey;
 
@@ -39,7 +42,7 @@ export async function fetchPokemon({
 
 type PokemonQueryOptions = Omit<
   UseQueryOptions<Pokemon, Error, Pokemon, PokemonQueryKey>,
-  "queryKey" | "queryFn"
+  'queryKey' | 'queryFn'
 >;
 
 /**
@@ -52,5 +55,5 @@ export const usePokemon = (id?: string, options: PokemonQueryOptions = {}) =>
   useQuery({
     queryKey: pokemonQueryKey(id),
     queryFn: fetchPokemon,
-    ...options,
+    ...options
   });

@@ -1,46 +1,46 @@
 import js from '@eslint/js';
-import globals from 'globals';
-import reactPlugin from "eslint-plugin-react";
+import reactPlugin from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import unusedImports from 'eslint-plugin-unused-imports';
+import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', "public"] },
+  { ignores: ['dist', 'public'] },
   {
     files: ['src/**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}'],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
       reactPlugin.configs.flat.recommended,
-      reactPlugin.configs.flat["jsx-runtime"],
+      reactPlugin.configs.flat['jsx-runtime']
     ],
     languageOptions: {
       ...reactPlugin.configs.flat.recommended.languageOptions,
-      ecmaVersion: "latest",
+      ecmaVersion: 'latest',
       globals: globals.browser,
       parserOptions: {
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
-        sourceType: 'module',
-      },
+        sourceType: 'module'
+      }
     },
     plugins: {
       react: reactPlugin,
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
-      'unused-imports': unusedImports,
+      'unused-imports': unusedImports
     },
     settings: {
       react: {
-        version: "detect",
-      },
+        version: 'detect'
+      }
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'no-unused-vars': "off",
-      '@typescript-eslint/no-unused-vars': "off",
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
       'unused-imports/no-unused-imports': 'warn',
       'unused-imports/no-unused-vars': [
         'warn',
@@ -48,8 +48,8 @@ export default tseslint.config(
           vars: 'all',
           varsIgnorePattern: '^_',
           args: 'after-used',
-          argsIgnorePattern: '^_',
-        },
+          argsIgnorePattern: '^_'
+        }
       ],
       'react-hooks/exhaustive-deps': 'warn',
       'react-hooks/static-components': 'off',
@@ -72,6 +72,6 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true }
       ]
-    },
-  },
-)
+    }
+  }
+);

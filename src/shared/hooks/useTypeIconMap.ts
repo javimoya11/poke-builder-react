@@ -1,10 +1,10 @@
-import getPokedex from "./getPokedex";
-import { useQuery } from "@tanstack/react-query";
-import type { UseQueryOptions } from "@tanstack/react-query";
-import type { Type } from "pokeapi-js-wrapper";
-import type { TypeIconMap, TypeSpriteSet } from "types";
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import type { Type } from 'pokeapi-js-wrapper';
+import type { TypeIconMap, TypeSpriteSet } from 'types';
+import getPokedex from './getPokedex';
 
-export const TYPE_ICON_MAP_KEY = ["type-icon-map"] as const;
+export const TYPE_ICON_MAP_KEY = ['type-icon-map'] as const;
 
 type TypeIconMapKey = typeof TYPE_ICON_MAP_KEY;
 
@@ -18,9 +18,9 @@ type TypeIconMapKey = typeof TYPE_ICON_MAP_KEY;
  */
 const iconFromSprites = (detail: Type): string | null => {
   const genViii: Record<string, TypeSpriteSet> =
-    detail.sprites?.["generation-viii"] ?? {};
+    detail.sprites?.['generation-viii'] ?? {};
   return (
-    genViii["brilliant-diamond-shining-pearl"]?.name_icon ??
+    genViii['brilliant-diamond-shining-pearl']?.name_icon ??
     Object.values(genViii).find((set) => set?.name_icon)?.name_icon ??
     null
   );
@@ -52,7 +52,7 @@ export async function fetchTypeIconMap(): Promise<TypeIconMap> {
 
 type TypeIconMapQueryOptions = Omit<
   UseQueryOptions<TypeIconMap, Error, TypeIconMap, TypeIconMapKey>,
-  "queryKey" | "queryFn"
+  'queryKey' | 'queryFn'
 >;
 
 /**
@@ -65,5 +65,5 @@ export const useTypeIconMap = (options: TypeIconMapQueryOptions = {}) =>
     queryKey: TYPE_ICON_MAP_KEY,
     queryFn: fetchTypeIconMap,
     staleTime: Infinity,
-    ...options,
+    ...options
   });

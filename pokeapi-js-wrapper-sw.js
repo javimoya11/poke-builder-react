@@ -1,7 +1,7 @@
 const imgRe =
     /https:\/\/raw\.githubusercontent\.com\/PokeAPI\/sprites\/[\/-\w\d]+\/[\d\w-]+\.(?:png|svg|gif)/,
   version = 1;
-self.addEventListener("fetch", function (e) {
+(self.addEventListener('fetch', function (e) {
   e.request.url.match(imgRe) &&
     e.respondWith(
       caches.match(e.request).then(function (t) {
@@ -11,7 +11,7 @@ self.addEventListener("fetch", function (e) {
             .then(function (t) {
               return (
                 e.request.url.match(imgRe) &&
-                  caches.open("pokeapi-js-wrapper-images-1").then(function (t) {
+                  caches.open('pokeapi-js-wrapper-images-1').then(function (t) {
                     t.add(e.request.url);
                   }),
                 t
@@ -24,6 +24,6 @@ self.addEventListener("fetch", function (e) {
       })
     );
 }),
-  self.addEventListener("install", function (e) {
+  self.addEventListener('install', function (e) {
     self.skipWaiting();
-  });
+  }));

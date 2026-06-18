@@ -1,15 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
-import type { QueryFunctionContext, UseQueryOptions } from "@tanstack/react-query";
-import getPokedex from "./getPokedex";
-import { idFromUrl } from "utils/idFromUrl";
-import type { Variety, SpeciesData } from "types";
+import type {
+  QueryFunctionContext,
+  UseQueryOptions
+} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import type { SpeciesData, Variety } from 'types';
+import { idFromUrl } from 'utils/idFromUrl';
+import getPokedex from './getPokedex';
 
 /**
  * Builds the React Query key for a Pokémon species.
  * @param id - The species ID (name or numeric id as a string).
  * @returns A stable, readonly query key tuple.
  */
-export const speciesQueryKey = (id?: string) => ["species", { id }] as const;
+export const speciesQueryKey = (id?: string) => ['species', { id }] as const;
 
 type SpeciesQueryKey = ReturnType<typeof speciesQueryKey>;
 
@@ -21,7 +24,7 @@ type SpeciesQueryKey = ReturnType<typeof speciesQueryKey>;
  * @throws If the ID is missing or the species cannot be found.
  */
 export async function fetchSpecies({
-  queryKey,
+  queryKey
 }: QueryFunctionContext<SpeciesQueryKey>): Promise<SpeciesData> {
   const [, { id }] = queryKey;
 
@@ -39,7 +42,7 @@ export async function fetchSpecies({
   const varieties: Variety[] = species.varieties.map((v) => ({
     name: v.pokemon.name,
     id: idFromUrl(v.pokemon.url),
-    isDefault: v.is_default,
+    isDefault: v.is_default
   }));
 
   varieties.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
@@ -49,7 +52,7 @@ export async function fetchSpecies({
 
 type SpeciesQueryOptions = Omit<
   UseQueryOptions<SpeciesData, Error, SpeciesData, SpeciesQueryKey>,
-  "queryKey" | "queryFn"
+  'queryKey' | 'queryFn'
 >;
 
 /**
@@ -63,5 +66,5 @@ export const useSpecies = (id?: string, options: SpeciesQueryOptions = {}) =>
     queryKey: speciesQueryKey(id),
     queryFn: fetchSpecies,
     staleTime: Infinity,
-    ...options,
+    ...options
   });

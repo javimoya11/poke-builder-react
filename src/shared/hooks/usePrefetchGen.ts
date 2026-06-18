@@ -1,11 +1,11 @@
-import { useCallback } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import type { NamedAPIResource } from "pokeapi-js-wrapper";
-import { fetchPokemon, pokemonQueryKey } from "./usePokemon";
-import { fetchSpecies, speciesQueryKey } from "./useSpecies";
-import { fetchTypeIconMap, TYPE_ICON_MAP_KEY } from "./useTypeIconMap";
-import { artworkUrl, cachedImage, preloadImage } from "utils/cachedImage";
-import { idFromUrl } from "utils/idFromUrl";
+import { useQueryClient } from '@tanstack/react-query';
+import type { NamedAPIResource } from 'pokeapi-js-wrapper';
+import { useCallback } from 'react';
+import { artworkUrl, cachedImage, preloadImage } from 'utils/cachedImage';
+import { idFromUrl } from 'utils/idFromUrl';
+import { fetchPokemon, pokemonQueryKey } from './usePokemon';
+import { fetchSpecies, speciesQueryKey } from './useSpecies';
+import { fetchTypeIconMap, TYPE_ICON_MAP_KEY } from './useTypeIconMap';
 
 /**
  * Hook that returns a prefetcher for a slice ("gen") of the Pokémon list.
@@ -26,13 +26,13 @@ function usePrefetchGen() {
       const [, species] = await Promise.all([
         queryClient.fetchQuery({
           queryKey: pokemonQueryKey(id),
-          queryFn: fetchPokemon,
+          queryFn: fetchPokemon
         }),
         queryClient.fetchQuery({
           queryKey: speciesQueryKey(id),
-          queryFn: fetchSpecies,
+          queryFn: fetchSpecies
         }),
-        preloadImage(cachedImage(artworkUrl(id), 100)),
+        preloadImage(cachedImage(artworkUrl(id), 100))
       ]);
 
       // Preload the alternate forms' artwork (cheap images): selecting a form
@@ -54,7 +54,7 @@ function usePrefetchGen() {
       const typeIconMap = await queryClient.fetchQuery({
         queryKey: TYPE_ICON_MAP_KEY,
         queryFn: fetchTypeIconMap,
-        staleTime: Infinity,
+        staleTime: Infinity
       });
 
       const iconPreloads = Object.values(typeIconMap).map(preloadImage);

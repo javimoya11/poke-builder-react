@@ -1,13 +1,17 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import "./Pokemon.css";
-import { usePokemon } from "hooks/usePokemon";
-import { useSpecies } from "hooks/useSpecies";
-import { useTypeIconMap } from "hooks/useTypeIconMap";
-import { cachedImage, artworkUrl } from "utils/cachedImage";
-import { prettify } from "utils/string-utils";
-import type { Variety } from "types";
-import { PLACEHOLDER_IMG, POKEMON_FILTER, type PokemonProps } from "./types.Pokemon";
+import { usePokemon } from 'hooks/usePokemon';
+import { useSpecies } from 'hooks/useSpecies';
+import { useTypeIconMap } from 'hooks/useTypeIconMap';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import type { Variety } from 'types';
+import { artworkUrl, cachedImage } from 'utils/cachedImage';
+import { prettify } from 'utils/string-utils';
+import './Pokemon.css';
+import {
+  PLACEHOLDER_IMG,
+  POKEMON_FILTER,
+  type PokemonProps
+} from './types.Pokemon';
 
 function Pokemon({ id, name, index }: PokemonProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -15,12 +19,12 @@ function Pokemon({ id, name, index }: PokemonProps) {
   const [slideDir, setSlideDir] = useState(0);
 
   const { data: species } = useSpecies(id);
-  const forms: Variety[] =
-    species?.varieties.filter((vari) => !POKEMON_FILTER(vari.name)) ??
-    [{ name, id, isDefault: true }];
+  const forms: Variety[] = species?.varieties.filter(
+    (vari) => !POKEMON_FILTER(vari.name)
+  ) ?? [{ name, id, isDefault: true }];
   const safeIndex = Math.min(formIndex, forms.length - 1);
   const current: Variety = forms[safeIndex] ?? { name, id, isDefault: true };
-  const currentId = current.id ?? id ?? "";
+  const currentId = current.id ?? id ?? '';
   const hasForms = forms.length > 1;
 
   const results = usePokemon(currentId);
@@ -29,9 +33,9 @@ function Pokemon({ id, name, index }: PokemonProps) {
   const { data: typeIconMap = {} } = useTypeIconMap();
   const typeIcons = pokemon?.types
     ? pokemon.types.map((entry) => ({
-      name: entry.type.name,
-      icon: typeIconMap[entry.type.url] ?? null,
-    }))
+        name: entry.type.name,
+        icon: typeIconMap[entry.type.url] ?? null
+      }))
     : [];
 
   const ready = imgLoaded && !results.isPending;
@@ -43,12 +47,12 @@ function Pokemon({ id, name, index }: PokemonProps) {
   };
 
   const slideClass =
-    slideDir === 0 ? "" : slideDir > 0 ? "slide-next" : "slide-prev";
+    slideDir === 0 ? '' : slideDir > 0 ? 'slide-next' : 'slide-prev';
 
   return (
     <div className="pokemon-card">
       <div
-        className={ready ? "card-skeleton hidden" : "card-skeleton"}
+        className={ready ? 'card-skeleton hidden' : 'card-skeleton'}
         aria-hidden="true"
       />
       <Link
@@ -59,9 +63,9 @@ function Pokemon({ id, name, index }: PokemonProps) {
         <div className="sprite-container">
           <img
             src={cachedImage(artworkUrl(currentId), 100)}
-            loading={index < 8 ? "eager" : "lazy"}
+            loading={index < 8 ? 'eager' : 'lazy'}
             decoding="async"
-            fetchPriority={index < 8 ? "high" : "low"}
+            fetchPriority={index < 8 ? 'high' : 'low'}
             width={100}
             height={100}
             alt={current.name}

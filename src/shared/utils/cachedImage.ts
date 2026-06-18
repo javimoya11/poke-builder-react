@@ -1,4 +1,4 @@
-import type { CachedImageOptions } from "types";
+import type { CachedImageOptions } from 'types';
 
 /**
  * Builds a wsrv.nl URL that proxies and transforms a remote image
@@ -8,16 +8,20 @@ import type { CachedImageOptions } from "types";
  * @param opts - Optional output settings (format, quality, blur).
  * @returns The wsrv.nl URL for the transformed image.
  */
-export const cachedImage = (url: string, width: number, opts: CachedImageOptions = {}): string => {
+export const cachedImage = (
+  url: string,
+  width: number,
+  opts: CachedImageOptions = {}
+): string => {
   const params = new URLSearchParams({
     url,
     w: String(width),
     output: opts.format ?? 'webp',
     q: String(opts.quality ?? 75),
     ...(opts.blur ? { blur: String(opts.blur) } : {})
-  })
-  return `https://wsrv.nl/?${params}`
-}
+  });
+  return `https://wsrv.nl/?${params}`;
+};
 
 /**
  * Builds the official-artwork sprite URL for a Pokémon.
@@ -27,7 +31,7 @@ export const cachedImage = (url: string, width: number, opts: CachedImageOptions
  * @returns The official-artwork PNG URL.
  */
 export const artworkUrl = (id: string | number): string =>
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 
 /**
  * Preloads an image and resolves once it has loaded (or failed). Never rejects:

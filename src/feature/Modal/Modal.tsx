@@ -1,1 +1,1 @@
-export const Modal = () => <></>
+export const Modal = () => <></>;
