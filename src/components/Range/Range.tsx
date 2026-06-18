@@ -1,22 +1,21 @@
 import "./Range.css";
+import type { RangeProps } from "./types.Range";
 
-function Range(props) {
-    const { range, name } = props;
-
-    const percentage = (r) => {
+function Range({ range, name }: RangeProps) {
+    const percentage = (r: number): string => {
         return `${(r * 100) / 255}%`
     }
 
-    const color = () => {
+    const color = (): string => {
         if (range < 40) {
             return 'red';
-        } else if (range >= 40 & range < 50) {
+        } else if (range >= 40 && range < 50) {
             return 'tomato';
-        } else if (range >= 50 & range < 80) {
+        } else if (range >= 50 && range < 80) {
             return 'sandybrown';
-        } else if (range >= 80 & range < 100) {
+        } else if (range >= 80 && range < 100) {
             return 'gold';
-        } else if (range >= 100 & range < 120) {
+        } else if (range >= 100 && range < 120) {
             return 'forestgreen';
         } else if (range >= 120) {
             return 'lime';

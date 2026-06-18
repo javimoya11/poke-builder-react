@@ -12,6 +12,7 @@ export default defineConfig({
       utils: fileURLToPath(new URL('./src/shared/utils', import.meta.url)),
       hooks: fileURLToPath(new URL('./src/shared/hooks', import.meta.url)),
       feature: fileURLToPath(new URL('./src/feature', import.meta.url)),
+      types: fileURLToPath(new URL('./src/shared/types.ts', import.meta.url)),
     },
   },
 })

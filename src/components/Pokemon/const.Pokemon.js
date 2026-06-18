@@ -1,3 +1,0 @@
-export const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
-
-export const POKEMON_FILTER = (name) => (name.includes('-cap') || name.includes('-totem') || name.includes('-own-tempo') || name.includes('pumpkaboo-super') || name.includes('pumpkaboo-small') || name.includes('pumpkaboo-large') || name.includes('-power-construct') || name.includes('-zen')) || name.includes('gourgeist-super') || name.includes('gourgeist-small') || name.includes('gourgeist-large')

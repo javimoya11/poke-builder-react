@@ -8,8 +8,12 @@ const pokedex = new Pokedex({
   timeout: 10 * 1000, // 10s
 });
 
-function usePokedex() {
+/**
+ * Returns the shared Pokedex client singleton used for all PokeAPI requests.
+ * @returns The shared Pokedex instance.
+ */
+function getPokedex(): Pokedex {
   return pokedex;
 }
 
-export default usePokedex;
+export default getPokedex;

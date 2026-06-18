@@ -1,21 +1,23 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { usePokemon } from "../../shared/hooks/usePokemon";
-import Range from "../../components/Range/Range";
-import { cachedImage } from "../../shared/utils/cachedImage";
-import { prettify } from "../../shared/utils/string-utils";
+import { usePokemon } from "hooks/usePokemon";
+import Range from "components/Range/Range";
+import { cachedImage } from "utils/cachedImage";
+import { prettify } from "utils/string-utils";
 import "./Details.css";
 
 function Details() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate()
-  const [formId, baseId] = id.split('_')
+  const [formId, baseId] = (id ?? "").split('_')
 
   const results = usePokemon(formId);
+  const pokemon = results.data;
 
+  if (results.isLoading || !pokemon) {
+    return <h1>Loading...</h1>;
+  }
 
-  const pokemon = results?.data ?? {};
-
-  return !results.isLoading ? (
+  return (
     <div className="details-container">
       <button
         className="back-button"
@@ -44,7 +46,7 @@ function Details() {
         />
       </div>
     </div>
-  ) : (<h1>Loading...</h1>);
+  );
 }
 
 export default Details;

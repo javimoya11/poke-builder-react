@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { usePokemonList } from "../../shared/hooks/usePokemonList";
-import usePrefetchGen from "../../shared/hooks/usePrefetchGen";
-import Pokemon from "../../components/Pokemon/Pokemon";
+import { usePokemonList } from "hooks/usePokemonList";
+import usePrefetchGen from "hooks/usePrefetchGen";
+import { idFromUrl } from "utils/idFromUrl";
+import Pokemon from "components/Pokemon/Pokemon";
 import pokedexNumbers from "./pokedexNumbers.json";
 import "./List.css";
 
-const idFromUrl = (url) => url.match(/(?<=\/pokemon\/)(\d+|\d)/gm)?.[0];
 const FIRST_GEN = pokedexNumbers[0];
 const LAST_GEN = pokedexNumbers[pokedexNumbers.length - 1];
 
@@ -71,10 +71,10 @@ function List() {
   return (
     <div className="search-list-wrapper">
       <form
-        onSubmit={(e) => {
+        onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
-          const formData = new FormData(e.target);
-          const pokemon = formData.get("pokemon-search") ?? "";
+          const formData = new FormData(e.currentTarget);
+          const pokemon = String(formData.get("pokemon-search") ?? "");
           setPokemonSearch(pokemon.replace(" ", "-"));
         }}
       >
