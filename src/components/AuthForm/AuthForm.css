@@ -1,10 +1,12 @@
 .auth-form {
   display: flex;
   flex-direction: column;
-  min-width: 300px;
-  min-height: 250px;
+  justify-content: space-between;
+  width: 60vh;
+  height: 50vh;
 
   nav {
+    border-radius: 8px;
     display: flex;
     justify-content: space-around;
     padding: 6px 8px;
@@ -12,10 +14,19 @@
     button {
       border: none;
       background: none;
-      cursor: pointer;
-      &:hover {
-        text-decoration: underline;
+      padding: 7px 15px;
+      width: 49%;
+      &:hover,
+      &.active {
+        background-color: #646464;
+        font-weight: 600;
       }
     }
+  }
+  label {
+    display: flex;
+    flex-direction: column;
+  }
+  button.submit {
   }
 }

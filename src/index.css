@@ -5,6 +5,14 @@
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
+  button {
+    :disabled {
+      cursor: not-allowed;
+    }
+    &:not(:disabled) {
+      cursor: pointer;
+    }
+  }
 }
 /* 1. Use a more-intuitive box-sizing model */
 *,

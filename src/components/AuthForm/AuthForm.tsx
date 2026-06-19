@@ -3,17 +3,31 @@ import { Modal } from 'feature/Modal/Modal';
 import { useState } from 'react';
 import { sendMagicLink } from '../../lib/auth';
 import './AuthForm.css';
+import { IAuthForm } from './types.AuthForm';
 
-interface IAuthForm {
-  isOpen: boolean;
-  onClose: () => void;
-}
 export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
   const [emailValue, setEmailValue] = useState<string | null>(null);
   const [passValue, setPassValue] = useState<string | null>(null);
   const [errorValue, setErrorValue] = useState<AuthError | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [formMode, setFormMode] = useState<'signIn' | 'signUp'>('signIn');
+
+  const submitHandler = async () => {
+    setErrorValue(null);
+    setLoading(true);
+    let error: AuthError | null = null;
+    if (!emailValue) return;
+    if (formMode === 'signUp') {
+      error = (await sendMagicLink(emailValue.trim())).error;
+    } else {
+      //
+    }
+    if (error) {
+      setErrorValue(error);
+      return;
+    }
+    setLoading(false);
+  };
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <form
@@ -21,27 +35,22 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
         className="auth-form"
         onSubmit={async (e) => {
           e.preventDefault();
-          setErrorValue(null);
-          setLoading(true);
-          let error: AuthError | null = null;
-          if (!emailValue) return;
-          if (formMode === 'signUp') {
-            error = (await sendMagicLink(emailValue.trim())).error;
-          } else {
-            //
-          }
-          if (error) {
-            setErrorValue(error);
-            return;
-          }
-          setLoading(false);
+          await submitHandler();
         }}
       >
         <nav>
-          <button type="button" onClick={() => setFormMode('signIn')}>
+          <button
+            type="button"
+            className={formMode === 'signUp' ? '' : 'active'}
+            onClick={() => setFormMode('signIn')}
+          >
             Sign In
           </button>
-          <button type="button" onClick={() => setFormMode('signUp')}>
+          <button
+            type="button"
+            className={formMode === 'signUp' ? 'active' : ''}
+            onClick={() => setFormMode('signUp')}
+          >
             Sign Up
           </button>
         </nav>
@@ -88,6 +97,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
         )}
         <button
           type="submit"
+          className="submit"
           form={formMode === 'signUp' ? 'sign-in' : 'sign-up'}
           disabled={loading}
         >
