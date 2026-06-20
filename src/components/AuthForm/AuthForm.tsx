@@ -1,11 +1,13 @@
-import { AuthError } from '@supabase/supabase-js';
+import { AuthError, Session, User } from '@supabase/supabase-js';
 import { Modal } from 'feature/Modal/Modal';
 import { useState } from 'react';
-import { sendMagicLink } from '../../lib/auth';
+import { signIn, signUp } from '../../lib/auth';
+import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import './AuthForm.css';
 import { IAuthForm } from './types.AuthForm';
 
 export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
+  const { setUser } = useGlobalStore();
   const [emailValue, setEmailValue] = useState<string | null>(null);
   const [passValue, setPassValue] = useState<string | null>(null);
   const [errorValue, setErrorValue] = useState<AuthError | null>(null);
@@ -16,18 +18,36 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
     setErrorValue(null);
     setLoading(true);
     let error: AuthError | null = null;
-    if (!emailValue) return;
+    let data: { user: User | null; session: Session | null } = {
+      user: null,
+      session: null
+    };
+    if (!emailValue || !passValue) return;
     if (formMode === 'signUp') {
-      error = (await sendMagicLink(emailValue.trim())).error;
+      const { error: signUpError, data: signUpData } = await signUp(
+        emailValue.trim(),
+        passValue
+      );
+      error = signUpError;
+      data = signUpData;
     } else {
-      //
+      const { error: signUpError, data: signUpData } = await signIn(
+        emailValue.trim(),
+        passValue
+      );
+      error = signUpError;
+      data = signUpData;
     }
     if (error) {
       setErrorValue(error);
       return;
+    } else {
+      setErrorValue(null);
     }
+    setUser(data?.user);
     setLoading(false);
   };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <form

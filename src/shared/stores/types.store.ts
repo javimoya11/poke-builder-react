@@ -1,9 +1,6 @@
-export interface IGlobalStore {
-  user?: IUser | null;
-  setUser: (user: IUser | null) => void;
-}
+import { User } from '@supabase/supabase-js';
 
-export interface IUser {
-  id: number;
-  name: string;
+export interface IGlobalStore {
+  user?: User | null;
+  setUser: (user: User | null) => void;
 }
