@@ -1,7 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useAuthSync } from 'hooks/useAuthSync';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Header from './feature/Header/Header';
+import { ScrollToTopButton } from './feature/ScrollToTopButton/ScrollToTopButton';
 import Details from './pages/Details/Details';
 import List from './pages/List/List';
 
@@ -15,6 +17,8 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  useAuthSync();
+
   return (
     <div className="app-container">
       <BrowserRouter>
@@ -24,6 +28,7 @@ function App() {
             <Route path="/details/:id" element={<Details />} />
             <Route path="/" element={<List />} />
           </Routes>
+          <ScrollToTopButton />
         </QueryClientProvider>
       </BrowserRouter>
     </div>

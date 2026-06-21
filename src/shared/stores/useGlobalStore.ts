@@ -6,6 +6,8 @@ import { IGlobalStore } from './types.store';
 export const useGlobalStore = create(
   subscribeWithSelector<IGlobalStore>((set) => ({
     user: null,
-    setUser: (user: User | null) => set({ user })
+    authReady: false,
+    setUser: (user: User | null) => set({ user }),
+    setAuthReady: (authReady: boolean) => set({ authReady })
   }))
 );

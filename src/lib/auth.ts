@@ -28,3 +28,8 @@ export async function signIn(email: string, password: string) {
 
   return { error: null, data };
 }
+
+export async function signOut() {
+  const { error } = await supabase.auth.signOut();
+  return { error };
+}

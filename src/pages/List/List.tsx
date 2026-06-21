@@ -1,8 +1,9 @@
 import Pokemon from 'components/Pokemon/Pokemon';
 import { usePokemonList } from 'hooks/usePokemonList';
 import usePrefetchGen from 'hooks/usePrefetchGen';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { idFromUrl } from 'utils/idFromUrl';
+import { useListStore } from '../../shared/stores/useListStore';
 import styles from './List.module.css';
 import pokedexNumbers from './pokedexNumbers.json';
 
@@ -10,9 +11,17 @@ const FIRST_GEN = pokedexNumbers[0];
 const LAST_GEN = pokedexNumbers[pokedexNumbers.length - 1];
 
 function List() {
-  const [pokemonSearch, setPokemonSearch] = useState('');
-  const [genReady, setGenReady] = useState(0);
+  // Estado persistido entre navegaciones (search / generaciones cargadas).
+  // Selectores individuales: NO nos suscribimos a scrollY para que guardar el
+  // scroll no provoque re-render de toda la lista.
+  const search = useListStore((s) => s.search);
+  const setSearch = useListStore((s) => s.setSearch);
+  const genReady = useListStore((s) => s.genReady);
+  const setGenReady = useListStore((s) => s.setGenReady);
+  const setScrollY = useListStore((s) => s.setScrollY);
+
   const [loadingGen, setLoadingGen] = useState(false);
+  const restoredRef = useRef(false);
 
   const pokeResults = usePokemonList();
   const prefetchGen = usePrefetchGen();
@@ -21,6 +30,7 @@ function List() {
     (poke) => Number(idFromUrl(poke.url)) <= LAST_GEN
   );
 
+  // Carga inicial de la primera generación (solo si no hay nada cargado aún).
   useEffect(() => {
     if (!allPokemons.length || genReady > 0) return;
     let cancelled = false;
@@ -32,22 +42,46 @@ function List() {
     return () => {
       cancelled = true;
     };
-  }, [allPokemons, genReady, prefetchGen]);
+  }, [allPokemons, genReady, prefetchGen, setGenReady]);
 
   const isInitialLoading = pokeResults.isLoading || genReady === 0;
+
+  // Restaura la posición de scroll guardada una vez que la lista está montada.
+  // useLayoutEffect => se aplica antes del primer paint (sin parpadeo).
+  useLayoutEffect(() => {
+    if (isInitialLoading || restoredRef.current) return;
+    window.scrollTo(0, useListStore.getState().scrollY);
+    restoredRef.current = true;
+  }, [isInitialLoading]);
+
+  // Guarda la posición de scroll mientras se navega por la lista.
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (!restoredRef.current || ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setScrollY(window.scrollY);
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [setScrollY]);
 
   if (isInitialLoading) {
     return <h1>Loading...</h1>;
   }
 
-  const filtered = pokemonSearch.length
-    ? allPokemons.filter((poke) => poke.name.includes(pokemonSearch.trim()))
+  const query = search.trim().toLowerCase().replaceAll(' ', '-');
+  const filtered = query.length
+    ? allPokemons.filter((poke) => poke.name.includes(query))
     : allPokemons;
 
-  const limit = pokemonSearch.length ? filtered.length : genReady;
+  const limit = query.length ? filtered.length : genReady;
   const visible = filtered.slice(0, limit);
 
-  const canLoadMore = !pokemonSearch.length && genReady < LAST_GEN;
+  const canLoadMore = !query.length && genReady < LAST_GEN;
 
   const loadNextGen = async () => {
     const nextLimit = pokedexNumbers.find((n) => n > genReady) ?? LAST_GEN;
@@ -68,25 +102,17 @@ function List() {
 
   return (
     <div className={styles.wrapper}>
-      <form
-        onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-          e.preventDefault();
-          const formData = new FormData(e.currentTarget);
-          const pokemon = String(formData.get('pokemon-search') ?? '');
-          setPokemonSearch(pokemon.replace(' ', '-'));
-        }}
-      >
-        <div className={styles.searchContainer}>
-          <input
-            id="pokemon-search"
-            className={styles.searchInput}
-            name="pokemon-search"
-            type="text"
-            placeholder="Enter a Pokémon name..."
-          />
-          <button>Search</button>
-        </div>
-      </form>
+      <div className={styles.searchContainer}>
+        <input
+          id="pokemon-search"
+          className={styles.searchInput}
+          name="pokemon-search"
+          type="text"
+          placeholder="Enter a Pokémon name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
       <div className={styles.list}>
         {!list.length ? <h1>No Pokémon Found</h1> : list}
