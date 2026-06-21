@@ -3,7 +3,7 @@ import { Dropdown } from 'feature/Dropdown/Dropdown';
 import { LogOut, UserPen, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
-import './SignInButton.css';
+import styles from './SignInButton.module.css';
 
 export const SignInButton = () => {
   const { user } = useGlobalStore();
@@ -13,7 +13,7 @@ export const SignInButton = () => {
     return (
       <>
         <button
-          className="dropdown"
+          className={styles.dropdown}
           type="button"
           onClick={() => setAuthOpen(true)}
         >
@@ -34,7 +34,7 @@ export const SignInButton = () => {
         }
       ]}
       trigger={({ toggle }) => (
-        <button className="dropdown" type="button" onClick={toggle}>
+        <button className={styles.dropdown} type="button" onClick={toggle}>
           <UserRound />
         </button>
       )}

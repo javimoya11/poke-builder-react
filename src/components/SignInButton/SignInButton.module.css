@@ -1,0 +1,4 @@
+.dropdown {
+  border-radius: var(--radius-round);
+  border-color: var(--color-text);
+}

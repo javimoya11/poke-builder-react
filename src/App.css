@@ -1,34 +1,16 @@
 .app-container {
-  margin-left: auto;
+  margin-inline: auto;
   box-sizing: border-box;
-  margin-right: auto;
-  padding: 32px 1em;
-  padding-right: 1em;
-  padding-left: 1em;
+  padding: var(--space-6) 1em;
   display: flex;
   flex-direction: column;
   position: relative;
   width: 100%;
-  -moz-box-flex: 1;
   flex-grow: 1;
-
-  button {
-    box-sizing: content-box;
-    width: fit-content;
-    padding: 5px 10px;
-  }
 
   button.back-button {
     position: absolute;
     right: 0;
-  }
-  button.button-spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid currentColor;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: button-spin 0.7s linear infinite;
   }
 }
 
@@ -36,5 +18,25 @@
   .app-container {
     padding-left: 1.5em;
     padding-right: 1.5em;
+  }
+}
+
+/* Utilidad global compartida: spinner de carga.
+   Global (no anidado en .app-container) porque también se usa dentro del Modal,
+   que se renderiza por portal fuera de .app-container.
+   display:inline-block para que un <span> respete width/height. */
+.button-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radius-round);
+  animation: button-spin 0.7s linear infinite;
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
   }
 }

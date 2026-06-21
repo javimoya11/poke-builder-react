@@ -3,7 +3,7 @@ import { Modal } from 'feature/Modal/Modal';
 import { useState } from 'react';
 import { signIn, signUp } from '../../lib/auth';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
-import './AuthForm.css';
+import styles from './AuthForm.module.css';
 import { IAuthForm } from './types.AuthForm';
 
 export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
@@ -52,7 +52,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
     <Modal isOpen={isOpen} onClose={onClose}>
       <form
         id={formMode === 'signIn' ? 'sign-in' : 'sign-up'}
-        className="auth-form"
+        className={styles.authForm}
         onSubmit={async (e) => {
           e.preventDefault();
           await submitHandler();
@@ -61,14 +61,14 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
         <nav>
           <button
             type="button"
-            className={formMode === 'signUp' ? '' : 'active'}
+            className={formMode === 'signUp' ? '' : styles.active}
             onClick={() => setFormMode('signIn')}
           >
             Log In
           </button>
           <button
             type="button"
-            className={formMode === 'signUp' ? 'active' : ''}
+            className={formMode === 'signUp' ? styles.active : ''}
             onClick={() => setFormMode('signUp')}
           >
             Sign Up
@@ -117,7 +117,6 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
         )}
         <button
           type="submit"
-          className="submit"
           form={formMode === 'signUp' ? 'sign-in' : 'sign-up'}
           disabled={loading}
         >

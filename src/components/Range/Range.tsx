@@ -1,4 +1,4 @@
-import './Range.css';
+import styles from './Range.module.css';
 import type { RangeProps } from './types.Range';
 
 function Range({ range, name }: RangeProps) {
@@ -25,12 +25,12 @@ function Range({ range, name }: RangeProps) {
   };
 
   return (
-    <div className="range-container">
-      <span className="stat-name">{name.replace('-', ' ')}</span>
-      <span className="stat-number">{range}</span>
-      <div className="range-wrap">
+    <div className={styles.container}>
+      <span className={styles.statName}>{name.replace('-', ' ')}</span>
+      <span className={styles.statNumber}>{range}</span>
+      <div className={styles.wrap}>
         <div
-          className="range-bar"
+          className={styles.bar}
           style={{ width: percentage(range), backgroundColor: color() }}
         ></div>
       </div>

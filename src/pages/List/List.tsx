@@ -3,7 +3,7 @@ import { usePokemonList } from 'hooks/usePokemonList';
 import usePrefetchGen from 'hooks/usePrefetchGen';
 import { useEffect, useState } from 'react';
 import { idFromUrl } from 'utils/idFromUrl';
-import './List.css';
+import styles from './List.module.css';
 import pokedexNumbers from './pokedexNumbers.json';
 
 const FIRST_GEN = pokedexNumbers[0];
@@ -67,7 +67,7 @@ function List() {
   });
 
   return (
-    <div className="search-list-wrapper">
+    <div className={styles.wrapper}>
       <form
         onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
@@ -76,25 +76,25 @@ function List() {
           setPokemonSearch(pokemon.replace(' ', '-'));
         }}
       >
-        <div className="search-container">
+        <div className={styles.searchContainer}>
           <input
             id="pokemon-search"
-            className="search-input"
+            className={styles.searchInput}
             name="pokemon-search"
             type="text"
             placeholder="Enter a Pokémon name..."
           />
-          <button className="search-button">Search</button>
+          <button>Search</button>
         </div>
       </form>
 
-      <div className="pokemon-list">
+      <div className={styles.list}>
         {!list.length ? <h1>No Pokémon Found</h1> : list}
       </div>
 
       {canLoadMore && (
         <button
-          className="load-gen-button"
+          className={styles.loadGenButton}
           onClick={loadNextGen}
           disabled={loadingGen}
         >

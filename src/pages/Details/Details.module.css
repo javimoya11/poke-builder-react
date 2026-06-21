@@ -1,12 +1,14 @@
-.details-container {
+.container {
   position: relative;
-  .bio-container {
+
+  .bio {
     display: flex;
-    .data-container {
-      .name-text {
+
+    .data {
+      .name {
         text-transform: capitalize;
       }
-      .stats-container {
+      .stats {
         height: 200px;
         width: 300px;
       }

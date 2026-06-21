@@ -3,7 +3,7 @@ import { usePokemon } from 'hooks/usePokemon';
 import { useNavigate, useParams } from 'react-router-dom';
 import { cachedImage } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
-import './Details.css';
+import styles from './Details.module.css';
 
 function Details() {
   const { id } = useParams<{ id: string }>();
@@ -18,7 +18,7 @@ function Details() {
   }
 
   return (
-    <div className="details-container">
+    <div className={styles.container}>
       <button
         className="back-button"
         type="button"
@@ -28,10 +28,10 @@ function Details() {
       >
         Exit
       </button>
-      <div className="bio-container">
-        <div className="data-container">
-          <h1 className="name-text">{`#${baseId ?? formId} - ${prettify(pokemon.name)}`}</h1>
-          <div className="stats-container">
+      <div className={styles.bio}>
+        <div className={styles.data}>
+          <h1 className={styles.name}>{`#${baseId ?? formId} - ${prettify(pokemon.name)}`}</h1>
+          <div className={styles.stats}>
             <h2>Base Stats</h2>
             {pokemon.stats.map((stat) => {
               return (

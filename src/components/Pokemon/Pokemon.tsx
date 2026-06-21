@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import type { Variety } from 'types';
 import { artworkUrl, cachedImage } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
-import './Pokemon.css';
+import styles from './Pokemon.module.css';
 import {
   PLACEHOLDER_IMG,
   POKEMON_FILTER,
@@ -47,20 +47,20 @@ function Pokemon({ id, name, index }: PokemonProps) {
   };
 
   const slideClass =
-    slideDir === 0 ? '' : slideDir > 0 ? 'slide-next' : 'slide-prev';
+    slideDir === 0 ? '' : slideDir > 0 ? styles.slideNext : styles.slidePrev;
 
   return (
-    <div className="pokemon-card">
+    <div className={styles.card}>
       <div
-        className={ready ? 'card-skeleton hidden' : 'card-skeleton'}
+        className={`${styles.skeleton} ${ready ? styles.hidden : ''}`}
         aria-hidden="true"
       />
       <Link
         key={currentId}
-        className={`card-link ${slideClass}`}
+        className={`${styles.link} ${slideClass}`}
         to={`/details/${currentId}${forms.length > 1 ? '_' + forms.find((f) => f.isDefault)?.id : ''}`}
       >
-        <div className="sprite-container">
+        <div className={styles.sprite}>
           <img
             src={cachedImage(artworkUrl(currentId), 100)}
             loading={index < 8 ? 'eager' : 'lazy'}
@@ -81,11 +81,11 @@ function Pokemon({ id, name, index }: PokemonProps) {
           />
         </div>
 
-        <div className="info">
-          <h2 className="number-text">{`#${id}`}</h2>
-          <h1 className="name-text">{prettify(current.name)}</h1>
+        <div className={styles.info}>
+          <h2 className={styles.number}>{`#${id}`}</h2>
+          <h1 className={styles.name}>{prettify(current.name)}</h1>
           {typeIcons.length > 0 && (
-            <div className="type-text">
+            <div className={styles.type}>
               {typeIcons.map((type) => (
                 <img
                   key={type.name}
@@ -102,7 +102,7 @@ function Pokemon({ id, name, index }: PokemonProps) {
         <>
           <button
             type="button"
-            className="form-arrow form-arrow-left"
+            className={`${styles.arrow} ${styles.arrowLeft}`}
             aria-label="Previous form"
             onClick={() => changeForm(-1)}
           >
@@ -110,7 +110,7 @@ function Pokemon({ id, name, index }: PokemonProps) {
           </button>
           <button
             type="button"
-            className="form-arrow form-arrow-right"
+            className={`${styles.arrow} ${styles.arrowRight}`}
             aria-label="Next form"
             onClick={() => changeForm(1)}
           >

@@ -1,4 +1,4 @@
-.auth-form {
+.authForm {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -6,7 +6,7 @@
   height: 50vh;
 
   nav {
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     display: flex;
     justify-content: space-around;
     padding: 6px 8px;
@@ -16,17 +16,17 @@
       background: none;
       padding: 7px 15px;
       width: 49%;
+
       &:hover,
       &.active {
-        background-color: #646464;
-        font-weight: 600;
+        background-color: var(--color-hover);
+        font-weight: var(--font-weight-bold);
       }
     }
   }
+
   label {
     display: flex;
     flex-direction: column;
-  }
-  button.submit {
   }
 }

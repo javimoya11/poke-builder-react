@@ -1,24 +1,25 @@
-.range-container {
+.container {
   width: 100%;
   height: 30px;
   display: grid;
   grid-template-columns: 40% 15% 45%;
   align-items: center;
-  .stat-name {
+
+  .statName {
     justify-self: flex-start;
     text-transform: capitalize;
   }
-  .stat-number {
+  .statNumber {
     justify-self: center;
   }
-  .range-wrap {
+  .wrap {
     width: 100%;
-    background-color: dimgray;
+    background-color: var(--color-surface);
     justify-self: flex-end;
   }
-  .range-wrap,
-  .range-bar {
+  .wrap,
+  .bar {
     height: 10px;
-    border-radius: 15px;
+    border-radius: var(--radius-pill);
   }
 }
