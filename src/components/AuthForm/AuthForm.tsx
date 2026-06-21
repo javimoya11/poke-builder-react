@@ -64,7 +64,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
             className={formMode === 'signUp' ? '' : 'active'}
             onClick={() => setFormMode('signIn')}
           >
-            Sign In
+            Log In
           </button>
           <button
             type="button"

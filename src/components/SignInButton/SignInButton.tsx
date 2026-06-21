@@ -1,26 +1,43 @@
 import { AuthForm } from 'components/AuthForm/AuthForm';
-import { UserPen, UserRound } from 'lucide-react';
+import { Dropdown } from 'feature/Dropdown/Dropdown';
+import { LogOut, UserPen, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import './SignInButton.css';
 
 export const SignInButton = () => {
   const { user } = useGlobalStore();
-  const [open, setOpen] = useState<boolean>(false);
-  const [openDropdown, setOpenDropdown] = useState<boolean>(false);
+  const [authOpen, setAuthOpen] = useState(false);
+
+  if (!user) {
+    return (
+      <>
+        <button
+          className="dropdown"
+          type="button"
+          onClick={() => setAuthOpen(true)}
+        >
+          <UserPen />
+        </button>
+        <AuthForm isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+      </>
+    );
+  }
+
   return (
-    <>
-      <button
-        className="dropdown"
-        type="button"
-        onClick={() => {
-          if (!user) setOpen(true);
-          setOpenDropdown(!openDropdown);
-        }}
-      >
-        {user ? <UserRound /> : <UserPen />}
-      </button>
-      <AuthForm isOpen={open} onClose={() => setOpen(false)} />
-    </>
+    <Dropdown
+      actions={[
+        {
+          label: 'Log Out',
+          icon: <LogOut size={16} />,
+          callback: () => console.log('sign out')
+        }
+      ]}
+      trigger={({ toggle }) => (
+        <button className="dropdown" type="button" onClick={toggle}>
+          <UserRound />
+        </button>
+      )}
+    />
   );
 };
