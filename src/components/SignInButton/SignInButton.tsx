@@ -2,16 +2,16 @@ import { AuthForm } from 'components/AuthForm/AuthForm';
 import { Dropdown } from 'feature/Dropdown/Dropdown';
 import { LogOut, UserPen, UserRound } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { signOut } from '../../lib/auth';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './SignInButton.module.css';
 
 export const SignInButton = () => {
   const { user, authReady } = useGlobalStore();
+  const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
 
-  // Mientras se restaura la sesión, mostramos un placeholder neutro para no
-  // parpadear entre "login" y "logueado".
   if (!authReady) {
     return (
       <button
@@ -44,10 +44,15 @@ export const SignInButton = () => {
     <Dropdown
       actions={[
         {
+          label: 'Profile',
+          icon: <UserRound size={16} />,
+          callback: () => {
+            navigate('/profile');
+          }
+        },
+        {
           label: 'Log Out',
           icon: <LogOut size={16} />,
-          // The auth listener (useAuthSync) clears the store on SIGNED_OUT,
-          // which re-renders this button back to the logged-out state.
           callback: () => void signOut()
         }
       ]}

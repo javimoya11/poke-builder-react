@@ -1,5 +1,6 @@
 .container {
   position: relative;
+  padding: var(--space-4);
 
   .bio {
     display: flex;

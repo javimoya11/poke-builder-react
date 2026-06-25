@@ -12,6 +12,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [fieldErrors, setFieldErrors] = useState<IAuthErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -24,6 +25,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
     setEmail('');
     setPassword('');
     setConfirmPassword('');
+    setDisplayName('');
     setFieldErrors({});
     setFormError(null);
     setInfo(null);
@@ -37,6 +39,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
     setFormError(null);
     setInfo(null);
     setConfirmPassword('');
+    setDisplayName('');
   };
 
   const submitHandler = async () => {
@@ -44,7 +47,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
     setInfo(null);
 
     const errors = validateAuth(
-      { email, password, passwordRepeat: confirmPassword },
+      { email, password, passwordRepeat: confirmPassword, displayName },
       mode
     );
     setFieldErrors(errors);
@@ -53,7 +56,11 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
     setLoading(true);
     try {
       if (mode === 'signUp') {
-        const { error, data } = await signUp(email.trim(), password);
+        const { error, data } = await signUp(
+          email.trim(),
+          password,
+          displayName.trim()
+        );
         if (error) {
           setFormError(error.message);
           return;
@@ -108,6 +115,26 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
           </button>
         </nav>
 
+        {mode === 'signUp' && (
+          <label htmlFor="display-name">
+            Nickname
+            <input
+              type="text"
+              name="display-name"
+              id="display-name"
+              autoComplete="username"
+              value={displayName}
+              aria-invalid={!!fieldErrors.displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
+            {fieldErrors.displayName && (
+              <span className={styles.fieldError}>
+                {fieldErrors.displayName}
+              </span>
+            )}
+          </label>
+        )}
+
         <label htmlFor="email">
           Email
           <input
@@ -130,7 +157,9 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
             type="password"
             name="pass"
             id="pass"
-            autoComplete={mode === 'signUp' ? 'new-password' : 'current-password'}
+            autoComplete={
+              mode === 'signUp' ? 'new-password' : 'current-password'
+            }
             value={password}
             aria-invalid={!!fieldErrors.password}
             onChange={(e) => setPassword(e.target.value)}
@@ -161,12 +190,18 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
         )}
 
         {formError && (
-          <div className={`${styles.banner} ${styles.bannerError}`} role="alert">
+          <div
+            className={`${styles.banner} ${styles.bannerError}`}
+            role="alert"
+          >
             {formError}
           </div>
         )}
         {info && (
-          <div className={`${styles.banner} ${styles.bannerInfo}`} role="status">
+          <div
+            className={`${styles.banner} ${styles.bannerInfo}`}
+            role="status"
+          >
             {info}
           </div>
         )}

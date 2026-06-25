@@ -4,6 +4,7 @@ export interface IAuthErrors {
   email?: string;
   password?: string;
   confirmPassword?: string;
+  displayName?: string;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,6 +34,10 @@ export const validateAuth = (
   }
 
   if (mode === 'signUp') {
+    if (!values.displayName?.trim()) {
+      errors.displayName = 'Display name is required.';
+    }
+
     if (!values.passwordRepeat) {
       errors.confirmPassword = 'Please confirm your password.';
     } else if (values.password !== values.passwordRepeat) {

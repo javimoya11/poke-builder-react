@@ -6,6 +6,7 @@ import Header from './feature/Header/Header';
 import { ScrollToTopButton } from './feature/ScrollToTopButton/ScrollToTopButton';
 import Details from './pages/Details/Details';
 import List from './pages/List/List';
+import { Profile } from './pages/Profile/Profile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +27,7 @@ function App() {
           <Header />
           <Routes>
             <Route path="/details/:id" element={<Details />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/" element={<List />} />
           </Routes>
           <ScrollToTopButton />
