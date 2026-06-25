@@ -1,0 +1,9 @@
+.profile-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.teams-container {
+  display: flex;
+  flex-direction: column;
+}
