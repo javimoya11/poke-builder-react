@@ -11,9 +11,9 @@ const FIRST_GEN = pokedexNumbers[0];
 const LAST_GEN = pokedexNumbers[pokedexNumbers.length - 1];
 
 function List() {
-  // Estado persistido entre navegaciones (search / generaciones cargadas).
-  // Selectores individuales: NO nos suscribimos a scrollY para que guardar el
-  // scroll no provoque re-render de toda la lista.
+  // State persisted across navigations (search / loaded generations).
+  // Individual selectors: we do NOT subscribe to scrollY so that saving the
+  // scroll position does not trigger a re-render of the whole list.
   const search = useListStore((s) => s.search);
   const setSearch = useListStore((s) => s.setSearch);
   const genReady = useListStore((s) => s.genReady);
@@ -30,7 +30,7 @@ function List() {
     (poke) => Number(idFromUrl(poke.url)) <= LAST_GEN
   );
 
-  // Carga inicial de la primera generación (solo si no hay nada cargado aún).
+  // Initial load of the first generation (only if nothing has been loaded yet).
   useEffect(() => {
     if (!allPokemons.length || genReady > 0) return;
     let cancelled = false;
@@ -46,15 +46,15 @@ function List() {
 
   const isInitialLoading = pokeResults.isLoading || genReady === 0;
 
-  // Restaura la posición de scroll guardada una vez que la lista está montada.
-  // useLayoutEffect => se aplica antes del primer paint (sin parpadeo).
+  // Restores the saved scroll position once the list is mounted.
+  // useLayoutEffect fires before the first paint, preventing a visible jump.
   useLayoutEffect(() => {
     if (isInitialLoading || restoredRef.current) return;
     window.scrollTo(0, useListStore.getState().scrollY);
     restoredRef.current = true;
   }, [isInitialLoading]);
 
-  // Guarda la posición de scroll mientras se navega por la lista.
+  // Saves the scroll position while the user navigates the list.
   useEffect(() => {
     let ticking = false;
     const onScroll = () => {

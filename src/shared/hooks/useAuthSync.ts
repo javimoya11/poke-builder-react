@@ -3,12 +3,12 @@ import { supabase } from '../../lib/supabase';
 import { useGlobalStore } from '../stores/useGlobalStore';
 
 /**
- * Mantiene el store sincronizado con la sesión de Supabase y lo convierte en la
- * única fuente de verdad del `user`:
- * - Restaura la sesión persistida al cargar la app (getSession).
- * - Reacciona a login / signup / logout / refresh de token (onAuthStateChange).
+ * Keeps the global store in sync with the Supabase session, making it the
+ * single source of truth for `user`:
+ * - Restores the persisted session on app load via `getSession`.
+ * - Reacts to login / signup / logout / token refresh via `onAuthStateChange`.
  *
- * Debe montarse una sola vez, a nivel de app.
+ * Must be mounted once at the app root level.
  */
 export function useAuthSync() {
   const setUser = useGlobalStore((s) => s.setUser);
