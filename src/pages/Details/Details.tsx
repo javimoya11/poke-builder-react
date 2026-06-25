@@ -1,13 +1,13 @@
+import PageView from 'components/PageView/PageView';
 import Range from 'components/Range/Range';
 import { usePokemon } from 'hooks/usePokemon';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { cachedImage } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
 import styles from './Details.module.css';
 
 function Details() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [formId, baseId] = (id ?? '').split('_');
 
   const results = usePokemon(formId);
@@ -18,16 +18,7 @@ function Details() {
   }
 
   return (
-    <div className={styles.container}>
-      <button
-        className="back-button"
-        type="button"
-        onClick={() => {
-          navigate('/');
-        }}
-      >
-        Exit
-      </button>
+    <PageView>
       <div className={styles.bio}>
         <div className={styles.data}>
           <h1 className={styles.name}>{`#${baseId ?? formId} - ${prettify(pokemon.name)}`}</h1>
@@ -52,7 +43,7 @@ function Details() {
           alt={pokemon.name}
         />
       </div>
-    </div>
+    </PageView>
   );
 }
 

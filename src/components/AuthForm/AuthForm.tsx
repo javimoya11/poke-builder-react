@@ -1,5 +1,6 @@
 import { Modal } from 'feature/Modal/Modal';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { signIn, signUp } from '../../lib/auth';
 import styles from './AuthForm.module.css';
 import { IAuthForm } from './types.AuthForm';
@@ -17,6 +18,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
   const [formError, setFormError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Reset to a clean state every time the modal opens.
   useEffect(() => {
@@ -82,6 +84,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
           return;
         }
         onClose();
+        navigate('/profile');
       }
     } finally {
       setLoading(false);
