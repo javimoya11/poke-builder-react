@@ -33,6 +33,9 @@ export const cachedImage = (
 export const artworkUrl = (id: string | number): string =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 
+export const spriteUrl = (id: string | number): string =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+
 /**
  * Preloads an image and resolves once it has loaded (or failed). Never rejects:
  * a failing icon/image must not block the loading of a whole generation.

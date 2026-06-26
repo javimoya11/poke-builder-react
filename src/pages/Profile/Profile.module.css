@@ -6,11 +6,13 @@
 .teamsContainer {
   display: flex;
   flex-direction: column;
+  gap: var(--space-4);
 
   .addTeamButton {
     display: flex;
     flex-direction: row;
     gap: var(--space-1);
+    align-self: center;
   }
 
   .teamsGrid {

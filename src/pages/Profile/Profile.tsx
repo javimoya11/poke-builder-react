@@ -11,9 +11,10 @@ import styles from './Profile.module.css';
 export const Profile = () => {
   const navigate = useNavigate();
   const { user } = useGlobalStore();
-  const [openTeam, setOpenTeam] = useState(false);
   const [newTeam, setNewTeam] = useState(false);
-  const { data: teams, isLoading } = useTeams(user?.id);
+  const { data, isLoading } = useTeams(user?.id);
+
+  const teams = data ? [...data].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) : []
 
   useEffect(() => {
     if (!user) {
