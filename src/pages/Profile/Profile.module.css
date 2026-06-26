@@ -1,9 +1,22 @@
-.profile-body {
+.profileBody {
   display: flex;
   flex-direction: column;
 }
 
-.teams-container {
+.teamsContainer {
   display: flex;
   flex-direction: column;
+
+  .addTeamButton {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-1);
+  }
+
+  .teamsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+  }
 }

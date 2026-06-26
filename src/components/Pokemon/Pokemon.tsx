@@ -1,6 +1,7 @@
 import { usePokemon } from 'hooks/usePokemon';
 import { useSpecies } from 'hooks/useSpecies';
 import { useTypeIconMap } from 'hooks/useTypeIconMap';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Variety } from 'types';
@@ -106,7 +107,7 @@ function Pokemon({ id, name, index }: PokemonProps) {
             aria-label="Previous form"
             onClick={() => changeForm(-1)}
           >
-            ‹
+            <ChevronLeft />
           </button>
           <button
             type="button"
@@ -114,7 +115,7 @@ function Pokemon({ id, name, index }: PokemonProps) {
             aria-label="Next form"
             onClick={() => changeForm(1)}
           >
-            ›
+            <ChevronRight />
           </button>
         </>
       )}
