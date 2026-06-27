@@ -6,6 +6,11 @@
   background-color: var(--color-surface);
   border-radius: 5px;
   overflow: hidden;
+  transition: background-color var(--transition-fast);
+
+  &:hover:not(:has(button:hover)) {
+    background-color: var(--color-hover);
+  }
 
   .teamCardTitle {
     display: flex;
@@ -24,6 +29,16 @@
 
     button {
       flex-shrink: 0;
+      border: none;
+      border-radius: var(--radius-sm);
+      background-color: transparent;
+      color: inherit;
+      transition: background-color var(--transition-fast);
+
+      &:hover,
+      &:focus-visible {
+        background-color: var(--color-scrim);
+      }
     }
   }
 

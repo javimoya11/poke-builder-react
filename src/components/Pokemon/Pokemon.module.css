@@ -8,6 +8,11 @@
   border-radius: 5px;
   padding: var(--space-5);
   overflow: hidden;
+  transition: background-color var(--transition-fast);
+
+  &:hover:not(:has(button:hover)) {
+    background-color: var(--color-hover);
+  }
 
   .skeleton {
     position: absolute;
@@ -61,10 +66,11 @@
     padding: 6px 8px;
     font-size: 1.1rem;
     transition: background-color var(--transition-fast);
-  }
-  .arrow:hover,
-  .arrow:focus-visible {
-    background-color: var(--color-scrim);
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--color-scrim);
+    }
   }
   .arrowLeft {
     left: var(--space-1);
