@@ -3,7 +3,7 @@ import {
   IAddToTeamForm,
   MAX_SINGLE_EV,
   MAX_TOTAL_EV,
-  MOVE_SLOTS,
+  MOVE_SLOTS
 } from './types.AddToTeam';
 
 export const validateAddToTeam = (values: IAddToTeamForm): IAddToTeamErrors => {
@@ -14,15 +14,18 @@ export const validateAddToTeam = (values: IAddToTeamForm): IAddToTeamErrors => {
   }
 
   const evFields = {
-    ev_hp:    values.ev_hp,
-    ev_atk:   values.ev_atk,
-    ev_def:   values.ev_def,
+    ev_hp: values.ev_hp,
+    ev_atk: values.ev_atk,
+    ev_def: values.ev_def,
     ev_spatk: values.ev_spatk,
     ev_spdef: values.ev_spdef,
-    ev_spd:   values.ev_spd,
+    ev_spd: values.ev_spd
   } as const;
 
-  for (const [field, value] of Object.entries(evFields) as [keyof typeof evFields, number][]) {
+  for (const [field, value] of Object.entries(evFields) as [
+    keyof typeof evFields,
+    number
+  ][]) {
     if (value < 0 || value > MAX_SINGLE_EV) {
       errors[field] = `Must be between 0 and ${MAX_SINGLE_EV}.`;
     }
@@ -45,6 +48,10 @@ export const validateAddToTeam = (values: IAddToTeamForm): IAddToTeamErrors => {
 
   if (!values.ability) {
     errors.ability = 'You must select an ability.';
+  }
+
+  if (!values.nature) {
+    errors.nature = 'You must select a nature.';
   }
 
   return errors;
