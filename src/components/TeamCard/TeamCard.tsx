@@ -1,5 +1,6 @@
 import { PLACEHOLDER_IMG } from 'components/Pokemon/types.Pokemon';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
+import { prettify } from 'utils/string-utils';
 import { Trash } from 'lucide-react';
 import { useState } from 'react';
 import { DeleteTeam } from '../DeleteTeam/DeleteTeam';
@@ -22,7 +23,7 @@ export const TeamCard = ({ team }: ITeamCard) => {
           {Array.from({ length: 6 }, (_, i) => {
             const poke = team.team_pokemon[i];
             return (
-              <a key={i} title={poke ? poke.pokemon_name : 'Empty'} className={styles.slot}>
+              <a key={i} title={poke ? prettify(poke.pokemon_name) : 'Empty'} className={styles.slot}>
                 <img src={poke ? cachedImage(spriteUrl(poke.pokemon_id), 96) : PLACEHOLDER_IMG} alt="" />
               </a>
             );

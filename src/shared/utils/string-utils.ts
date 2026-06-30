@@ -54,7 +54,9 @@ export const prettify = (name: string): string => {
     }
   }
 
-  return parts.join(' ');
+  return parts
+    .join(' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
 export const prettifyItem = (name: string): string =>

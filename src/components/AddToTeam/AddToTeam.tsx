@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Modal } from 'feature/Modal/Modal';
 import { useEffect, useMemo, useState } from 'react';
 import { prettifyItem } from 'utils/string-utils';
@@ -5,7 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { useAvailableMoves } from '../../shared/hooks/useAvailableMoves';
 import { useHeldItems } from '../../shared/hooks/useHeldItems';
 import { useItem } from '../../shared/hooks/useItem';
-import { useTeams } from '../../shared/hooks/useTeams';
+import { teamsQueryKey, useTeams } from '../../shared/hooks/useTeams';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './AddToTeam.module.css';
 import {
@@ -33,6 +34,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
   const [errors, setErrors] = useState<IAddToTeamErrors>({});
   const [loading, setLoading] = useState(false);
 
+  const queryClient = useQueryClient();
   const user = useGlobalStore((s) => s.user);
   const { data: teams = [] } = useTeams(user?.id);
   const { data: heldItems = [], isLoading: heldItemsLoading } = useHeldItems({ enabled: !itemBlocked });
@@ -92,6 +94,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
     });
     setLoading(false);
     if (error) throw error;
+    await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
     onClose();
   };
 
