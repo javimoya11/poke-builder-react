@@ -56,3 +56,8 @@ export const prettify = (name: string): string => {
 
   return parts.join(' ');
 };
+
+export const prettifyItem = (name: string): string =>
+  name
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
