@@ -2,7 +2,7 @@ import { ArrowUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import styles from './ScrollToTopButton.module.css';
 
-export function ScrollToTopButton() {
+export const ScrollToTopButton = () => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -32,4 +32,4 @@ export function ScrollToTopButton() {
       <ArrowUp />
     </button>
   );
-}
+};
