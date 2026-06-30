@@ -32,9 +32,18 @@ export const MAX_TOTAL_EV  = 510;
 export const MOVE_SLOTS = ['move_1', 'move_2', 'move_3', 'move_4'] as const;
 export type MoveSlot = (typeof MOVE_SLOTS)[number];
 
+export const NATURE_STAT: Record<string, StatName> = {
+  'attack':          'attack',
+  'defense':         'defense',
+  'special-attack':  'special-attack',
+  'special-defense': 'special-defense',
+  'speed':           'speed',
+};
+
 export const INITIAL_FORM: IAddToTeamForm = {
   teamId:    '',
   held_item: '',
+  nature:    '',
   ev_hp:     0,
   ev_atk:    0,
   ev_def:    0,
@@ -51,6 +60,7 @@ export const INITIAL_FORM: IAddToTeamForm = {
 export interface IAddToTeamForm {
   teamId:    string;
   held_item: string;
+  nature:    string;
   ev_hp:     number;
   ev_atk:    number;
   ev_def:    number;

@@ -2,18 +2,16 @@
   position: fixed;
   inset: 0;
   background: var(--color-overlay);
+  z-index: var(--z-modal);
   display: flex;
   justify-content: center;
-  align-items: center;
-  z-index: var(--z-modal);
+  align-items: flex-start;
+  padding: var(--space-6) var(--space-4);
+  overflow-y: auto;
 }
 
 .content {
   background: var(--color-bg);
-  position: relative;
   padding: var(--space-5);
   border-radius: var(--radius-md);
-  display: flex;
-  max-height: 95dvh;
-  overflow-y: auto;
 }

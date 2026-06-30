@@ -5,4 +5,4 @@
  * @returns The ID as a string, or undefined if the URL does not match.
  */
 export const idFromUrl = (url: string): string | undefined =>
-  url.match(/(?<=\/pokemon\/)\d+/gm)?.[0];
+  url.match(/\/(\d+)\/?$/)?.[1];

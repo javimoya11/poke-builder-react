@@ -1,9 +1,35 @@
 .addToTeamForm {
-  composes: form from '../../styles/modalForm.module.css';
-  width: min(640px, 92vw);
-  max-height: 85dvh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-3);
+  width: min(800px, 90vw);
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: 0.85rem;
+
+    select,
+    input {
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      background-color: rgba(0, 0, 0, 0.25);
+      color: var(--color-text);
+      width: 100%;
+      box-sizing: border-box;
+
+      &:focus-visible {
+        outline: none;
+        border-color: var(--color-text);
+      }
+
+      &[aria-invalid='true'] {
+        border-color: var(--color-danger);
+      }
+    }
+  }
 }
 
 .fieldError {
@@ -26,11 +52,50 @@
   composes: submit from '../../styles/modalForm.module.css';
 }
 
-/* ── Top row: team + held item side by side ── */
+/* ── Header ── */
+.formHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.headerSprite {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+}
+
+.headerDex {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.45));
+}
+
+.headerName {
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+}
+
+/* ── Desktop: left column (team/item/ability/moves) + right column (EVs) ── */
 .formInputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.formLeft {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .row {
@@ -39,11 +104,12 @@
   gap: var(--space-3);
 }
 
-/* ── Moves: 2×2 grid ── */
+/* ── Moves ── */
 .movesFieldset {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: var(--space-3);
+  min-width: 0;
 
   legend {
     padding: 0 var(--space-2);
@@ -58,11 +124,19 @@
   margin-top: var(--space-2);
 }
 
-/* ── EVs: 2×3 grid ── */
+.formRight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* ── EVs ── */
 .evsFieldset {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: var(--space-3);
+  min-width: 0;
 
   legend {
     padding: 0 var(--space-2);
@@ -112,8 +186,21 @@
   white-space: nowrap;
 }
 
-/* ── Responsive: single column on narrow screens ── */
-@media (max-width: 480px) {
+.statUp {
+  color: #60a5fa;
+}
+
+.statDown {
+  color: #f87171;
+}
+
+/* ── Mobile: single column ── */
+@media (max-width: 600px) {
+  .addToTeamForm {
+    width: 90vw;
+  }
+
+  .formInputs,
   .row,
   .movesGrid,
   .evsGrid {
