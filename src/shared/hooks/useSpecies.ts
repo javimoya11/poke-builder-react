@@ -5,7 +5,7 @@ import type {
 import { useQuery } from '@tanstack/react-query';
 import type { SpeciesData, Variety } from 'types';
 import { idFromUrl } from 'utils/idFromUrl';
-import getPokedex from './getPokedex';
+import { getPokedex } from './getPokedex';
 
 /**
  * Builds the React Query key for a Pokémon species.

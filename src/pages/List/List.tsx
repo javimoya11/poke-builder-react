@@ -1,6 +1,6 @@
-import Pokemon from 'components/Pokemon/Pokemon';
+import { Pokemon } from 'components/Pokemon/Pokemon';
 import { usePokemonList } from 'hooks/usePokemonList';
-import usePrefetchGen from 'hooks/usePrefetchGen';
+import { usePrefetchGen } from 'hooks/usePrefetchGen';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { idFromUrl } from 'utils/idFromUrl';
 import { useListStore } from '../../shared/stores/useListStore';
@@ -10,7 +10,7 @@ import pokedexNumbers from './pokedexNumbers.json';
 const FIRST_GEN = pokedexNumbers[0];
 const LAST_GEN = pokedexNumbers[pokedexNumbers.length - 1];
 
-function List() {
+export const List = () => {
   // State persisted across navigations (search / loaded generations).
   // Individual selectors: we do NOT subscribe to scrollY so that saving the
   // scroll position does not trigger a re-render of the whole list.
@@ -133,6 +133,4 @@ function List() {
       )}
     </div>
   );
-}
-
-export default List;
+};

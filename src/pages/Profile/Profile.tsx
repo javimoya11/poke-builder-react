@@ -1,5 +1,5 @@
 import { NewTeam } from 'components/NewTeam/NewTeam';
-import PageView from 'components/PageView/PageView';
+import { PageView } from 'components/PageView/PageView';
 import { TeamCard } from 'components/TeamCard/TeamCard';
 import { useTeams } from 'hooks/useTeams';
 import { Plus } from 'lucide-react';

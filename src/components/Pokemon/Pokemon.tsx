@@ -1,9 +1,12 @@
+import { AuthForm } from 'components/AuthForm/AuthForm';
+import { Dropdown } from 'feature/Dropdown/Dropdown';
 import { usePokemon } from 'hooks/usePokemon';
 import { useSpecies } from 'hooks/useSpecies';
 import { useTypeIconMap } from 'hooks/useTypeIconMap';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronLeft, ChevronRight, MoreVertical, Plus } from 'lucide-react';
+import { useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
+import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import type { Variety } from 'types';
 import { artworkUrl, cachedImage } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
@@ -14,10 +17,21 @@ import {
   type PokemonProps
 } from './types.Pokemon';
 
-function Pokemon({ id, name, index }: PokemonProps) {
+const hoverMq = window.matchMedia('(hover: hover)');
+const subscribeHover = (cb: () => void) => {
+  hoverMq.addEventListener('change', cb);
+  return () => hoverMq.removeEventListener('change', cb);
+};
+const getHover = () => hoverMq.matches;
+
+export const Pokemon = ({ id, name, index }: PokemonProps) => {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [formIndex, setFormIndex] = useState(0);
   const [slideDir, setSlideDir] = useState(0);
+  const [authOpen, setAuthOpen] = useState(false);
+
+  const isHoverDevice = useSyncExternalStore(subscribeHover, getHover, () => true);
+  const user = useGlobalStore((s) => s.user);
 
   const { data: species } = useSpecies(id);
   const forms: Variety[] = species?.varieties.filter(
@@ -49,6 +63,22 @@ function Pokemon({ id, name, index }: PokemonProps) {
 
   const slideClass =
     slideDir === 0 ? '' : slideDir > 0 ? styles.slideNext : styles.slidePrev;
+
+  const handleAddToTeam = () => {
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
+    // TODO: add to team logic
+  };
+
+  const actions = [
+    {
+      label: 'Add to team',
+      icon: <Plus size={16} />,
+      callback: handleAddToTeam
+    }
+  ];
 
   return (
     <div className={styles.card}>
@@ -99,6 +129,39 @@ function Pokemon({ id, name, index }: PokemonProps) {
         </div>
       </Link>
 
+      {isHoverDevice ? (
+        <div className={styles.actionsDesktop}>
+          <button
+            type="button"
+            className={styles.actionBtn}
+            aria-label="Add to team"
+            onClick={handleAddToTeam}
+          >
+            <Plus size={16} />
+          </button>
+        </div>
+      ) : (
+        <div className={styles.actionsTouch}>
+          <Dropdown
+            actions={actions}
+            direction="up"
+            align="right"
+            trigger={({ toggle }) => (
+              <button
+                type="button"
+                className={styles.actionMenuTrigger}
+                aria-label="Actions"
+                onClick={toggle}
+              >
+                <MoreVertical size={16} />
+              </button>
+            )}
+          />
+        </div>
+      )}
+
+      <AuthForm isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+
       {hasForms && (
         <>
           <button
@@ -121,6 +184,4 @@ function Pokemon({ id, name, index }: PokemonProps) {
       )}
     </div>
   );
-}
-
-export default Pokemon;
+};

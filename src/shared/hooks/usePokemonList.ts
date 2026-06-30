@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { NamedAPIResource } from 'pokeapi-js-wrapper';
-import getPokedex from './getPokedex';
+import { getPokedex } from './getPokedex';
 
 /**
  * Query function that fetches the full list of Pokémon (name + URL) from PokeAPI.

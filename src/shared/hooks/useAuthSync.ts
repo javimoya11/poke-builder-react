@@ -10,7 +10,7 @@ import { useGlobalStore } from '../stores/useGlobalStore';
  *
  * Must be mounted once at the app root level.
  */
-export function useAuthSync() {
+export const useAuthSync = () => {
   const setUser = useGlobalStore((s) => s.setUser);
   const setAuthReady = useGlobalStore((s) => s.setAuthReady);
 
@@ -35,4 +35,4 @@ export function useAuthSync() {
       subscription.unsubscribe();
     };
   }, [setUser, setAuthReady]);
-}
+};

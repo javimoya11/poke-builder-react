@@ -4,7 +4,7 @@ import type {
 } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import type { Pokemon } from 'pokeapi-js-wrapper';
-import getPokedex from './getPokedex';
+import { getPokedex } from './getPokedex';
 
 /**
  * Builds the React Query key for a single Pokémon.

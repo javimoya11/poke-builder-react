@@ -1,7 +1,7 @@
 import styles from './Range.module.css';
 import type { RangeProps } from './types.Range';
 
-function Range({ range, name }: RangeProps) {
+export const Range = ({ range, name }: RangeProps) => {
   const percentage = (r: number): string => {
     return `${(r * 100) / 255}%`;
   };
@@ -36,6 +36,4 @@ function Range({ range, name }: RangeProps) {
       </div>
     </div>
   );
-}
-
-export default Range;
+};

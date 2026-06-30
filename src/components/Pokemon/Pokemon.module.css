@@ -7,7 +7,6 @@
   background-color: var(--color-surface);
   border-radius: 5px;
   padding: var(--space-5);
-  overflow: hidden;
   transition: background-color var(--transition-fast);
 
   &:hover:not(:has(button:hover)) {
@@ -37,6 +36,7 @@
     width: 100%;
     height: 100%;
     color: inherit;
+    overflow: hidden;
   }
 
   .link.slideNext {
@@ -107,6 +107,99 @@
       align-items: center;
       justify-content: center;
     }
+  }
+
+  .actionsDesktop {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--space-3) var(--space-3) var(--space-2);
+    background: linear-gradient(to top, color-mix(in srgb, var(--color-surface) 75%, transparent) 60%, transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+  }
+
+  .actionBtn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: inherit;
+    padding: 6px;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--color-scrim);
+    }
+
+    &::after {
+      content: attr(aria-label);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      right: 0;
+      white-space: nowrap;
+      font-size: 0.72rem;
+      padding: 3px 7px;
+      border-radius: var(--radius-sm);
+      background-color: var(--color-text);
+      color: var(--color-bg);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition:
+        opacity var(--transition-fast),
+        transform var(--transition-fast);
+    }
+
+    &:hover::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .actionsTouch {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    z-index: var(--z-dropdown);
+  }
+
+  .actionMenuTrigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: inherit;
+    padding: 4px;
+    cursor: pointer;
+    outline: none;
+    transition: background-color var(--transition-fast);
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--color-scrim);
+    }
+
+    &:focus:not(:focus-visible) {
+      background-color: transparent;
+    }
+  }
+
+  &:hover .actionsDesktop {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 

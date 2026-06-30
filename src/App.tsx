@@ -2,10 +2,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthSync } from 'hooks/useAuthSync';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
-import Header from './feature/Header/Header';
+import { Header } from './feature/Header/Header';
 import { ScrollToTopButton } from './feature/ScrollToTopButton/ScrollToTopButton';
-import Details from './pages/Details/Details';
-import List from './pages/List/List';
+import { Details } from './pages/Details/Details';
+import { List } from './pages/List/List';
 import { Profile } from './pages/Profile/Profile';
 
 const queryClient = new QueryClient({
@@ -17,7 +17,7 @@ const queryClient = new QueryClient({
   }
 });
 
-function App() {
+export const App = () => {
   useAuthSync();
 
   return (
@@ -35,6 +35,4 @@ function App() {
       </BrowserRouter>
     </div>
   );
-}
-
-export default App;
+};

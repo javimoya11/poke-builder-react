@@ -2,7 +2,7 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import type { Type } from 'pokeapi-js-wrapper';
 import type { TypeIconMap, TypeSpriteSet } from 'types';
-import getPokedex from './getPokedex';
+import { getPokedex } from './getPokedex';
 
 export const TYPE_ICON_MAP_KEY = ['type-icon-map'] as const;
 

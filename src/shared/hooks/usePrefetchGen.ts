@@ -13,7 +13,7 @@ import { fetchTypeIconMap, TYPE_ICON_MAP_KEY } from './useTypeIconMap';
  * generation appears instantly once selected.
  * @returns An async function that prefetches a slice of Pokémon resources.
  */
-function usePrefetchGen() {
+export const usePrefetchGen = () => {
   const queryClient = useQueryClient();
 
   // Prefetches a single Pokémon: its base detail, species and artwork.
@@ -63,6 +63,4 @@ function usePrefetchGen() {
     },
     [queryClient, prefetchOne]
   );
-}
-
-export default usePrefetchGen;
+};

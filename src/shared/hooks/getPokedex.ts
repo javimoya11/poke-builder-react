@@ -12,8 +12,6 @@ const pokedex = new Pokedex({
  * Returns the shared Pokedex client singleton used for all PokeAPI requests.
  * @returns The shared Pokedex instance.
  */
-function getPokedex(): Pokedex {
+export const getPokedex = (): Pokedex => {
   return pokedex;
-}
-
-export default getPokedex;
+};

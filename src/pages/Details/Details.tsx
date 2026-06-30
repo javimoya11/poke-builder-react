@@ -1,12 +1,12 @@
-import PageView from 'components/PageView/PageView';
-import Range from 'components/Range/Range';
+import { PageView } from 'components/PageView/PageView';
+import { Range } from 'components/Range/Range';
 import { usePokemon } from 'hooks/usePokemon';
 import { useParams } from 'react-router-dom';
 import { cachedImage } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
 import styles from './Details.module.css';
 
-function Details() {
+export const Details = () => {
   const { id } = useParams<{ id: string }>();
   const [formId, baseId] = (id ?? '').split('_');
 
@@ -45,6 +45,4 @@ function Details() {
       </div>
     </PageView>
   );
-}
-
-export default Details;
+};

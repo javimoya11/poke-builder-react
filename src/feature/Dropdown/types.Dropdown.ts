@@ -16,6 +16,7 @@ export interface IDropdownProps {
   actions: IDropdownAction[];
   trigger: (state: IDropdownTriggerState) => ReactNode;
   align?: 'left' | 'right'; // defaults to 'right' (anchored to the right, as in the header)
+  direction?: 'down' | 'up'; // defaults to 'down'
 }
 
 export interface IDropdownOptionProps {
