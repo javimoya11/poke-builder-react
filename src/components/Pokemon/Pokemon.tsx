@@ -1,3 +1,4 @@
+import { AddToTeam } from 'components/AddToTeam/AddToTeam';
 import { AuthForm } from 'components/AuthForm/AuthForm';
 import { Dropdown } from 'feature/Dropdown/Dropdown';
 import { usePokemon } from 'hooks/usePokemon';
@@ -6,10 +7,10 @@ import { useTypeIconMap } from 'hooks/useTypeIconMap';
 import { ChevronLeft, ChevronRight, MoreVertical, Plus } from 'lucide-react';
 import { useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
-import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import type { Variety } from 'types';
 import { artworkUrl, cachedImage } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
+import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './Pokemon.module.css';
 import {
   PLACEHOLDER_IMG,
@@ -29,8 +30,13 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
   const [formIndex, setFormIndex] = useState(0);
   const [slideDir, setSlideDir] = useState(0);
   const [authOpen, setAuthOpen] = useState(false);
+  const [addTeamOpen, setAddTeamOpen] = useState(false);
 
-  const isHoverDevice = useSyncExternalStore(subscribeHover, getHover, () => true);
+  const isHoverDevice = useSyncExternalStore(
+    subscribeHover,
+    getHover,
+    () => true
+  );
   const user = useGlobalStore((s) => s.user);
 
   const { data: species } = useSpecies(id);
@@ -69,7 +75,7 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
       setAuthOpen(true);
       return;
     }
-    // TODO: add to team logic
+    setAddTeamOpen(true);
   };
 
   const actions = [
@@ -161,6 +167,11 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
       )}
 
       <AuthForm isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+      <AddToTeam
+        open={addTeamOpen}
+        onClose={() => setAddTeamOpen(false)}
+        pokemon={pokemon}
+      />
 
       {hasForms && (
         <>
