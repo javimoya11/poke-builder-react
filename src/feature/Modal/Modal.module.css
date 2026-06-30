@@ -14,4 +14,6 @@
   padding: var(--space-5);
   border-radius: var(--radius-md);
   display: flex;
+  max-height: 95dvh;
+  overflow-y: auto;
 }
