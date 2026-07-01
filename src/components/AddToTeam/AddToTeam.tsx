@@ -8,8 +8,8 @@ import { prettifyItem } from 'utils/string-utils';
 import { supabase } from '../../lib/supabase';
 import { useAvailableMoves } from '../../shared/hooks/useAvailableMoves';
 import { useHeldItems } from '../../shared/hooks/useHeldItems';
-import { useItem } from '../../shared/hooks/useItem';
 import { useNatures } from '../../shared/hooks/useNatures';
+import { usePokemon } from '../../shared/hooks/usePokemon';
 import { teamsQueryKey, useTeams } from '../../shared/hooks/useTeams';
 import { useTypeIconMap } from '../../shared/hooks/useTypeIconMap';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
@@ -22,7 +22,7 @@ import {
   IAddToTeamErrors,
   IAddToTeamForm,
   INITIAL_FORM,
-  isUnmappedMega,
+  isMegaOrPrimal,
   IV_FIELD,
   MAX_HAPPINESS,
   MAX_IV,
@@ -37,11 +37,12 @@ import {
 import { validateAddToTeam } from './validation.AddToTeam';
 
 export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
-  const forcedItem  = useMemo(() => getForcedItem(pokemon?.name), [pokemon?.name]);
-  const itemBlocked = useMemo(
-    () => !!forcedItem || isUnmappedMega(pokemon?.name),
-    [forcedItem, pokemon?.name]
-  );
+  // Mega/Primal forms are stored in Showdown as the base species holding the
+  // corresponding stone/orb. When one is opened we resolve to its base species
+  // and pre-fill (but do not lock) the item with that stone.
+  const isMega     = useMemo(() => isMegaOrPrimal(pokemon?.name), [pokemon?.name]);
+  const forcedItem = useMemo(() => getForcedItem(pokemon?.name), [pokemon?.name]);
+  const baseSpeciesName = pokemon?.species.name;
 
   const [form, setForm]     = useState<IAddToTeamForm>({ ...INITIAL_FORM, held_item: forcedItem ?? '' });
   const [errors, setErrors] = useState<IAddToTeamErrors>({});
@@ -51,14 +52,21 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
   const queryClient = useQueryClient();
   const user = useGlobalStore((s) => s.user);
   const { data: teams = [] } = useTeams(user?.id);
-  const { data: heldItems = [], isLoading: heldItemsLoading } = useHeldItems({ enabled: !itemBlocked });
-  const { data: forcedItemData, isLoading: forcedItemLoading }  = useItem(forcedItem);
+
+  // For a mega/primal, load the base species and use it for everything the form
+  // shows and stores; otherwise the received Pokémon is already the base form.
+  const { data: basePokemon } = usePokemon(baseSpeciesName, {
+    enabled: isMega && !!baseSpeciesName
+  });
+  const effectivePokemon = isMega ? basePokemon : pokemon;
+
+  const { data: heldItems = [], isLoading: heldItemsLoading } = useHeldItems();
   const { data: natures = [] } = useNatures();
-  const moves = useAvailableMoves(pokemon);
+  const moves = useAvailableMoves(effectivePokemon);
 
   const { data: typeIconMap = {} } = useTypeIconMap();
-  const typeIcons = pokemon?.types
-    ? pokemon.types.map((entry) => ({
+  const typeIcons = effectivePokemon?.types
+    ? effectivePokemon.types.map((entry) => ({
         name: entry.type.name,
         icon: typeIconMap[entry.type.url] ?? null
       }))
@@ -72,7 +80,14 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
     ? NATURE_STAT[selectedNature.decreased_stat] ?? null
     : null;
 
-  const isItemLoading = itemBlocked ? forcedItemLoading : heldItemsLoading;
+  // The forced stone lives outside the held-items list, so surface it as an
+  // extra option (still selectable/changeable) alongside the regular items.
+  const itemOptions = useMemo(() => {
+    if (!forcedItem || heldItems.some((i) => i.name === forcedItem)) {
+      return heldItems;
+    }
+    return [{ name: forcedItem, url: '' }, ...heldItems];
+  }, [forcedItem, heldItems]);
 
   const selectedTeam = teams.find((t) => t.id === form.teamId);
   const usedSlots    = selectedTeam?.team_pokemon?.map((p) => p.slot) ?? [];
@@ -104,13 +119,13 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
       formRef.current?.closest<HTMLElement>('[class*="overlay"]')?.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    if (!pokemon || !user) return;
+    if (!effectivePokemon || !user) return;
     setLoading(true);
     const { error } = await supabase.from('team_pokemon').insert({
       team_id:      form.teamId,
       slot:         nextSlot,
-      pokemon_name: pokemon.name,
-      pokemon_id:   pokemon.id,
+      pokemon_name: effectivePokemon.name,
+      pokemon_id:   effectivePokemon.id,
       nickname:     form.nickname || null,
       held_item:    form.held_item || null,
       ability:      form.ability,
@@ -154,19 +169,19 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
         }}
       >
         <header className={styles.formHeader}>
-          {pokemon && (
+          {effectivePokemon && (
             <img
-              src={cachedImage(spriteUrl(pokemon.id, form.shiny), 48)}
-              alt={pokemon.name}
+              src={cachedImage(spriteUrl(effectivePokemon.id, form.shiny), 48)}
+              alt={effectivePokemon.name}
               className={styles.headerSprite}
             />
           )}
           <div>
             <span className={styles.headerDex}>
-              #{idFromUrl(pokemon?.species.url ?? '')}
+              #{idFromUrl(effectivePokemon?.species.url ?? '')}
             </span>
             <span className={styles.headerName}>
-              {prettifyItem(pokemon?.name ?? '')}
+              {prettifyItem(effectivePokemon?.name ?? '')}
             </span>
             {typeIcons.length > 0 && (
               <span className={styles.headerTypes}>
@@ -186,7 +201,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
               id="nickname"
               type="text"
               value={form.nickname}
-              placeholder={prettifyItem(pokemon?.name ?? '')}
+              placeholder={prettifyItem(effectivePokemon?.name ?? '')}
               maxLength={30}
               onChange={(e) => set('nickname', e.target.value)}
             />
@@ -239,16 +254,12 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
                   id="item"
                   value={form.held_item}
                   onChange={(e) => set('held_item', e.target.value)}
-                  disabled={itemBlocked || isItemLoading}
+                  disabled={heldItemsLoading}
                 >
-                  <option value="">{isItemLoading ? 'Loading...' : 'None'}</option>
-                  {itemBlocked && forcedItemData ? (
-                    <option value={forcedItemData.name}>{prettifyItem(forcedItemData.name)}</option>
-                  ) : (
-                    heldItems.map((item) => (
-                      <option key={item.name} value={item.name}>{prettifyItem(item.name)}</option>
-                    ))
-                  )}
+                  <option value="">{heldItemsLoading ? 'Loading...' : 'None'}</option>
+                  {itemOptions.map((item) => (
+                    <option key={item.name} value={item.name}>{prettifyItem(item.name)}</option>
+                  ))}
                 </select>
               </label>
             </div>
@@ -263,7 +274,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
                   aria-invalid={!!errors.ability}
                 >
                   <option value="" disabled hidden>Select an ability...</option>
-                  {pokemon?.abilities.map(({ ability }) => (
+                  {effectivePokemon?.abilities.map(({ ability }) => (
                     <option key={ability.name} value={ability.name}>
                       {prettifyItem(ability.name)}
                     </option>
@@ -365,7 +376,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
                 {STAT_NAMES.map((statName) => {
                   const evKey = EV_FIELD[statName];
                   const ivKey = IV_FIELD[statName];
-                  const baseStat = pokemon?.stats.find((s) => s.stat.name === statName)?.base_stat ?? 0;
+                  const baseStat = effectivePokemon?.stats.find((s) => s.stat.name === statName)?.base_stat ?? 0;
                   const isUp   = natureIncreasedStat === statName;
                   const isDown = natureDecreasedStat === statName;
                   return (
@@ -446,7 +457,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
         <button
           type="submit"
           className={styles.submit}
-          disabled={loading || !form.teamId || teamFull}
+          disabled={loading || !form.teamId || teamFull || !effectivePokemon}
         >
           {loading ? <span className="button-spinner" aria-label="Loading" /> : 'Add to team'}
         </button>

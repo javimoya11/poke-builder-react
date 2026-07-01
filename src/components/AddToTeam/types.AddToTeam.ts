@@ -218,9 +218,16 @@ export function getForcedItem(pokemonName?: string): string | undefined {
   return MEGA_STONE_MAP[pokemonName];
 }
 
-export function isUnmappedMega(pokemonName?: string): boolean {
+/**
+ * Whether a form name is a Mega or Primal form. These are transient
+ * battle forms: Showdown stores the base species holding the corresponding
+ * stone/orb, never the mega/primal form itself.
+ */
+export function isMegaOrPrimal(pokemonName?: string): boolean {
   if (!pokemonName) return false;
-  const isMegaOrPrimal =
-    pokemonName.includes('-mega') || pokemonName.includes('-primal');
-  return isMegaOrPrimal && !(pokemonName in MEGA_STONE_MAP);
+  return pokemonName.includes('-mega') || pokemonName.includes('-primal');
+}
+
+export function isUnmappedMega(pokemonName?: string): boolean {
+  return isMegaOrPrimal(pokemonName) && !(pokemonName! in MEGA_STONE_MAP);
 }
