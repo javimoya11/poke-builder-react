@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { idFromUrl } from 'utils/idFromUrl';
 import { statColor } from 'utils/statColor';
-import { prettifyItem } from 'utils/string-utils';
+import { prettify, prettifyItem } from 'utils/string-utils';
 import { supabase } from '../../lib/supabase';
 import { useAvailableMoves } from '../../shared/hooks/useAvailableMoves';
 import { useHeldItems } from '../../shared/hooks/useHeldItems';
@@ -181,7 +181,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
               #{idFromUrl(effectivePokemon?.species.url ?? '')}
             </span>
             <span className={styles.headerName}>
-              {prettifyItem(effectivePokemon?.name ?? '')}
+              {prettify(effectivePokemon?.name ?? '')}
             </span>
             {typeIcons.length > 0 && (
               <span className={styles.headerTypes}>
@@ -201,7 +201,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
               id="nickname"
               type="text"
               value={form.nickname}
-              placeholder={prettifyItem(effectivePokemon?.name ?? '')}
+              placeholder={prettify(effectivePokemon?.name ?? '')}
               maxLength={30}
               onChange={(e) => set('nickname', e.target.value)}
             />
