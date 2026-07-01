@@ -16,6 +16,7 @@ import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './AddToTeam.module.css';
 import {
   EV_FIELD,
+  formFromTeamPokemon,
   GENDERS,
   getForcedItem,
   IAddToTeam,
@@ -36,10 +37,13 @@ import {
 } from './types.AddToTeam';
 import { validateAddToTeam } from './validation.AddToTeam';
 
-export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
+export const AddToTeam = ({ open, onClose, pokemon, editing, teamId }: IAddToTeam) => {
+  const isEditing = !!editing;
+
   // Mega/Primal forms are stored in Showdown as the base species holding the
-  // corresponding stone/orb. When one is opened we resolve to its base species
-  // and pre-fill (but do not lock) the item with that stone.
+  // corresponding stone/orb. When one is opened (create mode) we resolve to its
+  // base species and pre-fill (but do not lock) the item with that stone. Edited
+  // rows already store the base species, so no resolution is needed there.
   const isMega     = useMemo(() => isMegaOrPrimal(pokemon?.name), [pokemon?.name]);
   const forcedItem = useMemo(() => getForcedItem(pokemon?.name), [pokemon?.name]);
   const baseSpeciesName = pokemon?.species.name;
@@ -53,12 +57,20 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
   const user = useGlobalStore((s) => s.user);
   const { data: teams = [] } = useTeams(user?.id);
 
-  // For a mega/primal, load the base species and use it for everything the form
-  // shows and stores; otherwise the received Pokémon is already the base form.
-  const { data: basePokemon } = usePokemon(baseSpeciesName, {
-    enabled: isMega && !!baseSpeciesName
+  // Edit mode loads its Pokémon from the stored id; create mode resolves the
+  // base species of the passed-in form. Either way `effectivePokemon` is the
+  // base-species Pokémon that drives the header, selects, stats and the write.
+  const { data: editingPokemon } = usePokemon(editing?.pokemon_id, {
+    enabled: isEditing && !!editing?.pokemon_id
   });
-  const effectivePokemon = isMega ? basePokemon : pokemon;
+  const { data: basePokemon } = usePokemon(baseSpeciesName, {
+    enabled: !isEditing && isMega && !!baseSpeciesName
+  });
+  const effectivePokemon = isEditing
+    ? editingPokemon
+    : isMega
+      ? basePokemon
+      : pokemon;
 
   const { data: heldItems = [], isLoading: heldItemsLoading } = useHeldItems();
   const { data: natures = [] } = useNatures();
@@ -89,7 +101,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
     return [{ name: forcedItem, url: '' }, ...heldItems];
   }, [forcedItem, heldItems]);
 
-  const selectedTeam = teams.find((t) => t.id === form.teamId);
+  const selectedTeam = teams.find((t) => String(t.id) === form.teamId);
   const usedSlots    = selectedTeam?.team_pokemon?.map((p) => p.slot) ?? [];
   const nextSlot     = usedSlots.length > 0 ? Math.max(...usedSlots) + 1 : 1;
   const teamFull     = usedSlots.length >= 6;
@@ -99,10 +111,14 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
 
   useEffect(() => {
     if (!open) return;
-    setForm({ ...INITIAL_FORM, held_item: forcedItem ?? '' });
+    setForm(
+      editing
+        ? formFromTeamPokemon(editing, teamId ?? '')
+        : { ...INITIAL_FORM, held_item: forcedItem ?? '' }
+    );
     setErrors({});
     setLoading(false);
-  }, [open, forcedItem]);
+  }, [open, forcedItem, editing, teamId]);
 
   const set = <K extends keyof IAddToTeamForm>(key: K, value: IAddToTeamForm[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -120,38 +136,47 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
       return;
     }
     if (!effectivePokemon || !user) return;
+
+    // Fields the user can edit in both modes. Species/team/slot are set only on
+    // insert (they cannot change while editing).
+    const editableFields = {
+      nickname:  form.nickname || null,
+      held_item: form.held_item || null,
+      ability:   form.ability,
+      nature:    form.nature || null,
+      level:     form.level,
+      gender:    form.gender || null,
+      shiny:     form.shiny,
+      happiness: form.happiness,
+      tera_type: form.tera_type || null,
+      ev_hp:     form.ev_hp,
+      ev_atk:    form.ev_atk,
+      ev_def:    form.ev_def,
+      ev_spatk:  form.ev_spatk,
+      ev_spdef:  form.ev_spdef,
+      ev_spd:    form.ev_spd,
+      iv_hp:     form.iv_hp,
+      iv_atk:    form.iv_atk,
+      iv_def:    form.iv_def,
+      iv_spatk:  form.iv_spatk,
+      iv_spdef:  form.iv_spdef,
+      iv_spd:    form.iv_spd,
+      move_1:    form.move_1 || null,
+      move_2:    form.move_2 || null,
+      move_3:    form.move_3 || null,
+      move_4:    form.move_4 || null,
+    };
+
     setLoading(true);
-    const { error } = await supabase.from('team_pokemon').insert({
-      team_id:      form.teamId,
-      slot:         nextSlot,
-      pokemon_name: effectivePokemon.name,
-      pokemon_id:   effectivePokemon.id,
-      nickname:     form.nickname || null,
-      held_item:    form.held_item || null,
-      ability:      form.ability,
-      nature:       form.nature || null,
-      level:        form.level,
-      gender:       form.gender || null,
-      shiny:        form.shiny,
-      happiness:    form.happiness,
-      tera_type:    form.tera_type || null,
-      ev_hp:        form.ev_hp,
-      ev_atk:       form.ev_atk,
-      ev_def:       form.ev_def,
-      ev_spatk:     form.ev_spatk,
-      ev_spdef:     form.ev_spdef,
-      ev_spd:       form.ev_spd,
-      iv_hp:        form.iv_hp,
-      iv_atk:       form.iv_atk,
-      iv_def:       form.iv_def,
-      iv_spatk:     form.iv_spatk,
-      iv_spdef:     form.iv_spdef,
-      iv_spd:       form.iv_spd,
-      move_1:       form.move_1 || null,
-      move_2:       form.move_2 || null,
-      move_3:       form.move_3 || null,
-      move_4:       form.move_4 || null,
-    });
+    const { error } = editing
+      ? await supabase.from('team_pokemon').update(editableFields).eq('id', editing.id)
+      : await supabase.from('team_pokemon').insert({
+          team_id:      form.teamId,
+          slot:         nextSlot,
+          pokemon_name: effectivePokemon.name,
+          pokemon_id:   effectivePokemon.id,
+          ...editableFields,
+        });
     setLoading(false);
     if (error) throw error;
     await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
@@ -236,6 +261,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
                   value={form.teamId}
                   onChange={(e) => set('teamId', e.target.value)}
                   aria-invalid={!!errors.teamId}
+                  disabled={isEditing}
                 >
                   <option value="" disabled hidden>Select a team...</option>
                   {teams.map((t) => (
@@ -457,9 +483,19 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
         <button
           type="submit"
           className={styles.submit}
-          disabled={loading || !form.teamId || teamFull || !effectivePokemon}
+          disabled={
+            loading ||
+            !effectivePokemon ||
+            (!isEditing && (!form.teamId || teamFull))
+          }
         >
-          {loading ? <span className="button-spinner" aria-label="Loading" /> : 'Add to team'}
+          {loading ? (
+            <span className="button-spinner" aria-label="Loading" />
+          ) : isEditing ? (
+            'Update Pokémon'
+          ) : (
+            'Add to team'
+          )}
         </button>
       </form>
     </Modal>

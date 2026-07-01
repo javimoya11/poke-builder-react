@@ -1,9 +1,19 @@
 import { Pokemon } from 'pokeapi-js-wrapper';
+import type { TeamPokemon } from '../../shared/hooks/useTeams';
 
 export interface IAddToTeam {
   open: boolean;
   onClose: () => void;
+  /** The Pokémon to add. Used in create mode (adding a new Pokémon to a team). */
   pokemon?: Pokemon;
+  /**
+   * A stored team_pokemon row to edit. When present the form runs in edit mode:
+   * it loads its Pokémon from `pokemon_id`, pre-fills every field, locks the
+   * team selector and updates (rather than inserts) the row on submit.
+   */
+  editing?: TeamPokemon;
+  /** The team id the edited Pokémon belongs to (edit mode only). */
+  teamId?: string;
 }
 
 export const STAT_NAMES = [
@@ -159,6 +169,44 @@ export interface IAddToTeamErrors {
   ability?: string;
   nature?: string;
 }
+
+/**
+ * Builds a form state from a stored team_pokemon row (edit mode). Nullable
+ * columns become empty strings so the controlled inputs stay defined.
+ * @param p - The stored row.
+ * @param teamId - The team the row belongs to.
+ */
+export const formFromTeamPokemon = (
+  p: TeamPokemon,
+  teamId: string
+): IAddToTeamForm => ({
+  teamId,
+  nickname: p.nickname ?? '',
+  held_item: p.held_item ?? '',
+  ability: p.ability,
+  nature: p.nature ?? '',
+  level: p.level,
+  gender: (p.gender ?? '') as IAddToTeamForm['gender'],
+  shiny: p.shiny,
+  happiness: p.happiness,
+  tera_type: (p.tera_type ?? '') as IAddToTeamForm['tera_type'],
+  ev_hp: p.ev_hp,
+  ev_atk: p.ev_atk,
+  ev_def: p.ev_def,
+  ev_spatk: p.ev_spatk,
+  ev_spdef: p.ev_spdef,
+  ev_spd: p.ev_spd,
+  iv_hp: p.iv_hp,
+  iv_atk: p.iv_atk,
+  iv_def: p.iv_def,
+  iv_spatk: p.iv_spatk,
+  iv_spdef: p.iv_spdef,
+  iv_spd: p.iv_spd,
+  move_1: p.move_1 ?? '',
+  move_2: p.move_2 ?? '',
+  move_3: p.move_3 ?? '',
+  move_4: p.move_4 ?? ''
+});
 
 export const MEGA_STONE_MAP: Record<string, string> = {
   'venusaur-mega': 'venusaurite',

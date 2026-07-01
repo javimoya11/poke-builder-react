@@ -53,6 +53,22 @@
       justify-content: center;
       width: 48px;
       height: 48px;
+      padding: 0;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: none;
+      color: inherit;
+      cursor: pointer;
+      transition: background-color var(--transition-fast);
+
+      &:not(:disabled):hover,
+      &:not(:disabled):focus-visible {
+        background-color: var(--color-scrim);
+      }
+
+      &:disabled {
+        cursor: default;
+      }
 
       img {
         width: 100%;

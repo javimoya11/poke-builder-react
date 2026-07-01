@@ -137,12 +137,14 @@
     background-color: var(--color-bg);
   }
 
-  /* Cursor: global (también afecta a botones en portales como el Modal),
+  /* Cursor: global (también afecta a controles en portales como el Modal),
      replicando el comportamiento original de :root button. */
-  button {
+  button,
+  select {
     cursor: pointer;
   }
-  button:disabled {
+  button:disabled,
+  select:disabled {
     cursor: not-allowed;
   }
 
