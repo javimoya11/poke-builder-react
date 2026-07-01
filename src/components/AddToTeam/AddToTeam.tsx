@@ -14,16 +14,23 @@ import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './AddToTeam.module.css';
 import {
   EV_FIELD,
+  GENDERS,
   getForcedItem,
   IAddToTeam,
   IAddToTeamErrors,
   IAddToTeamForm,
   INITIAL_FORM,
   isUnmappedMega,
+  IV_FIELD,
+  MAX_HAPPINESS,
+  MAX_IV,
+  MAX_LEVEL,
   MAX_TOTAL_EV,
+  MIN_LEVEL,
   MOVE_SLOTS,
   NATURE_STAT,
   STAT_NAMES,
+  TERA_TYPES,
 } from './types.AddToTeam';
 import { validateAddToTeam } from './validation.AddToTeam';
 
@@ -94,19 +101,31 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
       slot:         nextSlot,
       pokemon_name: pokemon.name,
       pokemon_id:   pokemon.id,
+      nickname:     form.nickname || null,
       held_item:    form.held_item || null,
+      ability:      form.ability,
+      nature:       form.nature || null,
+      level:        form.level,
+      gender:       form.gender || null,
+      shiny:        form.shiny,
+      happiness:    form.happiness,
+      tera_type:    form.tera_type || null,
       ev_hp:        form.ev_hp,
       ev_atk:       form.ev_atk,
       ev_def:       form.ev_def,
       ev_spatk:     form.ev_spatk,
       ev_spdef:     form.ev_spdef,
       ev_spd:       form.ev_spd,
+      iv_hp:        form.iv_hp,
+      iv_atk:       form.iv_atk,
+      iv_def:       form.iv_def,
+      iv_spatk:     form.iv_spatk,
+      iv_spdef:     form.iv_spdef,
+      iv_spd:       form.iv_spd,
       move_1:       form.move_1 || null,
       move_2:       form.move_2 || null,
       move_3:       form.move_3 || null,
       move_4:       form.move_4 || null,
-      ability:      form.ability,
-      nature:       form.nature || null,
     });
     setLoading(false);
     if (error) throw error;
@@ -127,7 +146,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
         <header className={styles.formHeader}>
           {pokemon && (
             <img
-              src={cachedImage(spriteUrl(pokemon.id), 48)}
+              src={cachedImage(spriteUrl(pokemon.id, form.shiny), 48)}
               alt={pokemon.name}
               className={styles.headerSprite}
             />
@@ -140,6 +159,35 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
               {prettifyItem(pokemon?.name ?? '')}
             </span>
           </div>
+
+          <label htmlFor="nickname" className={styles.headerField}>
+            Nickname
+            <input
+              id="nickname"
+              type="text"
+              value={form.nickname}
+              placeholder={prettifyItem(pokemon?.name ?? '')}
+              maxLength={30}
+              onChange={(e) => set('nickname', e.target.value)}
+            />
+          </label>
+
+          <label htmlFor="level" className={styles.headerFieldNarrow}>
+            Level
+            <input
+              id="level"
+              type="number"
+              min={MIN_LEVEL}
+              max={MAX_LEVEL}
+              step={1}
+              value={form.level}
+              onChange={(e) =>
+                set('level', Math.min(MAX_LEVEL, Math.max(MIN_LEVEL, Number(e.target.value))))
+              }
+              aria-invalid={!!errors.level}
+            />
+            {errors.level && <span className={styles.fieldError}>{errors.level}</span>}
+          </label>
         </header>
         <div className={styles.formInputs}>
 
@@ -203,6 +251,16 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
               {errors.ability && <span className={styles.fieldError}>{errors.ability}</span>}
             </label>
 
+            <label htmlFor="shiny" className={styles.shinyLabel}>
+              <input
+                id="shiny"
+                type="checkbox"
+                checked={form.shiny}
+                onChange={(e) => set('shiny', e.target.checked)}
+              />
+              Shiny
+            </label>
+
             {/* Moves: 2×2 grid, inside left column */}
             <fieldset className={styles.movesFieldset}>
               <legend>Moves</legend>
@@ -232,57 +290,92 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
 
           {/* Right column: nature + EVs */}
           <div className={styles.formRight}>
-            <label htmlFor="nature">
-              Nature
-              <select
-                id="nature"
-                value={form.nature}
-                onChange={(e) => set('nature', e.target.value)}
-              >
-                <option value="">None</option>
-                {natures.map((n) => (
-                  <option key={n.name} value={n.name}>
-                    {prettifyItem(n.name)}
-                    {n.increased_stat && n.decreased_stat && n.increased_stat !== n.decreased_stat
-                      ? ` (+${prettifyItem(n.increased_stat)} / -${prettifyItem(n.decreased_stat)})`
-                      : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className={styles.row}>
+              <label htmlFor="nature">
+                Nature
+                <select
+                  id="nature"
+                  value={form.nature}
+                  onChange={(e) => set('nature', e.target.value)}
+                >
+                  <option value="">None</option>
+                  {natures.map((n) => (
+                    <option key={n.name} value={n.name}>
+                      {prettifyItem(n.name)}
+                      {n.increased_stat && n.decreased_stat && n.increased_stat !== n.decreased_stat
+                        ? ` (+${prettifyItem(n.increased_stat)} / -${prettifyItem(n.decreased_stat)})`
+                        : ''}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label htmlFor="tera">
+                Tera type
+                <select
+                  id="tera"
+                  value={form.tera_type}
+                  onChange={(e) => set('tera_type', e.target.value as IAddToTeamForm['tera_type'])}
+                >
+                  <option value="">None</option>
+                  {TERA_TYPES.map((type) => (
+                    <option key={type} value={type}>{prettifyItem(type)}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className={styles.row}>
+              <label htmlFor="gender">
+                Gender
+                <select
+                  id="gender"
+                  value={form.gender}
+                  onChange={(e) => set('gender', e.target.value as IAddToTeamForm['gender'])}
+                >
+                  <option value="">Unspecified</option>
+                  {GENDERS.map((g) => (
+                    <option key={g} value={g}>{prettifyItem(g)}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label htmlFor="happiness">
+                Happiness
+                <input
+                  id="happiness"
+                  type="number"
+                  min={0}
+                  max={MAX_HAPPINESS}
+                  step={1}
+                  value={form.happiness}
+                  onChange={(e) =>
+                    set('happiness', Math.min(MAX_HAPPINESS, Math.max(0, Number(e.target.value))))
+                  }
+                  aria-invalid={!!errors.happiness}
+                />
+                {errors.happiness && <span className={styles.fieldError}>{errors.happiness}</span>}
+              </label>
+            </div>
 
             <fieldset className={styles.evsFieldset}>
-              <legend>
-                EVs
-                <span className={remainingEv < 0 ? styles.evCounterError : styles.evCounter}>
-                  {remainingEv} remaining
-                </span>
-              </legend>
-              {errors.evTotal && <span className={styles.fieldError}>{errors.evTotal}</span>}
+              <legend>IVs</legend>
               <div className={styles.evsGrid}>
                 {STAT_NAMES.map((statName) => {
-                  const formKey = EV_FIELD[statName];
-                  const baseStat = pokemon?.stats.find((s) => s.stat.name === statName)?.base_stat;
-                  const isUp   = natureIncreasedStat === statName;
-                  const isDown = natureDecreasedStat === statName;
+                  const formKey = IV_FIELD[statName];
                   return (
-                    <label key={statName} htmlFor={`ev-${statName}`}>
+                    <label key={statName} htmlFor={`iv-${statName}`}>
                       <span className={styles.evLabel}>
-                        <span className={isUp ? styles.statUp : isDown ? styles.statDown : undefined}>
-                          {prettifyItem(statName)}
-                        </span>
-                        {baseStat !== undefined && (
-                          <span className={styles.baseStat}>base {baseStat}</span>
-                        )}
+                        <span>{prettifyItem(statName)}</span>
                       </span>
                       <input
-                        id={`ev-${statName}`}
+                        id={`iv-${statName}`}
                         type="number"
                         min={0}
-                        max={255}
+                        max={MAX_IV}
                         step={1}
                         value={form[formKey] as number}
-                        onChange={(e) => set(formKey, Math.min(255, Math.max(0, Number(e.target.value))))}
+                        onChange={(e) => set(formKey, Math.min(MAX_IV, Math.max(0, Number(e.target.value))))}
                         aria-invalid={!!errors[formKey as keyof IAddToTeamErrors]}
                       />
                       {errors[formKey as keyof IAddToTeamErrors] && (
@@ -298,6 +391,52 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
           </div>
 
         </div>
+
+        {/* EVs: full width, below the two columns */}
+        <fieldset className={`${styles.evsFieldset} ${styles.evsFull}`}>
+          <legend>
+            EVs
+            <span className={remainingEv < 0 ? styles.evCounterError : styles.evCounter}>
+              {remainingEv} remaining
+            </span>
+          </legend>
+          {errors.evTotal && <span className={styles.fieldError}>{errors.evTotal}</span>}
+          <div className={`${styles.evsGrid} ${styles.evsGridFull}`}>
+            {STAT_NAMES.map((statName) => {
+              const formKey = EV_FIELD[statName];
+              const baseStat = pokemon?.stats.find((s) => s.stat.name === statName)?.base_stat;
+              const isUp   = natureIncreasedStat === statName;
+              const isDown = natureDecreasedStat === statName;
+              return (
+                <label key={statName} htmlFor={`ev-${statName}`}>
+                  <span className={styles.evLabel}>
+                    <span className={isUp ? styles.statUp : isDown ? styles.statDown : undefined}>
+                      {prettifyItem(statName)}
+                    </span>
+                    {baseStat !== undefined && (
+                      <span className={styles.baseStat}>base {baseStat}</span>
+                    )}
+                  </span>
+                  <input
+                    id={`ev-${statName}`}
+                    type="number"
+                    min={0}
+                    max={255}
+                    step={1}
+                    value={form[formKey] as number}
+                    onChange={(e) => set(formKey, Math.min(255, Math.max(0, Number(e.target.value))))}
+                    aria-invalid={!!errors[formKey as keyof IAddToTeamErrors]}
+                  />
+                  {errors[formKey as keyof IAddToTeamErrors] && (
+                    <span className={styles.fieldError}>
+                      {errors[formKey as keyof IAddToTeamErrors]}
+                    </span>
+                  )}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
 
         <button
           type="submit"

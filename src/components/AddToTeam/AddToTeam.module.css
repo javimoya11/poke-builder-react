@@ -60,10 +60,32 @@
   padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--color-border);
 
-  div {
+  > div {
     display: flex;
     flex-direction: column;
     gap: 2px;
+  }
+}
+
+/* Nickname takes the remaining space; level stays narrow. */
+.headerField {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.headerFieldNarrow {
+  flex: 0 0 auto;
+  width: 5.5rem;
+}
+
+.addToTeamForm label.shinyLabel {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+
+  input {
+    width: auto;
   }
 }
 
@@ -161,6 +183,16 @@
       appearance: none;
     }
   }
+}
+
+/* EVs block spanning the full form width, below the two columns. */
+.evsFull {
+  width: 100%;
+}
+
+/* Full-width EVs: spread the 6 stats across 3 columns. */
+.evsGridFull {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .evCounter {

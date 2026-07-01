@@ -28,13 +28,14 @@ export const cachedImage = (
  * PokeAPI sprite URLs are predictable (the file name is the ID),
  * so the image can be built without fetching the Pokémon detail.
  * @param id - The Pokémon ID.
+ * @param shiny - When true, returns the shiny variant.
  * @returns The official-artwork PNG URL.
  */
-export const artworkUrl = (id: string | number): string =>
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+export const artworkUrl = (id: string | number, shiny = false): string =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${shiny ? 'shiny/' : ''}${id}.png`;
 
-export const spriteUrl = (id: string | number): string =>
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+export const spriteUrl = (id: string | number, shiny = false): string =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shiny ? 'shiny/' : ''}${id}.png`;
 
 /**
  * Preloads an image and resolves once it has loaded (or failed). Never rejects:

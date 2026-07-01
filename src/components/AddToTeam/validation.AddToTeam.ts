@@ -1,8 +1,12 @@
 import {
   IAddToTeamErrors,
   IAddToTeamForm,
+  MAX_HAPPINESS,
+  MAX_IV,
+  MAX_LEVEL,
   MAX_SINGLE_EV,
   MAX_TOTAL_EV,
+  MIN_LEVEL,
   MOVE_SLOTS
 } from './types.AddToTeam';
 
@@ -34,6 +38,32 @@ export const validateAddToTeam = (values: IAddToTeamForm): IAddToTeamErrors => {
   const total = Object.values(evFields).reduce((sum, v) => sum + v, 0);
   if (total > MAX_TOTAL_EV) {
     errors.evTotal = `Total EVs cannot exceed ${MAX_TOTAL_EV} (currently ${total}).`;
+  }
+
+  const ivFields = {
+    iv_hp: values.iv_hp,
+    iv_atk: values.iv_atk,
+    iv_def: values.iv_def,
+    iv_spatk: values.iv_spatk,
+    iv_spdef: values.iv_spdef,
+    iv_spd: values.iv_spd
+  } as const;
+
+  for (const [field, value] of Object.entries(ivFields) as [
+    keyof typeof ivFields,
+    number
+  ][]) {
+    if (value < 0 || value > MAX_IV) {
+      errors[field] = `Must be between 0 and ${MAX_IV}.`;
+    }
+  }
+
+  if (values.level < MIN_LEVEL || values.level > MAX_LEVEL) {
+    errors.level = `Must be between ${MIN_LEVEL} and ${MAX_LEVEL}.`;
+  }
+
+  if (values.happiness < 0 || values.happiness > MAX_HAPPINESS) {
+    errors.happiness = `Must be between 0 and ${MAX_HAPPINESS}.`;
   }
 
   const filledMoves = MOVE_SLOTS.map((s) => values[s]).filter(Boolean);
