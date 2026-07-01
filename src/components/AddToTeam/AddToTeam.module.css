@@ -53,9 +53,11 @@
 }
 
 /* ── Header ── */
+/* Sprite, identity block and the two fields share a common bottom edge so the
+   whole row reads as one framed band regardless of each item's height. */
 .formHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: var(--space-3);
   padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--color-border);
@@ -93,6 +95,7 @@
   width: 48px;
   height: 48px;
   image-rendering: pixelated;
+  align-self: center;
 }
 
 .headerDex {
@@ -103,6 +106,19 @@
 .headerName {
   font-size: 1rem;
   font-weight: var(--font-weight-bold);
+}
+
+/* Type name-icons under the name, mirroring the Pokémon card. */
+.headerTypes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: 2px;
+
+  img {
+    height: 16px;
+    width: auto;
+  }
 }
 
 /* ── Desktop: left column (team/item/ability/moves) + right column (EVs) ── */
@@ -146,6 +162,11 @@
   margin-top: var(--space-2);
 }
 
+/* Full-width moves: the 4 slots share one row of 4 columns. */
+.movesGridFull {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .formRight {
   display: flex;
   flex-direction: column;
@@ -153,8 +174,8 @@
   min-width: 0;
 }
 
-/* ── EVs ── */
-.evsFieldset {
+/* ── Stats table (base · bar · EV · IV) ── */
+.statsFieldset {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: var(--space-3);
@@ -163,59 +184,116 @@
   legend {
     padding: 0 var(--space-2);
     font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
   }
 }
 
-.evsGrid {
+/* One row per stat: [name + base + bar] | EV input | IV input.
+   The header cells and each .statRow share the same 3-track grid. */
+.statsTable {
+  --stats-cols: 1fr 3.25rem 3.25rem;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-2) var(--space-3);
+  grid-template-columns: var(--stats-cols);
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
   margin-top: var(--space-2);
-
-  input[type='number'] {
-    appearance: textfield;
-
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-      appearance: none;
-    }
-  }
 }
 
-/* EVs block spanning the full form width, below the two columns. */
-.evsFull {
-  width: 100%;
+.statsHeadCell {
+  font-size: 0.72rem;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.45));
 }
 
-/* Full-width EVs: spread the 6 stats across 3 columns. */
-.evsGridFull {
-  grid-template-columns: repeat(3, 1fr);
+.statsHeadCenter {
+  text-align: center;
 }
 
-.evCounter {
-  font-size: 0.78rem;
-  color: var(--color-text-muted, rgba(255, 255, 255, 0.5));
-}
-
-.evCounterError {
-  font-size: 0.78rem;
-  color: var(--color-danger);
-}
-
-.evLabel {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+/* A stat row spans all 3 columns and re-declares the same tracks, so its two
+   number inputs align with the EV/IV header cells above (no subgrid needed). */
+.statRow {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: var(--stats-cols);
+  align-items: center;
   gap: var(--space-2);
+}
+
+/* Fixed name + number columns so every bar starts at the same x. */
+.statBase {
+  display: grid;
+  grid-template-columns: 8.5rem 2rem 1fr;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.statName {
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .baseStat {
   font-size: 0.72rem;
   color: var(--color-text-muted, rgba(255, 255, 255, 0.45));
   white-space: nowrap;
+  text-align: right;
+}
+
+/* Proportional base-stat bar. Track colour matches the Details page (Range);
+   the fill colour is set inline via statColor(). */
+.statBar {
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.statBarFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+/* Narrow EV/IV number inputs. These live outside a <label>, so they don't
+   inherit the base field styling and must set border/background themselves. */
+.statsTable input[type='number'] {
+  width: 100%;
+  padding: var(--space-1);
+  text-align: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: rgba(0, 0, 0, 0.25);
+  color: var(--color-text);
+  appearance: textfield;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--color-text);
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--color-danger);
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+  }
+}
+
+.evCounter {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: 0.78rem;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+.evCounterError {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: 0.78rem;
+  color: var(--color-danger);
 }
 
 .statUp {
@@ -234,8 +312,7 @@
 
   .formInputs,
   .row,
-  .movesGrid,
-  .evsGrid {
+  .movesGrid {
     grid-template-columns: 1fr;
   }
 }

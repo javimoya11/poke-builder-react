@@ -3,6 +3,7 @@ import { Modal } from 'feature/Modal/Modal';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { idFromUrl } from 'utils/idFromUrl';
+import { statColor } from 'utils/statColor';
 import { prettifyItem } from 'utils/string-utils';
 import { supabase } from '../../lib/supabase';
 import { useAvailableMoves } from '../../shared/hooks/useAvailableMoves';
@@ -10,6 +11,7 @@ import { useHeldItems } from '../../shared/hooks/useHeldItems';
 import { useItem } from '../../shared/hooks/useItem';
 import { useNatures } from '../../shared/hooks/useNatures';
 import { teamsQueryKey, useTeams } from '../../shared/hooks/useTeams';
+import { useTypeIconMap } from '../../shared/hooks/useTypeIconMap';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './AddToTeam.module.css';
 import {
@@ -53,6 +55,14 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
   const { data: forcedItemData, isLoading: forcedItemLoading }  = useItem(forcedItem);
   const { data: natures = [] } = useNatures();
   const moves = useAvailableMoves(pokemon);
+
+  const { data: typeIconMap = {} } = useTypeIconMap();
+  const typeIcons = pokemon?.types
+    ? pokemon.types.map((entry) => ({
+        name: entry.type.name,
+        icon: typeIconMap[entry.type.url] ?? null
+      }))
+    : [];
 
   const selectedNature = natures.find((n) => n.name === form.nature);
   const natureIncreasedStat = selectedNature?.increased_stat
@@ -158,6 +168,16 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
             <span className={styles.headerName}>
               {prettifyItem(pokemon?.name ?? '')}
             </span>
+            {typeIcons.length > 0 && (
+              <span className={styles.headerTypes}>
+                {typeIcons.map(
+                  (type) =>
+                    type.icon && (
+                      <img key={type.name} src={type.icon} alt={type.name} />
+                    )
+                )}
+              </span>
+            )}
           </div>
 
           <label htmlFor="nickname" className={styles.headerField}>
@@ -189,9 +209,9 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
             {errors.level && <span className={styles.fieldError}>{errors.level}</span>}
           </label>
         </header>
+        {/* Left column: metadata + moves · Right column: unified stats table */}
         <div className={styles.formInputs}>
 
-          {/* Left column: team, item, ability + moves */}
           <div className={styles.formLeft}>
             <div className={styles.row}>
               <label htmlFor="team-name">
@@ -233,64 +253,25 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
               </label>
             </div>
 
-            <label htmlFor="ability">
-              Ability
-              <select
-                id="ability"
-                value={form.ability}
-                onChange={(e) => set('ability', e.target.value)}
-                aria-invalid={!!errors.ability}
-              >
-                <option value="" disabled hidden>Select an ability...</option>
-                {pokemon?.abilities.map(({ ability }) => (
-                  <option key={ability.name} value={ability.name}>
-                    {prettifyItem(ability.name)}
-                  </option>
-                ))}
-              </select>
-              {errors.ability && <span className={styles.fieldError}>{errors.ability}</span>}
-            </label>
-
-            <label htmlFor="shiny" className={styles.shinyLabel}>
-              <input
-                id="shiny"
-                type="checkbox"
-                checked={form.shiny}
-                onChange={(e) => set('shiny', e.target.checked)}
-              />
-              Shiny
-            </label>
-
-            {/* Moves: 2×2 grid, inside left column */}
-            <fieldset className={styles.movesFieldset}>
-              <legend>Moves</legend>
-              <div className={styles.movesGrid}>
-                {MOVE_SLOTS.map((slot, i) => (
-                  <label key={slot} htmlFor={slot}>
-                    Move {i + 1}{i === 0 ? ' *' : ''}
-                    <select
-                      id={slot}
-                      value={form[slot]}
-                      onChange={(e) => set(slot, e.target.value)}
-                      aria-invalid={i === 0 && !!errors.moves}
-                    >
-                      <option value="">None</option>
-                      {moves
-                        .filter((m) => !usedMoves(slot).includes(m.name))
-                        .map((m) => (
-                          <option key={m.name} value={m.name}>{prettifyItem(m.name)}</option>
-                        ))}
-                    </select>
-                  </label>
-                ))}
-              </div>
-              {errors.moves && <span className={styles.fieldError}>{errors.moves}</span>}
-            </fieldset>
-          </div>
-
-          {/* Right column: nature + EVs */}
-          <div className={styles.formRight}>
             <div className={styles.row}>
+              <label htmlFor="ability">
+                Ability
+                <select
+                  id="ability"
+                  value={form.ability}
+                  onChange={(e) => set('ability', e.target.value)}
+                  aria-invalid={!!errors.ability}
+                >
+                  <option value="" disabled hidden>Select an ability...</option>
+                  {pokemon?.abilities.map(({ ability }) => (
+                    <option key={ability.name} value={ability.name}>
+                      {prettifyItem(ability.name)}
+                    </option>
+                  ))}
+                </select>
+                {errors.ability && <span className={styles.fieldError}>{errors.ability}</span>}
+              </label>
+
               <label htmlFor="nature">
                 Nature
                 <select
@@ -309,7 +290,9 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
                   ))}
                 </select>
               </label>
+            </div>
 
+            <div className={styles.row}>
               <label htmlFor="tera">
                 Tera type
                 <select
@@ -323,9 +306,7 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
                   ))}
                 </select>
               </label>
-            </div>
 
-            <div className={styles.row}>
               <label htmlFor="gender">
                 Gender
                 <select
@@ -339,7 +320,9 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
                   ))}
                 </select>
               </label>
+            </div>
 
+            <div className={styles.row}>
               <label htmlFor="happiness">
                 Happiness
                 <input
@@ -356,86 +339,108 @@ export const AddToTeam = ({ open, onClose, pokemon }: IAddToTeam) => {
                 />
                 {errors.happiness && <span className={styles.fieldError}>{errors.happiness}</span>}
               </label>
-            </div>
 
-            <fieldset className={styles.evsFieldset}>
-              <legend>IVs</legend>
-              <div className={styles.evsGrid}>
+              <label htmlFor="shiny" className={styles.shinyLabel}>
+                <input
+                  id="shiny"
+                  type="checkbox"
+                  checked={form.shiny}
+                  onChange={(e) => set('shiny', e.target.checked)}
+                />
+                Shiny
+              </label>
+            </div>
+          </div>
+
+          {/* Right column: unified stats table (base · bar · EV · IV) */}
+          <div className={styles.formRight}>
+            <fieldset className={styles.statsFieldset}>
+              <legend>Stats</legend>
+              {errors.evTotal && <span className={styles.fieldError}>{errors.evTotal}</span>}
+              <div className={styles.statsTable}>
+                <span className={styles.statsHeadCell}>Base</span>
+                <span className={`${styles.statsHeadCell} ${styles.statsHeadCenter}`}>EV</span>
+                <span className={`${styles.statsHeadCell} ${styles.statsHeadCenter}`}>IV</span>
+
                 {STAT_NAMES.map((statName) => {
-                  const formKey = IV_FIELD[statName];
+                  const evKey = EV_FIELD[statName];
+                  const ivKey = IV_FIELD[statName];
+                  const baseStat = pokemon?.stats.find((s) => s.stat.name === statName)?.base_stat ?? 0;
+                  const isUp   = natureIncreasedStat === statName;
+                  const isDown = natureDecreasedStat === statName;
                   return (
-                    <label key={statName} htmlFor={`iv-${statName}`}>
-                      <span className={styles.evLabel}>
-                        <span>{prettifyItem(statName)}</span>
-                      </span>
+                    <div key={statName} className={styles.statRow}>
+                      <div className={styles.statBase}>
+                        <span className={`${styles.statName} ${isUp ? styles.statUp : isDown ? styles.statDown : ''}`}>
+                          {prettifyItem(statName)}
+                        </span>
+                        <span className={styles.baseStat}>{baseStat}</span>
+                        <span className={styles.statBar} aria-hidden="true">
+                          <span
+                            className={styles.statBarFill}
+                            style={{
+                              width: `${Math.min(100, (baseStat / 255) * 100)}%`,
+                              backgroundColor: statColor(baseStat)
+                            }}
+                          />
+                        </span>
+                      </div>
                       <input
-                        id={`iv-${statName}`}
+                        aria-label={`${prettifyItem(statName)} EV`}
+                        type="number"
+                        min={0}
+                        max={255}
+                        step={1}
+                        value={form[evKey] as number}
+                        onChange={(e) => set(evKey, Math.min(255, Math.max(0, Number(e.target.value))))}
+                        aria-invalid={!!errors[evKey as keyof IAddToTeamErrors]}
+                      />
+                      <input
+                        aria-label={`${prettifyItem(statName)} IV`}
                         type="number"
                         min={0}
                         max={MAX_IV}
                         step={1}
-                        value={form[formKey] as number}
-                        onChange={(e) => set(formKey, Math.min(MAX_IV, Math.max(0, Number(e.target.value))))}
-                        aria-invalid={!!errors[formKey as keyof IAddToTeamErrors]}
+                        value={form[ivKey] as number}
+                        onChange={(e) => set(ivKey, Math.min(MAX_IV, Math.max(0, Number(e.target.value))))}
+                        aria-invalid={!!errors[ivKey as keyof IAddToTeamErrors]}
                       />
-                      {errors[formKey as keyof IAddToTeamErrors] && (
-                        <span className={styles.fieldError}>
-                          {errors[formKey as keyof IAddToTeamErrors]}
-                        </span>
-                      )}
-                    </label>
+                    </div>
                   );
                 })}
               </div>
+              <span className={remainingEv < 0 ? styles.evCounterError : styles.evCounter}>
+                {remainingEv} EVs remaining
+              </span>
             </fieldset>
           </div>
 
         </div>
 
-        {/* EVs: full width, below the two columns */}
-        <fieldset className={`${styles.evsFieldset} ${styles.evsFull}`}>
-          <legend>
-            EVs
-            <span className={remainingEv < 0 ? styles.evCounterError : styles.evCounter}>
-              {remainingEv} remaining
-            </span>
-          </legend>
-          {errors.evTotal && <span className={styles.fieldError}>{errors.evTotal}</span>}
-          <div className={`${styles.evsGrid} ${styles.evsGridFull}`}>
-            {STAT_NAMES.map((statName) => {
-              const formKey = EV_FIELD[statName];
-              const baseStat = pokemon?.stats.find((s) => s.stat.name === statName)?.base_stat;
-              const isUp   = natureIncreasedStat === statName;
-              const isDown = natureDecreasedStat === statName;
-              return (
-                <label key={statName} htmlFor={`ev-${statName}`}>
-                  <span className={styles.evLabel}>
-                    <span className={isUp ? styles.statUp : isDown ? styles.statDown : undefined}>
-                      {prettifyItem(statName)}
-                    </span>
-                    {baseStat !== undefined && (
-                      <span className={styles.baseStat}>base {baseStat}</span>
-                    )}
-                  </span>
-                  <input
-                    id={`ev-${statName}`}
-                    type="number"
-                    min={0}
-                    max={255}
-                    step={1}
-                    value={form[formKey] as number}
-                    onChange={(e) => set(formKey, Math.min(255, Math.max(0, Number(e.target.value))))}
-                    aria-invalid={!!errors[formKey as keyof IAddToTeamErrors]}
-                  />
-                  {errors[formKey as keyof IAddToTeamErrors] && (
-                    <span className={styles.fieldError}>
-                      {errors[formKey as keyof IAddToTeamErrors]}
-                    </span>
-                  )}
-                </label>
-              );
-            })}
+        {/* Moves: full width, below the two columns */}
+        <fieldset className={styles.movesFieldset}>
+          <legend>Moves</legend>
+          <div className={`${styles.movesGrid} ${styles.movesGridFull}`}>
+            {MOVE_SLOTS.map((slot, i) => (
+              <label key={slot} htmlFor={slot}>
+                Move {i + 1}{i === 0 ? ' *' : ''}
+                <select
+                  id={slot}
+                  value={form[slot]}
+                  onChange={(e) => set(slot, e.target.value)}
+                  aria-invalid={i === 0 && !!errors.moves}
+                >
+                  <option value="">None</option>
+                  {moves
+                    .filter((m) => !usedMoves(slot).includes(m.name))
+                    .map((m) => (
+                      <option key={m.name} value={m.name}>{prettifyItem(m.name)}</option>
+                    ))}
+                </select>
+              </label>
+            ))}
           </div>
+          {errors.moves && <span className={styles.fieldError}>{errors.moves}</span>}
         </fieldset>
 
         <button
