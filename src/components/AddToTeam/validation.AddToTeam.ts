@@ -67,9 +67,6 @@ export const validateAddToTeam = (values: IAddToTeamForm): IAddToTeamErrors => {
   }
 
   const filledMoves = MOVE_SLOTS.map((s) => values[s]).filter(Boolean);
-  if (filledMoves.length === 0) {
-    errors.moves = 'At least one move is required.';
-  }
 
   const uniqueMoves = new Set(filledMoves);
   if (uniqueMoves.size < filledMoves.length) {

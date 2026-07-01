@@ -41,7 +41,7 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
         >
           <X size={16} />
         </button>
-        {children}
+        <div className={styles.body}>{children}</div>
       </div>
     </div>,
     document.getElementById('modal') ?? document.body

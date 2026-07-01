@@ -7,20 +7,31 @@
   justify-content: center;
   align-items: center;
   padding: var(--space-6) var(--space-4);
-  overflow-y: auto;
 }
 
 .content {
   position: relative;
+  display: flex;
+  flex-direction: column;
   background: var(--color-bg);
   padding: var(--space-5);
   border-radius: var(--radius-md);
+  max-height: calc(100vh - 2 * var(--space-6));
+}
+
+/* The scrollable part of the modal. Kept separate from .content so the close
+   button (and any sticky header inside children) stays put while this scrolls. */
+.body {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .closeButton {
   position: absolute;
   top: var(--space-3);
   right: var(--space-3);
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;

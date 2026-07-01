@@ -69,7 +69,12 @@
   align-items: flex-end;
   gap: var(--space-3);
   padding-bottom: var(--space-3);
+  padding-right: 2rem;
   border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-bg);
 
   > div {
     display: flex;
@@ -325,6 +330,18 @@
   color: #60a5fa;
 }
 
+/* ── Narrow: the two-column layout leaves too little room for name + bar +
+   EV/IV inputs, so drop the bar and let the name column flex instead. ── */
+@media (max-width: 750px) {
+  .statBase {
+    grid-template-columns: 1fr 2rem;
+  }
+
+  .statBar {
+    display: none;
+  }
+}
+
 /* ── Mobile: single column ── */
 @media (max-width: 600px) {
   .addToTeamForm {
@@ -335,5 +352,12 @@
   .row,
   .movesGrid {
     grid-template-columns: 1fr;
+  }
+
+  /* Stack the type badges instead of side by side so they don't widen the
+     identity column and crowd the nickname/level inputs next to it. */
+  .headerTypes {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
