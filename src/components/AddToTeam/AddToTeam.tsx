@@ -29,6 +29,7 @@ import {
   MAX_IV,
   MAX_LEVEL,
   MAX_TOTAL_EV,
+  MEGA_STONE_MAP,
   MIN_LEVEL,
   MOVE_SLOTS,
   NATURE_STAT,
@@ -92,14 +93,23 @@ export const AddToTeam = ({ open, onClose, pokemon, editing, teamId }: IAddToTea
     ? NATURE_STAT[selectedNature.decreased_stat] ?? null
     : null;
 
-  // The forced stone lives outside the held-items list, so surface it as an
-  // extra option (still selectable/changeable) alongside the regular items.
+  // Mega/Primal stones live outside the held-items list (PokeAPI puts them in
+  // a separate item category), so surface every stone the base species can
+  // use as extra options alongside the regular items.
+  const baseSpeciesForStones = effectivePokemon?.species.name;
+  const megaStones = useMemo(() => {
+    if (!baseSpeciesForStones) return [];
+    return Object.entries(MEGA_STONE_MAP)
+      .filter(([formName]) => formName.startsWith(`${baseSpeciesForStones}-`))
+      .map(([, stone]) => stone);
+  }, [baseSpeciesForStones]);
+
   const itemOptions = useMemo(() => {
-    if (!forcedItem || heldItems.some((i) => i.name === forcedItem)) {
-      return heldItems;
-    }
-    return [{ name: forcedItem, url: '' }, ...heldItems];
-  }, [forcedItem, heldItems]);
+    const extraNames = [...new Set([...(forcedItem ? [forcedItem] : []), ...megaStones])]
+      .filter((name) => !heldItems.some((i) => i.name === name));
+    if (extraNames.length === 0) return heldItems;
+    return [...extraNames.map((name) => ({ name, url: '' })), ...heldItems];
+  }, [forcedItem, megaStones, heldItems]);
 
   const selectedTeam = teams.find((t) => String(t.id) === form.teamId);
   const usedSlots    = selectedTeam?.team_pokemon?.map((p) => p.slot) ?? [];
@@ -331,7 +341,12 @@ export const AddToTeam = ({ open, onClose, pokemon, editing, teamId }: IAddToTea
 
             <div className={styles.row}>
               <label htmlFor="tera">
-                Tera type
+                <span className={styles.labelWithIcon}>
+                  Tera type
+                  {form.tera_type && typeIconMap[form.tera_type] && (
+                    <img src={typeIconMap[form.tera_type] as string} alt={form.tera_type} />
+                  )}
+                </span>
                 <select
                   id="tera"
                   value={form.tera_type}
@@ -458,24 +473,31 @@ export const AddToTeam = ({ open, onClose, pokemon, editing, teamId }: IAddToTea
         <fieldset className={styles.movesFieldset}>
           <legend>Moves</legend>
           <div className={`${styles.movesGrid} ${styles.movesGridFull}`}>
-            {MOVE_SLOTS.map((slot, i) => (
-              <label key={slot} htmlFor={slot}>
-                Move {i + 1}{i === 0 ? ' *' : ''}
-                <select
-                  id={slot}
-                  value={form[slot]}
-                  onChange={(e) => set(slot, e.target.value)}
-                  aria-invalid={i === 0 && !!errors.moves}
-                >
-                  <option value="">None</option>
-                  {moves
-                    .filter((m) => !usedMoves(slot).includes(m.name))
-                    .map((m) => (
-                      <option key={m.name} value={m.name}>{prettifyItem(m.name)}</option>
-                    ))}
-                </select>
-              </label>
-            ))}
+            {MOVE_SLOTS.map((slot, i) => {
+              const selectedMove = moves.find((m) => m.name === form[slot]);
+              const moveTypeIcon = selectedMove?.type ? typeIconMap[selectedMove.type] : null;
+              return (
+                <label key={slot} htmlFor={slot}>
+                  <span className={styles.labelWithIcon}>
+                    Move {i + 1}{i === 0 ? ' *' : ''}
+                    {moveTypeIcon && <img src={moveTypeIcon} alt={selectedMove!.type as string} />}
+                  </span>
+                  <select
+                    id={slot}
+                    value={form[slot]}
+                    onChange={(e) => set(slot, e.target.value)}
+                    aria-invalid={i === 0 && !!errors.moves}
+                  >
+                    <option value="">None</option>
+                    {moves
+                      .filter((m) => !usedMoves(slot).includes(m.name))
+                      .map((m) => (
+                        <option key={m.name} value={m.name}>{prettifyItem(m.name)}</option>
+                      ))}
+                  </select>
+                </label>
+              );
+            })}
           </div>
           {errors.moves && <span className={styles.fieldError}>{errors.moves}</span>}
         </fieldset>

@@ -29,6 +29,15 @@
         border-color: var(--color-danger);
       }
     }
+
+    input[type='number'] {
+      appearance: textfield;
+
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        appearance: none;
+      }
+    }
   }
 }
 
@@ -294,6 +303,18 @@
   margin-top: var(--space-2);
   font-size: 0.78rem;
   color: var(--color-danger);
+}
+
+.labelWithIcon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  img {
+    height: 16px;
+    width: auto;
+  }
 }
 
 .statUp {

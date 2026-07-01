@@ -44,8 +44,10 @@ export async function fetchTypeIconMap(): Promise<TypeIconMap> {
   const details = (await pokedex.resource(urls)) as Type[];
 
   const map: TypeIconMap = {};
-  urls.forEach((url, i) => {
-    map[url] = iconFromSprites(details[i]);
+  list.results.forEach((type, i) => {
+    const icon = iconFromSprites(details[i]);
+    map[type.url] = icon;
+    map[type.name] = icon;
   });
   return map;
 }
