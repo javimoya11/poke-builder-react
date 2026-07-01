@@ -5,13 +5,34 @@
   z-index: var(--z-modal);
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   padding: var(--space-6) var(--space-4);
   overflow-y: auto;
 }
 
 .content {
+  position: relative;
   background: var(--color-bg);
   padding: var(--space-5);
   border-radius: var(--radius-md);
+}
+
+.closeButton {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  transition: background-color var(--transition-fast);
+}
+
+.closeButton:hover,
+.closeButton:focus-visible {
+  background-color: var(--color-scrim);
 }
