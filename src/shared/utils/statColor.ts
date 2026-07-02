@@ -1,7 +1,6 @@
 /**
- * Maps a base-stat value to the colour used across the app for stat bars.
- * Shared by the Details page (Range) and the AddToTeam stats table so the
- * colour scale stays in one place.
+ * Maps a base-stat value to the colour used across the app for stat bars
+ * (the AddToTeam stats table).
  * @param value - The base-stat value (0–255).
  * @returns A CSS colour keyword.
  */

@@ -1,29 +1,16 @@
 import { AddToTeam } from 'components/AddToTeam/AddToTeam';
 import { AuthForm } from 'components/AuthForm/AuthForm';
-import { Dropdown } from 'feature/Dropdown/Dropdown';
 import { usePokemon } from 'hooks/usePokemon';
 import { useSpecies } from 'hooks/useSpecies';
 import { useTypeIconMap } from 'hooks/useTypeIconMap';
-import { ChevronLeft, ChevronRight, MoreVertical, Plus } from 'lucide-react';
-import { useState, useSyncExternalStore } from 'react';
-import { Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
 import type { Variety } from 'types';
 import { artworkUrl, cachedImage } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './Pokemon.module.css';
-import {
-  PLACEHOLDER_IMG,
-  POKEMON_FILTER,
-  type PokemonProps
-} from './types.Pokemon';
-
-const hoverMq = window.matchMedia('(hover: hover)');
-const subscribeHover = (cb: () => void) => {
-  hoverMq.addEventListener('change', cb);
-  return () => hoverMq.removeEventListener('change', cb);
-};
-const getHover = () => hoverMq.matches;
+import { PLACEHOLDER_IMG, POKEMON_FILTER, type PokemonProps } from './types.Pokemon';
 
 export const Pokemon = ({ id, name, index }: PokemonProps) => {
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -32,11 +19,6 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
   const [authOpen, setAuthOpen] = useState(false);
   const [addTeamOpen, setAddTeamOpen] = useState(false);
 
-  const isHoverDevice = useSyncExternalStore(
-    subscribeHover,
-    getHover,
-    () => true
-  );
   const user = useGlobalStore((s) => s.user);
 
   const { data: species } = useSpecies(id);
@@ -78,24 +60,18 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
     setAddTeamOpen(true);
   };
 
-  const actions = [
-    {
-      label: 'Add to team',
-      icon: <Plus size={16} />,
-      callback: handleAddToTeam
-    }
-  ];
-
   return (
     <div className={styles.card}>
       <div
         className={`${styles.skeleton} ${ready ? styles.hidden : ''}`}
         aria-hidden="true"
       />
-      <Link
+      <button
+        type="button"
         key={currentId}
         className={`${styles.link} ${slideClass}`}
-        to={`/details/${currentId}${forms.length > 1 ? '_' + forms.find((f) => f.isDefault)?.id : ''}`}
+        onClick={handleAddToTeam}
+        aria-label={`Add ${prettify(current.name)} to team`}
       >
         <div className={styles.sprite}>
           <img
@@ -133,38 +109,7 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
             </div>
           )}
         </div>
-      </Link>
-
-      {isHoverDevice ? (
-        <div className={styles.actionsDesktop}>
-          <button
-            type="button"
-            className={styles.actionBtn}
-            aria-label="Add to team"
-            onClick={handleAddToTeam}
-          >
-            <Plus size={16} />
-          </button>
-        </div>
-      ) : (
-        <div className={styles.actionsTouch}>
-          <Dropdown
-            actions={actions}
-            direction="up"
-            align="right"
-            trigger={({ toggle }) => (
-              <button
-                type="button"
-                className={styles.actionMenuTrigger}
-                aria-label="Actions"
-                onClick={toggle}
-              >
-                <MoreVertical size={16} />
-              </button>
-            )}
-          />
-        </div>
-      )}
+      </button>
 
       <AuthForm isOpen={authOpen} onClose={() => setAuthOpen(false)} />
       {addTeamOpen && (
@@ -181,7 +126,10 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
             type="button"
             className={`${styles.arrow} ${styles.arrowLeft}`}
             aria-label="Previous form"
-            onClick={() => changeForm(-1)}
+            onClick={(e) => {
+              e.stopPropagation();
+              changeForm(-1);
+            }}
           >
             <ChevronLeft />
           </button>
@@ -189,7 +137,10 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
             type="button"
             className={`${styles.arrow} ${styles.arrowRight}`}
             aria-label="Next form"
-            onClick={() => changeForm(1)}
+            onClick={(e) => {
+              e.stopPropagation();
+              changeForm(1);
+            }}
           >
             <ChevronRight />
           </button>

@@ -15,21 +15,22 @@ import { useTypeIconMap } from '../../shared/hooks/useTypeIconMap';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './AddToTeam.module.css';
 import {
+  ABILITY_FORM_MAP,
   EV_FIELD,
   formFromTeamPokemon,
+  FORCED_FORM_ITEM_MAP,
   GENDERS,
   getForcedItem,
   IAddToTeam,
   IAddToTeamErrors,
   IAddToTeamForm,
   INITIAL_FORM,
-  isMegaOrPrimal,
+  isForcedItemForm,
   IV_FIELD,
   MAX_HAPPINESS,
   MAX_IV,
   MAX_LEVEL,
   MAX_TOTAL_EV,
-  MEGA_STONE_MAP,
   MIN_LEVEL,
   MOVE_SLOTS,
   NATURE_STAT,
@@ -47,16 +48,27 @@ export const AddToTeam = ({
 }: IAddToTeam) => {
   const isEditing = !!editing;
 
-  // Mega/Primal forms are stored in Showdown as the base species holding the
-  // corresponding stone/orb. When one is opened (create mode) we resolve to its
-  // base species and pre-fill (but do not lock) the item with that stone. Edited
-  // rows already store the base species, so no resolution is needed there.
-  const isMega = useMemo(() => isMegaOrPrimal(pokemon?.name), [pokemon?.name]);
+  // Mega/Primal forms and Zacian/Zamazenta Crowned are stored in Showdown as
+  // the base species holding the corresponding item (stone/orb/Rusted
+  // Sword/Shield). When one is opened (create mode) we resolve to its base
+  // species and pre-fill (but do not lock) the item accordingly. Edited rows
+  // already store the base species, so no resolution is needed there.
+  const isForcedItem = useMemo(
+    () => isForcedItemForm(pokemon?.name),
+    [pokemon?.name]
+  );
   const forcedItem = useMemo(
     () => getForcedItem(pokemon?.name),
     [pokemon?.name]
   );
   const baseSpeciesName = pokemon?.species.name;
+
+  // Zygarde 10%/50%: the card always shows the base (ability-agnostic)
+  // variety. Which alternate form actually gets saved is resolved live from
+  // the chosen ability below, so the alternate form's data is fetched
+  // alongside the base one whenever it applies (create mode only — an
+  // edited row already stores whichever form was originally saved).
+  const abilityFormRule = pokemon ? ABILITY_FORM_MAP[pokemon.name] : undefined;
 
   const [form, setForm] = useState<IAddToTeamForm>({
     ...INITIAL_FORM,
@@ -78,17 +90,45 @@ export const AddToTeam = ({
     enabled: isEditing && !!editing?.pokemon_id
   });
   const { data: basePokemon } = usePokemon(baseSpeciesName, {
-    enabled: !isEditing && isMega && !!baseSpeciesName
+    enabled: !isEditing && isForcedItem && !!baseSpeciesName
   });
+  const { data: altAbilityFormPokemon } = usePokemon(abilityFormRule?.form, {
+    enabled: !isEditing && !!abilityFormRule
+  });
+
   const effectivePokemon = isEditing
     ? editingPokemon
-    : isMega
+    : isForcedItem
       ? basePokemon
       : pokemon;
+
+  // Zygarde 10%/50%: both forms share identical stats/type, so the visible
+  // effectivePokemon doesn't need to change — only the row persisted on
+  // submit does, once Power Construct is the chosen ability.
+  const pokemonToSave =
+    !isEditing && abilityFormRule && form.ability === abilityFormRule.ability
+      ? altAbilityFormPokemon
+      : effectivePokemon;
 
   const { data: heldItems = [], isLoading: heldItemsLoading } = useHeldItems();
   const { data: natures = [] } = useNatures();
   const moves = useAvailableMoves(effectivePokemon);
+
+  // Zygarde 10%/50%: each variety only exposes the one ability it's fixed
+  // to (Aura Break or Power Construct). Merge in Power Construct from the
+  // alternate form so both are selectable from the single agnostic card.
+  const abilityOptions = useMemo(() => {
+    const base = effectivePokemon?.abilities ?? [];
+    if (!abilityFormRule || !altAbilityFormPokemon) return base;
+    const already = base.some(
+      ({ ability }) => ability.name === abilityFormRule.ability
+    );
+    if (already) return base;
+    const altAbility = altAbilityFormPokemon.abilities.find(
+      ({ ability }) => ability.name === abilityFormRule.ability
+    );
+    return altAbility ? [...base, altAbility] : base;
+  }, [effectivePokemon, abilityFormRule, altAbilityFormPokemon]);
 
   const { data: typeIconMap = {} } = useTypeIconMap();
   const typeIcons = effectivePokemon?.types
@@ -106,24 +146,25 @@ export const AddToTeam = ({
     ? (NATURE_STAT[selectedNature.decreased_stat] ?? null)
     : null;
 
-  // Mega/Primal stones live outside the held-items list (PokeAPI puts them in
-  // a separate item category), so surface every stone the base species can
-  // use as extra options alongside the regular items.
+  // Mega/Primal stones and the Rusted Sword/Shield live outside the
+  // held-items list (PokeAPI puts them in a separate item category), so
+  // surface every such item the base species can use as extra options
+  // alongside the regular items.
   const baseSpeciesForStones = effectivePokemon?.species.name;
-  const megaStones = useMemo(() => {
+  const forcedFormItems = useMemo(() => {
     if (!baseSpeciesForStones) return [];
-    return Object.entries(MEGA_STONE_MAP)
+    return Object.entries(FORCED_FORM_ITEM_MAP)
       .filter(([formName]) => formName.startsWith(`${baseSpeciesForStones}-`))
-      .map(([, stone]) => stone);
+      .map(([, item]) => item);
   }, [baseSpeciesForStones]);
 
   const itemOptions = useMemo(() => {
     const extraNames = [
-      ...new Set([...(forcedItem ? [forcedItem] : []), ...megaStones])
+      ...new Set([...(forcedItem ? [forcedItem] : []), ...forcedFormItems])
     ].filter((name) => !heldItems.some((i) => i.name === name));
     if (extraNames.length === 0) return heldItems;
     return [...extraNames.map((name) => ({ name, url: '' })), ...heldItems];
-  }, [forcedItem, megaStones, heldItems]);
+  }, [forcedItem, forcedFormItems, heldItems]);
 
   const selectedTeam = teams.find((t) => String(t.id) === form.teamId);
   const usedSlots = selectedTeam?.team_pokemon?.map((p) => p.slot) ?? [];
@@ -170,7 +211,7 @@ export const AddToTeam = ({
         ?.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    if (!effectivePokemon || !user) return;
+    if (!effectivePokemon || !pokemonToSave || !user) return;
 
     // Fields the user can edit in both modes. Species/team/slot are set only on
     // insert (they cannot change while editing).
@@ -213,8 +254,8 @@ export const AddToTeam = ({
         : await supabase.from('team_pokemon').insert({
             team_id: form.teamId,
             slot: nextSlot,
-            pokemon_name: effectivePokemon.name,
-            pokemon_id: effectivePokemon.id,
+            pokemon_name: pokemonToSave.name,
+            pokemon_id: pokemonToSave.id,
             ...editableFields
           });
       if (error) throw error;
@@ -371,7 +412,7 @@ export const AddToTeam = ({
                   <option value="" disabled hidden>
                     Select an ability...
                   </option>
-                  {effectivePokemon?.abilities.map(({ ability }) => (
+                  {abilityOptions.map(({ ability }) => (
                     <option key={ability.name} value={ability.name}>
                       {prettifyItem(ability.name)}
                     </option>
@@ -643,6 +684,7 @@ export const AddToTeam = ({
           disabled={
             loading ||
             !effectivePokemon ||
+            !pokemonToSave ||
             (!isEditing && (!form.teamId || teamFull))
           }
         >

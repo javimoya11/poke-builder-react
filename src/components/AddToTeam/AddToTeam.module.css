@@ -254,8 +254,7 @@
   text-align: right;
 }
 
-/* Proportional base-stat bar. Track colour matches the Details page (Range);
-   the fill colour is set inline via statColor(). */
+/* Proportional base-stat bar; the fill colour is set inline via statColor(). */
 .statBar {
   height: 10px;
   border-radius: var(--radius-pill);

@@ -4,7 +4,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
 import { Header } from './feature/Header/Header';
 import { ScrollToTopButton } from './feature/ScrollToTopButton/ScrollToTopButton';
-import { Details } from './pages/Details/Details';
 import { List } from './pages/List/List';
 import { Profile } from './pages/Profile/Profile';
 
@@ -26,7 +25,6 @@ export const App = () => {
         <QueryClientProvider client={queryClient}>
           <Header />
           <Routes>
-            <Route path="/details/:id" element={<Details />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/" element={<List />} />
           </Routes>

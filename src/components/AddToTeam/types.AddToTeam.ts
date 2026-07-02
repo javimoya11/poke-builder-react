@@ -208,7 +208,15 @@ export const formFromTeamPokemon = (
   move_4: p.move_4 ?? ''
 });
 
-export const MEGA_STONE_MAP: Record<string, string> = {
+/**
+ * Base species whose card is a permanent alternate form that Showdown (and
+ * this app) represents as the base species holding a specific item: Mega/
+ * Primal evolutions (holding their stone/orb) and Zacian/Zamazenta Crowned
+ * (holding the Rusted Sword/Shield). Opening one of these cards resolves to
+ * the base species with the item preselected — but still changeable, same
+ * as any other held item; picking a different item saves the base form.
+ */
+export const FORCED_FORM_ITEM_MAP: Record<string, string> = {
   'venusaur-mega': 'venusaurite',
   'charizard-mega-x': 'charizardite-x',
   'charizard-mega-y': 'charizardite-y',
@@ -258,24 +266,50 @@ export const MEGA_STONE_MAP: Record<string, string> = {
   'abomasnow-mega': 'abomasite',
   'gallade-mega': 'galladite',
   'audino-mega': 'audinite',
-  'diancie-mega': 'diancite'
+  'diancie-mega': 'diancite',
+  'zacian-crowned': 'rusted-sword',
+  'zamazenta-crowned': 'rusted-shield'
 };
 
 export function getForcedItem(pokemonName?: string): string | undefined {
   if (!pokemonName) return undefined;
-  return MEGA_STONE_MAP[pokemonName];
+  return FORCED_FORM_ITEM_MAP[pokemonName];
 }
 
 /**
- * Whether a form name is a Mega or Primal form. These are transient
- * battle forms: Showdown stores the base species holding the corresponding
- * stone/orb, never the mega/primal form itself.
+ * Whether a form name is one of the forced-item forms above (Mega, Primal,
+ * or Zacian/Zamazenta Crowned). These are all transient battle forms:
+ * Showdown stores the base species holding the corresponding item, never
+ * the alternate form itself.
  */
-export function isMegaOrPrimal(pokemonName?: string): boolean {
+export function isForcedItemForm(pokemonName?: string): boolean {
   if (!pokemonName) return false;
-  return pokemonName.includes('-mega') || pokemonName.includes('-primal');
+  return (
+    pokemonName.includes('-mega') ||
+    pokemonName.includes('-primal') ||
+    pokemonName.includes('-crowned')
+  );
 }
 
-export function isUnmappedMega(pokemonName?: string): boolean {
-  return isMegaOrPrimal(pokemonName) && !(pokemonName! in MEGA_STONE_MAP);
+export function isUnmappedForcedItemForm(pokemonName?: string): boolean {
+  return (
+    isForcedItemForm(pokemonName) && !(pokemonName! in FORCED_FORM_ITEM_MAP)
+  );
 }
+
+/**
+ * Base species with two otherwise-identical varieties (same stats/type)
+ * that only differ in which single ability each one can have — PokeAPI
+ * exposes them as separate `species.varieties` entries, but the app shows
+ * one agnostic card and resolves the stored form from the chosen ability.
+ * Currently: Zygarde 10%/50%, whose "-power-construct" variety exists
+ * solely to carry the Power Construct ability (unavailable on the base
+ * variety, which only has Aura Break).
+ */
+export const ABILITY_FORM_MAP: Record<
+  string,
+  { ability: string; form: string }
+> = {
+  'zygarde-10': { ability: 'power-construct', form: 'zygarde-10-power-construct' },
+  'zygarde-50': { ability: 'power-construct', form: 'zygarde-50-power-construct' }
+};
