@@ -64,6 +64,7 @@ export const AddToTeam = ({
   });
   const [errors, setErrors] = useState<IAddToTeamErrors>({});
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   const queryClient = useQueryClient();
@@ -146,6 +147,7 @@ export const AddToTeam = ({
         : { ...INITIAL_FORM, held_item: forcedItem ?? '' }
     );
     setErrors({});
+    setFormError(null);
     setLoading(false);
   }, [open, forcedItem, editing, teamId]);
 
@@ -201,22 +203,30 @@ export const AddToTeam = ({
     };
 
     setLoading(true);
-    const { error } = editing
-      ? await supabase
-          .from('team_pokemon')
-          .update(editableFields)
-          .eq('id', editing.id)
-      : await supabase.from('team_pokemon').insert({
-          team_id: form.teamId,
-          slot: nextSlot,
-          pokemon_name: effectivePokemon.name,
-          pokemon_id: effectivePokemon.id,
-          ...editableFields
-        });
-    setLoading(false);
-    if (error) throw error;
-    await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
-    onClose();
+    setFormError(null);
+    try {
+      const { error } = editing
+        ? await supabase
+            .from('team_pokemon')
+            .update(editableFields)
+            .eq('id', editing.id)
+        : await supabase.from('team_pokemon').insert({
+            team_id: form.teamId,
+            slot: nextSlot,
+            pokemon_name: effectivePokemon.name,
+            pokemon_id: effectivePokemon.id,
+            ...editableFields
+          });
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
+      onClose();
+    } catch (error) {
+      setFormError(
+        error instanceof Error ? error.message : 'Could not save the Pokémon.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -620,6 +630,12 @@ export const AddToTeam = ({
             <span className={styles.fieldError}>{errors.moves}</span>
           )}
         </fieldset>
+
+        {formError && (
+          <div className={`${styles.banner} ${styles.bannerError}`} role="alert">
+            {formError}
+          </div>
+        )}
 
         <button
           type="submit"

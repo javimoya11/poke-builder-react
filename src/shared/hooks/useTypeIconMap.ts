@@ -1,12 +1,12 @@
 import type { UseQueryOptions } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import type { Type } from 'pokeapi-js-wrapper';
-import type { TypeIconMap, TypeSpriteSet } from 'types';
+import type { MoveTypeMap, TypeIconMap, TypeSpriteSet } from 'types';
 import { getPokedex } from './getPokedex';
 
-export const TYPE_ICON_MAP_KEY = ['type-icon-map'] as const;
+export const TYPE_DETAILS_KEY = ['type-details'] as const;
 
-type TypeIconMapKey = typeof TYPE_ICON_MAP_KEY;
+type TypeDetailsKey = typeof TYPE_DETAILS_KEY;
 
 /**
  * Extracts the name-icon sprite from a Type's generation-viii sprites,
@@ -27,12 +27,16 @@ const iconFromSprites = (detail: Type): string | null => {
 };
 
 /**
- * Query function that builds a map of type resource URL to its name-icon sprite,
- * fetching all 18 types and their details in batch.
- * @returns A map keyed by type URL, with the icon URL (or null) as value.
+ * Query function that fetches all 18 types with their full detail in one
+ * batch. Shared by the icon map and the move-type map so the type list and
+ * its details are only ever fetched once, no matter how many consumers ask
+ * for either derived map.
+ * @returns The 18 Type resources, each paired with its resource URL.
  * @throws If the type list cannot be fetched.
  */
-export async function fetchTypeIconMap(): Promise<TypeIconMap> {
+export async function fetchTypeDetails(): Promise<
+  { url: string; detail: Type }[]
+> {
   const pokedex = getPokedex();
 
   const list = await pokedex.getTypesList({ offset: 0, limit: 18 });
@@ -43,29 +47,89 @@ export async function fetchTypeIconMap(): Promise<TypeIconMap> {
   const urls = list.results.map((type) => type.url);
   const details = (await pokedex.resource(urls)) as Type[];
 
+  return list.results.map((type, i) => ({ url: type.url, detail: details[i] }));
+}
+
+/**
+ * Builds a map of type resource URL/name to its name-icon sprite from the
+ * shared type details.
+ * @returns A map keyed by type URL and name, with the icon URL (or null) as value.
+ */
+export function buildTypeIconMap(
+  entries: { url: string; detail: Type }[]
+): TypeIconMap {
   const map: TypeIconMap = {};
-  list.results.forEach((type, i) => {
-    const icon = iconFromSprites(details[i]);
-    map[type.url] = icon;
-    map[type.name] = icon;
+  entries.forEach(({ url, detail }) => {
+    const icon = iconFromSprites(detail);
+    map[url] = icon;
+    map[detail.name] = icon;
+  });
+  return map;
+}
+
+/**
+ * Builds a map of move name to its elemental type name from the shared type
+ * details: each Type resource already lists every move of that type, so the
+ * whole game's moves can be mapped without a single extra request.
+ * @returns A map keyed by move name, with the type name (or null) as value.
+ */
+function buildMoveTypeMap(entries: { url: string; detail: Type }[]): MoveTypeMap {
+  const map: MoveTypeMap = {};
+  entries.forEach(({ detail }) => {
+    detail.moves.forEach((move) => {
+      map[move.name] = detail.name;
+    });
   });
   return map;
 }
 
 type TypeIconMapQueryOptions = Omit<
-  UseQueryOptions<TypeIconMap, Error, TypeIconMap, TypeIconMapKey>,
-  'queryKey' | 'queryFn'
+  UseQueryOptions<
+    { url: string; detail: Type }[],
+    Error,
+    TypeIconMap,
+    TypeDetailsKey
+  >,
+  'queryKey' | 'queryFn' | 'select'
 >;
 
 /**
  * React Query hook for the type-icon map. Cached indefinitely (staleTime: Infinity).
- * @param options - Additional React Query options (excluding queryKey/queryFn).
+ * Shares its underlying fetch with `useMoveTypeMap` (same query key).
+ * @param options - Additional React Query options (excluding queryKey/queryFn/select).
  * @returns The React Query result for the type-icon map.
  */
 export const useTypeIconMap = (options: TypeIconMapQueryOptions = {}) =>
   useQuery({
-    queryKey: TYPE_ICON_MAP_KEY,
-    queryFn: fetchTypeIconMap,
+    queryKey: TYPE_DETAILS_KEY,
+    queryFn: fetchTypeDetails,
     staleTime: Infinity,
+    select: buildTypeIconMap,
+    ...options
+  });
+
+type MoveTypeMapQueryOptions = Omit<
+  UseQueryOptions<
+    { url: string; detail: Type }[],
+    Error,
+    MoveTypeMap,
+    TypeDetailsKey
+  >,
+  'queryKey' | 'queryFn' | 'select'
+>;
+
+/**
+ * React Query hook for the move-type map (move name -> type name), derived
+ * from the same 18 type details used by `useTypeIconMap`. No per-move
+ * requests are made.
+ * @param options - Additional React Query options (excluding queryKey/queryFn/select).
+ * @returns The React Query result for the move-type map.
+ */
+export const useMoveTypeMap = (options: MoveTypeMapQueryOptions = {}) =>
+  useQuery({
+    queryKey: TYPE_DETAILS_KEY,
+    queryFn: fetchTypeDetails,
+    staleTime: Infinity,
+    select: buildMoveTypeMap,
     ...options
   });

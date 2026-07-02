@@ -9,17 +9,29 @@ import { IDeleteTeam } from './types.DeleteTeam';
 
 export const DeleteTeam = ({ open, onClose, team }: IDeleteTeam) => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const user = useGlobalStore((s) => s.user);
   const queryClient = useQueryClient();
 
   const deleteHandler = async () => {
     if (!user) return;
     setLoading(true);
-    const { error } = await supabase.from('teams').delete().eq('id', team.id);
-    setLoading(false);
-    if (error) throw error;
-    await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
-    onClose();
+    setFormError(null);
+    try {
+      const { error } = await supabase
+        .from('teams')
+        .delete()
+        .eq('id', team.id);
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
+      onClose();
+    } catch (error) {
+      setFormError(
+        error instanceof Error ? error.message : 'Could not delete the team.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -29,6 +41,11 @@ export const DeleteTeam = ({ open, onClose, team }: IDeleteTeam) => {
           <span>Are you sure you want to delete this team?</span>
           <span className={styles.teamName}>{team.name}</span>
         </div>
+        {formError && (
+          <div className={`${styles.banner} ${styles.bannerError}`} role="alert">
+            {formError}
+          </div>
+        )}
         <div className={styles.actions}>
           <button type="button" className={styles.cancel} onClick={onClose} disabled={loading}>
             Cancel

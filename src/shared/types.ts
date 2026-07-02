@@ -12,6 +12,7 @@ export interface SpeciesData {
 
 // --- useTypeIconMap ---
 export type TypeIconMap = Record<string, string | null>;
+export type MoveTypeMap = Record<string, string | null>;
 
 export interface TypeSpriteSet {
   name_icon?: string | null;

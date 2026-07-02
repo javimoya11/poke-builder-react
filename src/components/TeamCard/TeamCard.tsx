@@ -43,17 +43,21 @@ export const TeamCard = ({ team }: ITeamCard) => {
           })}
         </div>
       </div>
-      <DeleteTeam
-        open={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        team={team}
-      />
-      <AddToTeam
-        open={!!editing}
-        onClose={() => setEditing(null)}
-        editing={editing ?? undefined}
-        teamId={String(team.id)}
-      />
+      {deleteOpen && (
+        <DeleteTeam
+          open
+          onClose={() => setDeleteOpen(false)}
+          team={team}
+        />
+      )}
+      {editing && (
+        <AddToTeam
+          open
+          onClose={() => setEditing(null)}
+          editing={editing}
+          teamId={String(team.id)}
+        />
+      )}
     </>
   );
 };

@@ -55,5 +55,6 @@ export const usePokemon = (id?: string, options: PokemonQueryOptions = {}) =>
   useQuery({
     queryKey: pokemonQueryKey(id),
     queryFn: fetchPokemon,
+    staleTime: Infinity,
     ...options
   });

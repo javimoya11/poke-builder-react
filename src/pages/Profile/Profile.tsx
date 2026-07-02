@@ -10,17 +10,17 @@ import styles from './Profile.module.css';
 
 export const Profile = () => {
   const navigate = useNavigate();
-  const { user } = useGlobalStore();
+  const { user, authReady } = useGlobalStore();
   const [newTeam, setNewTeam] = useState(false);
   const { data, isLoading } = useTeams(user?.id);
 
   const teams = data ? [...data].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) : []
 
   useEffect(() => {
-    if (!user) {
+    if (authReady && !user) {
       navigate('/');
     }
-  });
+  }, [authReady, user, navigate]);
 
   return user ? (
     <>
@@ -39,8 +39,8 @@ export const Profile = () => {
             </button>
             <div className={styles.teamsGrid}>
               {!isLoading && teams && teams.length
-                ? teams.map((team, i) => (
-                    <TeamCard key={`${team.name}-${i}`} team={team} />
+                ? teams.map((team) => (
+                    <TeamCard key={team.id} team={team} />
                   ))
                 : isLoading
                   ? 'Loading...'

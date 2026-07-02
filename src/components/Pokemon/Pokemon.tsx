@@ -167,11 +167,13 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
       )}
 
       <AuthForm isOpen={authOpen} onClose={() => setAuthOpen(false)} />
-      <AddToTeam
-        open={addTeamOpen}
-        onClose={() => setAddTeamOpen(false)}
-        pokemon={pokemon}
-      />
+      {addTeamOpen && (
+        <AddToTeam
+          open
+          onClose={() => setAddTeamOpen(false)}
+          pokemon={pokemon}
+        />
+      )}
 
       {hasForms && (
         <>

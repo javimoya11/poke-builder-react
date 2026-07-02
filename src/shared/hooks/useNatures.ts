@@ -11,7 +11,7 @@ const naturesQueryKey = () => ['natures'] as const;
 
 async function fetchNatures(): Promise<Nature[]> {
   const pokedex = getPokedex();
-  const list = await pokedex.getNaturesList({ limit: 25 });
+  const list = await pokedex.getNaturesList({ offset: 0, limit: 25 });
   const details = await Promise.all(
     list.results.map((n: { name: string }) => pokedex.getNatureByName(n.name))
   );
