@@ -5,7 +5,6 @@
   align-items: center;
   background-color: var(--color-surface);
   border-radius: 5px;
-  overflow: hidden;
   transition: background-color var(--transition-fast);
 
   &:hover:not(:has(button:hover)) {

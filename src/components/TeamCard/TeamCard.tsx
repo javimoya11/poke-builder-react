@@ -49,12 +49,12 @@ export const TeamCard = ({ team }: ITeamCard) => {
           <Dropdown
             actions={[
               {
-                label: 'Export Showdown team',
+                label: 'Export Showdown',
                 icon: <Award size={16} />,
                 callback: () => {}
               },
               {
-                label: 'Export cheatsheet image',
+                label: 'Export image',
                 icon: <ImageDown size={16} />,
                 callback: () => {}
               }
