@@ -63,7 +63,9 @@
 }
 
 .delete {
-  composes: confirm from '../DeleteTeam/DeleteTeam.module.css';
+  composes: confirm from '../DeleteItem/DeleteItem.module.css';
+  border-color: var(--color-danger);
+  color: var(--color-danger);
   flex-grow: 1;
 }
 

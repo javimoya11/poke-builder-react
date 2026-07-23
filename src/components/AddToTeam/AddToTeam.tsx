@@ -1,4 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { DeleteItem } from 'components/DeleteItem/DeleteItem';
 import { Modal } from 'feature/Modal/Modal';
 import { Switch } from 'feature/Switch/Switch';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -47,6 +48,7 @@ export const AddToTeam = ({
   editing,
   teamId
 }: IAddToTeam) => {
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const isEditing = !!editing;
 
   const isForcedItem = useMemo(
@@ -248,23 +250,13 @@ export const AddToTeam = ({
 
   const deleteHandler = async () => {
     if (!user || !editing) return;
-    setLoading(true);
-    setFormError(null);
-    try {
-      const { error } = await supabase
-        .from('team_pokemon')
-        .delete()
-        .eq('id', editing.id);
-      if (error) throw error;
-      await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
-      onClose();
-    } catch (error) {
-      setFormError(
-        error instanceof Error ? error.message : 'Could not delete the pokémon.'
-      );
-    } finally {
-      setLoading(false);
-    }
+    const { error } = await supabase
+      .from('team_pokemon')
+      .delete()
+      .eq('id', editing.id);
+    if (error) throw error;
+    await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
+    onClose();
   };
 
   return (
@@ -679,7 +671,7 @@ export const AddToTeam = ({
             <button
               type="button"
               className={styles.delete}
-              onClick={deleteHandler}
+              onClick={() => setDeleteOpen(true)}
             >
               {loading ? (
                 <span className="button-spinner" aria-label="Loading" />
@@ -709,6 +701,25 @@ export const AddToTeam = ({
           </button>
         </div>
       </form>
+      {deleteOpen && editing && (
+        <DeleteItem
+          open
+          onClose={() => {
+            setDeleteOpen(false);
+            onClose();
+          }}
+          item={{
+            ...editing,
+            name: form.nickname.length
+              ? form.nickname
+              : prettify(editing.pokemon_name)
+          }}
+          itemType="Pokémon"
+          handler={deleteHandler}
+          onCancel={() => setDeleteOpen(false)}
+        />
+      )}
     </Modal>
   );
 };
+

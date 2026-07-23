@@ -29,6 +29,9 @@
 
 .confirm {
   composes: submit from '../../styles/modalForm.module.css';
+}
+
+button.confirm {
   border-color: var(--color-danger);
   color: var(--color-danger);
 }

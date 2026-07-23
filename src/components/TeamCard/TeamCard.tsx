@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { AddToTeam } from 'components/AddToTeam/AddToTeam';
 import { PLACEHOLDER_IMG } from 'components/Pokemon/types.Pokemon';
 import { Dropdown } from 'feature/Dropdown/Dropdown';
@@ -5,8 +6,11 @@ import { Award, FileDown, ImageDown, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
+import { supabase } from '../../lib/supabase';
+import { teamsQueryKey } from '../../shared/hooks/useTeams';
 import type { TeamPokemon } from '../../shared/hooks/useTeams';
-import { DeleteTeam } from '../DeleteTeam/DeleteTeam';
+import { useGlobalStore } from '../../shared/stores/useGlobalStore';
+import { DeleteItem } from '../DeleteItem/DeleteItem';
 import signInStyles from '../SignInButton/SignInButton.module.css';
 import styles from './TeamCard.module.css';
 import { ITeamCard } from './types.TeamCard';
@@ -14,6 +18,16 @@ import { ITeamCard } from './types.TeamCard';
 export const TeamCard = ({ team }: ITeamCard) => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editing, setEditing] = useState<TeamPokemon | null>(null);
+  const user = useGlobalStore((s) => s.user);
+  const queryClient = useQueryClient();
+
+  const deleteHandler = async () => {
+    if (!user) return;
+    const { error } = await supabase.from('teams').delete().eq('id', team.id);
+    if (error) throw error;
+    await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
+    setDeleteOpen(false);
+  };
 
   return (
     <>
@@ -71,13 +85,23 @@ export const TeamCard = ({ team }: ITeamCard) => {
             )}
           />
 
-          <button onClick={() => setDeleteOpen(true)}>
+          <button
+            className={signInStyles.dropdown}
+            onClick={() => setDeleteOpen(true)}
+          >
             <Trash size={16} />
           </button>
         </div>
       </div>
       {deleteOpen && (
-        <DeleteTeam open onClose={() => setDeleteOpen(false)} team={team} />
+        <DeleteItem
+          open
+          onClose={() => setDeleteOpen(false)}
+          item={team}
+          itemType="team"
+          handler={deleteHandler}
+          onCancel={() => setDeleteOpen(false)}
+        />
       )}
       {editing && (
         <AddToTeam
