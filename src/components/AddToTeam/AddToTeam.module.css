@@ -59,6 +59,12 @@
 
 .submit {
   composes: submit from '../../styles/modalForm.module.css';
+  flex-grow: 1;
+}
+
+.delete {
+  composes: confirm from '../DeleteTeam/DeleteTeam.module.css';
+  flex-grow: 1;
 }
 
 .formHeader {
@@ -78,6 +84,13 @@
     flex-direction: column;
     gap: 2px;
   }
+}
+
+.formFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: var(--space-3);
 }
 
 .headerField {

@@ -246,6 +246,27 @@ export const AddToTeam = ({
     }
   };
 
+  const deleteHandler = async () => {
+    if (!user || !editing) return;
+    setLoading(true);
+    setFormError(null);
+    try {
+      const { error } = await supabase
+        .from('team_pokemon')
+        .delete()
+        .eq('id', editing.id);
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
+      onClose();
+    } catch (error) {
+      setFormError(
+        error instanceof Error ? error.message : 'Could not delete the pokémon.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Modal isOpen={open} onClose={onClose}>
       <form
@@ -653,24 +674,40 @@ export const AddToTeam = ({
           </div>
         )}
 
-        <button
-          type="submit"
-          className={styles.submit}
-          disabled={
-            loading ||
-            !effectivePokemon ||
-            !pokemonToSave ||
-            (!isEditing && (!form.teamId || teamFull))
-          }
-        >
-          {loading ? (
-            <span className="button-spinner" aria-label="Loading" />
-          ) : isEditing ? (
-            'Update Pokémon'
-          ) : (
-            'Add to team'
+        <div className={styles.formFooter}>
+          {isEditing && (
+            <button
+              type="button"
+              className={styles.delete}
+              onClick={deleteHandler}
+            >
+              {loading ? (
+                <span className="button-spinner" aria-label="Loading" />
+              ) : (
+                'Delete Pokémon'
+              )}
+            </button>
           )}
-        </button>
+
+          <button
+            type="submit"
+            className={styles.submit}
+            disabled={
+              loading ||
+              !effectivePokemon ||
+              !pokemonToSave ||
+              (!isEditing && (!form.teamId || teamFull))
+            }
+          >
+            {loading ? (
+              <span className="button-spinner" aria-label="Loading" />
+            ) : isEditing ? (
+              'Update Pokémon'
+            ) : (
+              'Add to team'
+            )}
+          </button>
+        </div>
       </form>
     </Modal>
   );
