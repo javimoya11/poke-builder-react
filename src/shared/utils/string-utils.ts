@@ -1,4 +1,3 @@
-// Words moved to front (optionally renamed)
 const PREFIXES: Record<string, string> = {
   mega: 'mega',
   ultra: 'ultra',
@@ -8,7 +7,6 @@ const PREFIXES: Record<string, string> = {
   hisui: 'hisuian',
   paldea: 'paldean'
 };
-// Words replaced in-place
 const REPLACEMENTS: Record<string, string> = {
   gmax: 'g-Max',
   two: '2',
@@ -16,7 +14,6 @@ const REPLACEMENTS: Record<string, string> = {
   m: '♂',
   f: '♀'
 };
-// Words removed entirely
 const REMOVALS = new Set<string>([
   'striped',
   'strike',

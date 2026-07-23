@@ -1,4 +1,3 @@
-// --- useSpecies ---
 export interface Variety {
   name: string;
   id?: string;
@@ -10,7 +9,6 @@ export interface SpeciesData {
   varieties: Variety[];
 }
 
-// --- useTypeIconMap ---
 export type TypeIconMap = Record<string, string | null>;
 export type MoveTypeMap = Record<string, string | null>;
 
@@ -18,7 +16,6 @@ export interface TypeSpriteSet {
   name_icon?: string | null;
 }
 
-// --- cachedImage (utils) ---
 export interface CachedImageOptions {
   format?: string;
   quality?: number;

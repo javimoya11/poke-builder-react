@@ -1,36 +1,28 @@
 :root {
-  /* ===== Design tokens ===== */
-  /* Color: base */
   --color-bg: #242424;
   --color-surface: dimgray;
   --color-text: rgba(255, 255, 255, 0.87);
   --color-border: rgba(255, 255, 255, 0.15);
 
-  /* Color: estados / capas */
   --color-hover: #757575;
   --color-overlay: rgb(0 0 0 / 50%);
   --color-scrim: rgb(0 0 0 / 55%);
 
-  /* Color: feedback */
   --color-danger: #ff6b6b;
   --color-danger-bg: rgb(255 107 107 / 12%);
 
-  /* Color: skeleton */
   --color-skeleton: #5a5a5a;
   --color-skeleton-pulse: #7a7a7a;
 
-  /* Tipografía */
   --font-family-base: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   --font-weight-normal: 400;
   --font-weight-bold: 600;
 
-  /* Radios */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-pill: 15px;
   --radius-round: 50%;
 
-  /* Espaciado */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -38,40 +30,28 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  /* Sombras */
   --shadow-menu: 0 8px 24px rgb(0 0 0 / 45%);
 
-  /* Transiciones */
   --transition-fast: 0.15s ease;
 
-  /* Z-index */
   --z-header: 100;
   --z-dropdown: 1000;
   --z-modal: 9999;
 }
 
-/*
-  Orden de cascada. Regla clave: los estilos SIN @layer ganan a CUALQUIER capa.
-  Por eso reset/base van en capas (prioridad baja) y los componentes se dejan
-  sin capa => un estilo de componente siempre pisa al reset/base global,
-  independientemente de la especificidad. Eso elimina el "¿quién gana?".
-*/
 @layer reset, base;
 
 @layer reset {
-  /* 1. Modelo de caja intuitivo */
   *,
   *::before,
   *::after {
     box-sizing: border-box;
   }
 
-  /* 2. Sin margin por defecto */
   * {
     margin: 0;
   }
 
-  /* 3. Animaciones por keyword */
   @media (prefers-reduced-motion: no-preference) {
     html {
       interpolate-size: allow-keywords;
@@ -79,13 +59,10 @@
   }
 
   body {
-    /* 4. Line-height accesible */
     line-height: 1.5;
-    /* 5. Mejor renderizado de texto */
     -webkit-font-smoothing: antialiased;
   }
 
-  /* 6. Defaults de media */
   img,
   picture,
   video,
@@ -95,7 +72,6 @@
     max-width: 100%;
   }
 
-  /* 7. Heredar fuentes en controles de formulario */
   input,
   button,
   textarea,
@@ -103,7 +79,6 @@
     font: inherit;
   }
 
-  /* 8. Evitar desbordes de texto */
   p,
   h1,
   h2,
@@ -114,7 +89,6 @@
     overflow-wrap: break-word;
   }
 
-  /* 9. Mejor wrapping de líneas */
   p {
     text-wrap: pretty;
   }
@@ -137,8 +111,6 @@
     background-color: var(--color-bg);
   }
 
-  /* Cursor: global (también afecta a controles en portales como el Modal),
-     replicando el comportamiento original de :root button. */
   button,
   select {
     cursor: pointer;
@@ -148,13 +120,10 @@
     cursor: not-allowed;
   }
 
-  /* Base de caja/tamaño: solo dentro de .app-container (igual que el original;
-     NO toca botones en portales como el Modal). Vive en @layer base para que
-     cualquier regla de componente sin capa la pise. */
   .app-container button {
     box-sizing: content-box;
     width: fit-content;
-    padding: 5px 10px; /* TODO: unificar con la escala --space-* */
+    padding: 5px 10px;
   }
 
   a,
@@ -166,7 +135,6 @@
     color: var(--color-text);
   }
 
-  /* 10. Scrollbar fina y discreta (Chromium/Safari) */
   * {
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
@@ -190,7 +158,6 @@
     }
   }
 
-  /* 11. Stacking context raíz */
   #root,
   #__next {
     isolation: isolate;
@@ -200,9 +167,6 @@
     flex-direction: column;
     min-height: 100vh;
     position: relative;
-    /* clip (no 'hidden') recorta el overflow horizontal sin crear un contenedor
-       de scroll, de modo que window sigue siendo el scroller y position: sticky
-       del header se ancla al viewport. */
     overflow-x: clip;
   }
 }

@@ -19,8 +19,6 @@
   max-height: calc(100vh - 2 * var(--space-6));
 }
 
-/* The scrollable part of the modal. Kept separate from .content so the close
-   button (and any sticky header inside children) stays put while this scrolls. */
 .body {
   overflow-y: auto;
   flex: 1 1 auto;

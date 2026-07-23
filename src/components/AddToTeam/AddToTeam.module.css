@@ -61,9 +61,6 @@
   composes: submit from '../../styles/modalForm.module.css';
 }
 
-/* ── Header ── */
-/* Sprite, identity block and the two fields share a common bottom edge so the
-   whole row reads as one framed band regardless of each item's height. */
 .formHeader {
   display: flex;
   align-items: flex-end;
@@ -83,7 +80,6 @@
   }
 }
 
-/* Nickname takes the remaining space; level stays narrow. */
 .headerField {
   flex: 1 1 auto;
   min-width: 0;
@@ -99,10 +95,6 @@
   align-items: center;
   gap: var(--space-2);
   cursor: pointer;
-
-  input {
-    width: auto;
-  }
 }
 
 .headerSprite {
@@ -122,7 +114,6 @@
   font-weight: var(--font-weight-bold);
 }
 
-/* Type name-icons under the name, mirroring the Pokémon card. */
 .headerTypes {
   display: flex;
   align-items: center;
@@ -135,7 +126,6 @@
   }
 }
 
-/* ── Desktop: left column (team/item/ability/moves) + right column (EVs) ── */
 .formInputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -156,7 +146,6 @@
   gap: var(--space-3);
 }
 
-/* ── Moves ── */
 .movesFieldset {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -176,7 +165,6 @@
   margin-top: var(--space-2);
 }
 
-/* Full-width moves: the 4 slots share one row of 4 columns. */
 .movesGridFull {
   grid-template-columns: repeat(4, 1fr);
 }
@@ -188,7 +176,6 @@
   min-width: 0;
 }
 
-/* ── Stats table (base · bar · EV · IV) ── */
 .statsFieldset {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -201,8 +188,6 @@
   }
 }
 
-/* One row per stat: [name + base + bar] | EV input | IV input.
-   The header cells and each .statRow share the same 3-track grid. */
 .statsTable {
   --stats-cols: 1fr 3.25rem 3.25rem;
   display: grid;
@@ -221,8 +206,6 @@
   text-align: center;
 }
 
-/* A stat row spans all 3 columns and re-declares the same tracks, so its two
-   number inputs align with the EV/IV header cells above (no subgrid needed). */
 .statRow {
   grid-column: 1 / -1;
   display: grid;
@@ -231,7 +214,6 @@
   gap: var(--space-2);
 }
 
-/* Fixed name + number columns so every bar starts at the same x. */
 .statBase {
   display: grid;
   grid-template-columns: 8.5rem 2rem 1fr;
@@ -254,7 +236,6 @@
   text-align: right;
 }
 
-/* Proportional base-stat bar; the fill colour is set inline via statColor(). */
 .statBar {
   height: 10px;
   border-radius: var(--radius-pill);
@@ -268,8 +249,6 @@
   border-radius: inherit;
 }
 
-/* Narrow EV/IV number inputs. These live outside a <label>, so they don't
-   inherit the base field styling and must set border/background themselves. */
 .statsTable input[type='number'] {
   width: 100%;
   padding: var(--space-1);
@@ -329,8 +308,6 @@
   color: #60a5fa;
 }
 
-/* ── Narrow: the two-column layout leaves too little room for name + bar +
-   EV/IV inputs, so drop the bar and let the name column flex instead. ── */
 @media (max-width: 750px) {
   .statBase {
     grid-template-columns: 1fr 2rem;
@@ -341,7 +318,6 @@
   }
 }
 
-/* ── Mobile: single column ── */
 @media (max-width: 600px) {
   .addToTeamForm {
     width: 90vw;
@@ -353,8 +329,6 @@
     grid-template-columns: 1fr;
   }
 
-  /* Stack the type badges instead of side by side so they don't widen the
-     identity column and crowd the nickname/level inputs next to it. */
   .headerTypes {
     flex-direction: column;
     align-items: flex-start;

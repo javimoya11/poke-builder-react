@@ -21,10 +21,6 @@
   }
 }
 
-/* Utilidad global compartida: spinner de carga.
-   Global (no anidado en .app-container) porque también se usa dentro del Modal,
-   que se renderiza por portal fuera de .app-container.
-   display:inline-block para que un <span> respete width/height. */
 .button-spinner {
   display: inline-block;
   width: 16px;

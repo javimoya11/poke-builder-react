@@ -21,13 +21,11 @@ import {
 export const usePrefetchGen = () => {
   const queryClient = useQueryClient();
 
-  // Prefetches a single Pokémon: its base detail, species and artwork.
   const prefetchOne = useCallback(
     async (poke: NamedAPIResource) => {
       const id = idFromUrl(poke.url);
       if (!id) return;
 
-      // Base Pokémon detail, its species and the base artwork, in parallel.
       const [, species] = await Promise.all([
         queryClient.fetchQuery({
           queryKey: pokemonQueryKey(id),
@@ -40,10 +38,6 @@ export const usePrefetchGen = () => {
         preloadImage(cachedImage(artworkUrl(id), 100))
       ]);
 
-      // Preload the alternate forms' artwork (cheap images): selecting a form
-      // then shows its image without waiting. Forms hidden by POKEMON_FILTER
-      // are skipped since the UI never surfaces them, and many don't have an
-      // official-artwork sprite (guaranteed 404s).
       await Promise.all(
         species.varieties
           .filter((v) => !v.isDefault && v.id && !POKEMON_FILTER(v.name))
@@ -53,11 +47,8 @@ export const usePrefetchGen = () => {
     [queryClient]
   );
 
-  // Loads the whole slice; resolves only once EVERYTHING is ready.
   return useCallback(
     async (slice: NamedAPIResource[]) => {
-      // Type details are fetched only ONCE (there are just 18). fetchQuery with
-      // staleTime: Infinity won't refetch if already cached from a previous slice.
       const typeDetails = await queryClient.fetchQuery({
         queryKey: TYPE_DETAILS_KEY,
         queryFn: fetchTypeDetails,

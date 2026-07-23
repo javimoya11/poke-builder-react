@@ -11,9 +11,6 @@ const FIRST_GEN = pokedexNumbers[0];
 const LAST_GEN = pokedexNumbers[pokedexNumbers.length - 1];
 
 export const List = () => {
-  // State persisted across navigations (search / loaded generations).
-  // Individual selectors: we do NOT subscribe to scrollY so that saving the
-  // scroll position does not trigger a re-render of the whole list.
   const search = useListStore((s) => s.search);
   const setSearch = useListStore((s) => s.setSearch);
   const genReady = useListStore((s) => s.genReady);
@@ -30,7 +27,6 @@ export const List = () => {
     (poke) => Number(idFromUrl(poke.url)) <= LAST_GEN
   );
 
-  // Initial load of the first generation (only if nothing has been loaded yet).
   useEffect(() => {
     if (!allPokemons.length || genReady > 0) return;
     let cancelled = false;
@@ -46,15 +42,12 @@ export const List = () => {
 
   const isInitialLoading = pokeResults.isLoading || genReady === 0;
 
-  // Restores the saved scroll position once the list is mounted.
-  // useLayoutEffect fires before the first paint, preventing a visible jump.
   useLayoutEffect(() => {
     if (isInitialLoading || restoredRef.current) return;
     window.scrollTo(0, useListStore.getState().scrollY);
     restoredRef.current = true;
   }, [isInitialLoading]);
 
-  // Saves the scroll position while the user navigates the list.
   useEffect(() => {
     let ticking = false;
     const onScroll = () => {

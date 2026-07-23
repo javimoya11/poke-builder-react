@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 export interface IDropdownAction {
   label: string;
   callback: () => void;
-  icon?: ReactNode; // e.g. <LogOut size={16} /> from lucide-react
+  icon?: ReactNode;
 }
 
 export interface IDropdownTriggerState {
@@ -15,8 +15,8 @@ export interface IDropdownTriggerState {
 export interface IDropdownProps {
   actions: IDropdownAction[];
   trigger: (state: IDropdownTriggerState) => ReactNode;
-  align?: 'left' | 'right'; // defaults to 'right' (anchored to the right, as in the header)
-  direction?: 'down' | 'up'; // defaults to 'down'
+  align?: 'left' | 'right';
+  direction?: 'down' | 'up';
 }
 
 export interface IDropdownOptionProps {

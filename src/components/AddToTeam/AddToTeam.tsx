@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal } from 'feature/Modal/Modal';
+import { Switch } from 'feature/Switch/Switch';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { idFromUrl } from 'utils/idFromUrl';
@@ -17,8 +18,8 @@ import styles from './AddToTeam.module.css';
 import {
   ABILITY_FORM_MAP,
   EV_FIELD,
-  formFromTeamPokemon,
   FORCED_FORM_ITEM_MAP,
+  formFromTeamPokemon,
   GENDERS,
   getForcedItem,
   IAddToTeam,
@@ -48,11 +49,6 @@ export const AddToTeam = ({
 }: IAddToTeam) => {
   const isEditing = !!editing;
 
-  // Mega/Primal forms and Zacian/Zamazenta Crowned are stored in Showdown as
-  // the base species holding the corresponding item (stone/orb/Rusted
-  // Sword/Shield). When one is opened (create mode) we resolve to its base
-  // species and pre-fill (but do not lock) the item accordingly. Edited rows
-  // already store the base species, so no resolution is needed there.
   const isForcedItem = useMemo(
     () => isForcedItemForm(pokemon?.name),
     [pokemon?.name]
@@ -63,11 +59,6 @@ export const AddToTeam = ({
   );
   const baseSpeciesName = pokemon?.species.name;
 
-  // Zygarde 10%/50%: the card always shows the base (ability-agnostic)
-  // variety. Which alternate form actually gets saved is resolved live from
-  // the chosen ability below, so the alternate form's data is fetched
-  // alongside the base one whenever it applies (create mode only — an
-  // edited row already stores whichever form was originally saved).
   const abilityFormRule = pokemon ? ABILITY_FORM_MAP[pokemon.name] : undefined;
 
   const [form, setForm] = useState<IAddToTeamForm>({
@@ -83,9 +74,6 @@ export const AddToTeam = ({
   const user = useGlobalStore((s) => s.user);
   const { data: teams = [] } = useTeams(user?.id);
 
-  // Edit mode loads its Pokémon from the stored id; create mode resolves the
-  // base species of the passed-in form. Either way `effectivePokemon` is the
-  // base-species Pokémon that drives the header, selects, stats and the write.
   const { data: editingPokemon } = usePokemon(editing?.pokemon_id, {
     enabled: isEditing && !!editing?.pokemon_id
   });
@@ -102,9 +90,6 @@ export const AddToTeam = ({
       ? basePokemon
       : pokemon;
 
-  // Zygarde 10%/50%: both forms share identical stats/type, so the visible
-  // effectivePokemon doesn't need to change — only the row persisted on
-  // submit does, once Power Construct is the chosen ability.
   const pokemonToSave =
     !isEditing && abilityFormRule && form.ability === abilityFormRule.ability
       ? altAbilityFormPokemon
@@ -114,9 +99,6 @@ export const AddToTeam = ({
   const { data: natures = [] } = useNatures();
   const moves = useAvailableMoves(effectivePokemon);
 
-  // Zygarde 10%/50%: each variety only exposes the one ability it's fixed
-  // to (Aura Break or Power Construct). Merge in Power Construct from the
-  // alternate form so both are selectable from the single agnostic card.
   const abilityOptions = useMemo(() => {
     const base = effectivePokemon?.abilities ?? [];
     if (!abilityFormRule || !altAbilityFormPokemon) return base;
@@ -146,10 +128,6 @@ export const AddToTeam = ({
     ? (NATURE_STAT[selectedNature.decreased_stat] ?? null)
     : null;
 
-  // Mega/Primal stones and the Rusted Sword/Shield live outside the
-  // held-items list (PokeAPI puts them in a separate item category), so
-  // surface every such item the base species can use as extra options
-  // alongside the regular items.
   const baseSpeciesForStones = effectivePokemon?.species.name;
   const forcedFormItems = useMemo(() => {
     if (!baseSpeciesForStones) return [];
@@ -213,8 +191,6 @@ export const AddToTeam = ({
     }
     if (!effectivePokemon || !pokemonToSave || !user) return;
 
-    // Fields the user can edit in both modes. Species/team/slot are set only on
-    // insert (they cannot change while editing).
     const editableFields = {
       nickname: form.nickname || null,
       held_item: form.held_item || null,
@@ -344,7 +320,6 @@ export const AddToTeam = ({
             )}
           </label>
         </header>
-        {/* Left column: metadata + moves · Right column: unified stats table */}
         <div className={styles.formInputs}>
           <div className={styles.formLeft}>
             <div className={styles.row}>
@@ -521,18 +496,16 @@ export const AddToTeam = ({
               </label>
 
               <label htmlFor="shiny" className={styles.shinyLabel}>
-                <input
+                <Switch
                   id="shiny"
-                  type="checkbox"
                   checked={form.shiny}
-                  onChange={(e) => set('shiny', e.target.checked)}
+                  onChange={(checked) => set('shiny', checked)}
                 />
                 Shiny
               </label>
             </div>
           </div>
 
-          {/* Right column: unified stats table (base · bar · EV · IV) */}
           <div className={styles.formRight}>
             <fieldset className={styles.statsFieldset}>
               <legend>Stats</legend>
@@ -628,7 +601,6 @@ export const AddToTeam = ({
           </div>
         </div>
 
-        {/* Moves: full width, below the two columns */}
         <fieldset className={styles.movesFieldset}>
           <legend>Moves</legend>
           <div className={`${styles.movesGrid} ${styles.movesGridFull}`}>
@@ -673,7 +645,10 @@ export const AddToTeam = ({
         </fieldset>
 
         {formError && (
-          <div className={`${styles.banner} ${styles.bannerError}`} role="alert">
+          <div
+            className={`${styles.banner} ${styles.bannerError}`}
+            role="alert"
+          >
             {formError}
           </div>
         )}

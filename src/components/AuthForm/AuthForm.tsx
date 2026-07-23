@@ -20,7 +20,6 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Reset to a clean state every time the modal opens.
   useEffect(() => {
     if (!isOpen) return;
     setMode('signIn');
@@ -67,15 +66,12 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
           setFormError(error.message);
           return;
         }
-        // If email confirmation is enabled there is no session yet: the user
-        // must confirm before logging in.
         if (!data.session) {
           setInfo(
             'Account created. Check your email to confirm your account before logging in.'
           );
           return;
         }
-        // Session active: the auth listener updates the store, just close.
         onClose();
       } else {
         const { error } = await signIn(email.trim(), password);
