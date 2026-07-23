@@ -4,8 +4,7 @@
 }
 
 .menu {
-  position: absolute;
-  top: calc(100% + var(--space-2));
+  position: fixed;
   min-width: 180px;
   margin: 0;
   padding: 6px;
@@ -23,19 +22,6 @@
 
 .menu > li {
   display: flex;
-}
-
-.menuRight {
-  right: 0;
-}
-
-.menuLeft {
-  left: 0;
-}
-
-.menuUp {
-  top: auto;
-  bottom: calc(100% + var(--space-2));
 }
 
 .item {

@@ -88,7 +88,7 @@
 
 @media (max-width: 431px) {
   .teamCard {
-    padding: var(--space-2);
+    padding: var(--space-3);
     width: 160px;
   }
 }
