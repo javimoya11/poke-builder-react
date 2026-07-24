@@ -1,4 +1,5 @@
 import { Pokemon } from 'pokeapi-js-wrapper';
+import type { Nature } from '../../shared/hooks/useNatures';
 import type { TeamPokemon } from '../../shared/hooks/useTeams';
 
 export interface IAddToTeam {
@@ -313,3 +314,49 @@ export const ABILITY_FORM_MAP: Record<
   'zygarde-10': { ability: 'power-construct', form: 'zygarde-10-power-construct' },
   'zygarde-50': { ability: 'power-construct', form: 'zygarde-50-power-construct' }
 };
+
+/** A neutral nature (no stat up/down), used as the default when adding. */
+export const DEFAULT_NATURE = 'hardy';
+
+/**
+ * Default gender for a newly added Pokémon, derived from the species'
+ * gender_rate (chance of being female in eighths, or -1 for genderless):
+ * -1 → genderless, 0 → male, 8 → female, and for species that can be either,
+ * the more likely sex (rate > 4 → female, otherwise male).
+ * @param genderRate - The species gender_rate, or undefined while it loads.
+ * @returns The default gender, or '' if the rate isn't known yet.
+ */
+export function defaultGender(genderRate?: number): '' | Gender {
+  if (genderRate === undefined) return '';
+  if (genderRate < 0) return 'genderless';
+  if (genderRate === 0) return 'male';
+  if (genderRate === 8) return 'female';
+  return genderRate > 4 ? 'female' : 'male';
+}
+
+/**
+ * Default ability: the first non-hidden ability by slot. Falls back to the
+ * first ability of any kind if a Pokémon somehow only has hidden ones.
+ * @param pokemon - The resolved Pokémon, or undefined while it loads.
+ * @returns The ability name, or '' if none is available yet.
+ */
+export function defaultAbility(pokemon?: Pokemon): string {
+  const abilities = pokemon?.abilities;
+  if (!abilities?.length) return '';
+  const sorted = [...abilities].sort((a, b) => a.slot - b.slot);
+  const primary = sorted.find((a) => !a.is_hidden) ?? sorted[0];
+  return primary.ability.name;
+}
+
+/**
+ * Default nature: the neutral DEFAULT_NATURE if present, otherwise the first
+ * nature in the list. Never returns '' once natures have loaded.
+ * @param natures - The loaded natures list.
+ * @returns The default nature name, or '' if natures haven't loaded.
+ */
+export function defaultNature(natures: Nature[]): string {
+  if (natures.length === 0) return '';
+  return natures.some((n) => n.name === DEFAULT_NATURE)
+    ? DEFAULT_NATURE
+    : natures[0].name;
+}

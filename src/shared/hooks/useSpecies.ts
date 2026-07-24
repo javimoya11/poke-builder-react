@@ -47,7 +47,7 @@ export async function fetchSpecies({
 
   varieties.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
 
-  return { name: species.name, varieties };
+  return { name: species.name, varieties, genderRate: species.gender_rate };
 }
 
 type SpeciesQueryOptions = Omit<

@@ -2,13 +2,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AddToTeam } from 'components/AddToTeam/AddToTeam';
 import { PLACEHOLDER_IMG } from 'components/Pokemon/types.Pokemon';
 import { Dropdown } from 'feature/Dropdown/Dropdown';
+import { ExportImageModal } from 'feature/ExportImage/ExportImageModal';
 import { Award, FileDown, ImageDown, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
 import { supabase } from '../../lib/supabase';
-import { teamsQueryKey } from '../../shared/hooks/useTeams';
 import type { TeamPokemon } from '../../shared/hooks/useTeams';
+import { teamsQueryKey } from '../../shared/hooks/useTeams';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import { DeleteItem } from '../DeleteItem/DeleteItem';
 import signInStyles from '../SignInButton/SignInButton.module.css';
@@ -16,6 +17,7 @@ import styles from './TeamCard.module.css';
 import { ITeamCard } from './types.TeamCard';
 
 export const TeamCard = ({ team }: ITeamCard) => {
+  const [exportOpen, setExportOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editing, setEditing] = useState<TeamPokemon | null>(null);
   const user = useGlobalStore((s) => s.user);
@@ -70,7 +72,7 @@ export const TeamCard = ({ team }: ITeamCard) => {
               {
                 label: 'Export image',
                 icon: <ImageDown size={16} />,
-                callback: () => {}
+                callback: () => setExportOpen(true)
               }
             ]}
             trigger={({ toggle }) => (
@@ -109,6 +111,13 @@ export const TeamCard = ({ team }: ITeamCard) => {
           onClose={() => setEditing(null)}
           editing={editing}
           teamId={String(team.id)}
+        />
+      )}
+      {exportOpen && (
+        <ExportImageModal
+          open
+          onClose={() => setExportOpen(false)}
+          team={team}
         />
       )}
     </>

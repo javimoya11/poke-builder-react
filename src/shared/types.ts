@@ -7,6 +7,8 @@ export interface Variety {
 export interface SpeciesData {
   name: string;
   varieties: Variety[];
+  /** Chance of being female, in eighths; or -1 for genderless (PokeAPI gender_rate). */
+  genderRate: number;
 }
 
 export type TypeIconMap = Record<string, string | null>;

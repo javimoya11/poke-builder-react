@@ -51,3 +51,31 @@ export const preloadImage = (url?: string | null): Promise<void> =>
     img.onerror = () => resolve();
     img.src = url;
   });
+
+/**
+ * Fetches a remote image and returns it as a base64 data URI. Embedding the
+ * bytes directly (rather than letting a capture library re-fetch the URL)
+ * avoids html-to-image collapsing several images that share a proxy host
+ * into a single cached one. Never rejects: a failing image resolves to null
+ * so one broken sprite can't abort a whole export.
+ * @param url - The image URL to inline. No-op if empty.
+ * @returns A promise of the data URI, or null if it couldn't be fetched.
+ */
+export const toDataUrl = async (
+  url?: string | null
+): Promise<string | null> => {
+  if (!url) return null;
+  try {
+    const res = await fetch(url, { cache: 'force-cache' });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise<string | null>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+};

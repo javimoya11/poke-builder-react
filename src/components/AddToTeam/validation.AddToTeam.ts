@@ -68,9 +68,13 @@ export const validateAddToTeam = (values: IAddToTeamForm): IAddToTeamErrors => {
 
   const filledMoves = MOVE_SLOTS.map((s) => values[s]).filter(Boolean);
 
-  const uniqueMoves = new Set(filledMoves);
-  if (uniqueMoves.size < filledMoves.length) {
-    errors.moves = 'Moves cannot be repeated.';
+  if (filledMoves.length === 0) {
+    errors.moves = 'You must select at least one move.';
+  } else {
+    const uniqueMoves = new Set(filledMoves);
+    if (uniqueMoves.size < filledMoves.length) {
+      errors.moves = 'Moves cannot be repeated.';
+    }
   }
 
   if (!values.ability) {

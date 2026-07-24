@@ -12,12 +12,16 @@ import { useAvailableMoves } from '../../shared/hooks/useAvailableMoves';
 import { useHeldItems } from '../../shared/hooks/useHeldItems';
 import { useNatures } from '../../shared/hooks/useNatures';
 import { usePokemon } from '../../shared/hooks/usePokemon';
+import { useSpecies } from '../../shared/hooks/useSpecies';
 import { teamsQueryKey, useTeams } from '../../shared/hooks/useTeams';
 import { useTypeIconMap } from '../../shared/hooks/useTypeIconMap';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './AddToTeam.module.css';
 import {
   ABILITY_FORM_MAP,
+  defaultAbility,
+  defaultGender,
+  defaultNature,
   EV_FIELD,
   FORCED_FORM_ITEM_MAP,
   formFromTeamPokemon,
@@ -101,6 +105,10 @@ export const AddToTeam = ({
   const { data: natures = [] } = useNatures();
   const moves = useAvailableMoves(effectivePokemon);
 
+  const { data: species } = useSpecies(effectivePokemon?.species.name, {
+    enabled: !isEditing && !!effectivePokemon?.species.name
+  });
+
   const abilityOptions = useMemo(() => {
     const base = effectivePokemon?.abilities ?? [];
     if (!abilityFormRule || !altAbilityFormPokemon) return base;
@@ -171,6 +179,19 @@ export const AddToTeam = ({
     setFormError(null);
     setLoading(false);
   }, [open, forcedItem, editing, teamId]);
+
+  useEffect(() => {
+    if (!open || isEditing) return;
+    const ability = defaultAbility(effectivePokemon);
+    const nature = defaultNature(natures);
+    const gender = defaultGender(species?.genderRate);
+    setForm((prev) => ({
+      ...prev,
+      ability: prev.ability || ability,
+      nature: prev.nature || nature,
+      gender: prev.gender || gender
+    }));
+  }, [open, isEditing, effectivePokemon, natures, species]);
 
   const set = <K extends keyof IAddToTeamForm>(
     key: K,
@@ -417,8 +438,11 @@ export const AddToTeam = ({
                   id="nature"
                   value={form.nature}
                   onChange={(e) => set('nature', e.target.value)}
+                  aria-invalid={!!errors.nature}
                 >
-                  <option value="">None</option>
+                  <option value="" disabled hidden>
+                    Select a nature...
+                  </option>
                   {natures.map((n) => (
                     <option key={n.name} value={n.name}>
                       {prettifyItem(n.name)}
@@ -430,6 +454,9 @@ export const AddToTeam = ({
                     </option>
                   ))}
                 </select>
+                {errors.nature && (
+                  <span className={styles.fieldError}>{errors.nature}</span>
+                )}
               </label>
             </div>
 
@@ -472,7 +499,9 @@ export const AddToTeam = ({
                     set('gender', e.target.value as IAddToTeamForm['gender'])
                   }
                 >
-                  <option value="">Unspecified</option>
+                  <option value="" disabled hidden>
+                    Select a gender...
+                  </option>
                   {GENDERS.map((g) => (
                     <option key={g} value={g}>
                       {prettifyItem(g)}
