@@ -157,7 +157,8 @@ export const AddToTeam = ({
   const selectedTeam = teams.find((t) => String(t.id) === form.teamId);
   const usedSlots = selectedTeam?.team_pokemon?.map((p) => p.slot) ?? [];
   const nextSlot = usedSlots.length > 0 ? Math.max(...usedSlots) + 1 : 1;
-  const teamFull = usedSlots.length >= 6;
+  const teamFull = usedSlots.length >= 6 && form.teamId !== teamId;
+  const isMovingTeam = isEditing && form.teamId !== (teamId ?? '');
 
   const totalEv =
     form.ev_hp +
@@ -248,7 +249,12 @@ export const AddToTeam = ({
       const { error } = editing
         ? await supabase
             .from('team_pokemon')
-            .update(editableFields)
+            .update({
+              ...editableFields,
+              ...(isMovingTeam
+                ? { team_id: form.teamId, slot: nextSlot }
+                : {})
+            })
             .eq('id', editing.id)
         : await supabase.from('team_pokemon').insert({
             team_id: form.teamId,
@@ -364,7 +370,6 @@ export const AddToTeam = ({
                   value={form.teamId}
                   onChange={(e) => set('teamId', e.target.value)}
                   aria-invalid={!!errors.teamId}
-                  disabled={isEditing}
                 >
                   <option value="" disabled hidden>
                     Select a team...
@@ -373,7 +378,10 @@ export const AddToTeam = ({
                     <option
                       key={t.id}
                       value={t.id}
-                      disabled={(t.team_pokemon?.length ?? 0) >= 6}
+                      disabled={
+                        (t.team_pokemon?.length ?? 0) >= 6 &&
+                        String(t.id) !== teamId
+                      }
                     >
                       {t.name}
                     </option>
@@ -717,7 +725,8 @@ export const AddToTeam = ({
               loading ||
               !effectivePokemon ||
               !pokemonToSave ||
-              (!isEditing && (!form.teamId || teamFull))
+              !form.teamId ||
+              teamFull
             }
           >
             {loading ? (
@@ -751,4 +760,3 @@ export const AddToTeam = ({
     </Modal>
   );
 };
-

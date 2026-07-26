@@ -8,9 +8,10 @@ export interface IAddToTeam {
   /** The Pokémon to add. Used in create mode (adding a new Pokémon to a team). */
   pokemon?: Pokemon;
   /**
-   * A stored team_pokemon row to edit. When present the form runs in edit mode:
-   * it loads its Pokémon from `pokemon_id`, pre-fills every field, locks the
-   * team selector and updates (rather than inserts) the row on submit.
+   * A stored team_pokemon row to edit. When present the form runs in edit
+   * mode: it loads its Pokémon from `pokemon_id`, pre-fills every field, and
+   * updates (rather than inserts) the row on submit. The team selector stays
+   * usable; picking a different team moves the row there on save.
    */
   editing?: TeamPokemon;
   /** The team id the edited Pokémon belongs to (edit mode only). */
