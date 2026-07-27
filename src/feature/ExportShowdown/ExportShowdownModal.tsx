@@ -1,4 +1,5 @@
 import { Modal } from 'feature/Modal/Modal';
+import { useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import styles from './ExportShowdown.module.css';
 import { showdownStringFormat } from './showdownExport.utils';
@@ -9,6 +10,19 @@ export const ExportShowdownModal = ({
   onClose,
   team
 }: IExportShowdownModal) => {
+  const [copied, setCopied] = useState<number | 'team' | null>(null);
+
+  const handleCopyPokemon = (id: number, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 1000);
+  };
+  const handleCopyTeam = () => {
+    const teamCopy = team.team_pokemon.map(showdownStringFormat);
+    navigator.clipboard.writeText(teamCopy.join('\n\n'));
+    setCopied('team');
+    setTimeout(() => setCopied(null), 1000);
+  };
   return (
     <Modal isOpen={open} onClose={onClose} maxWidth={1200}>
       <div className={styles.modalContent}>
@@ -29,15 +43,32 @@ export const ExportShowdownModal = ({
                     {showdownStringFormat(poke)}
                   </pre>
                 </div>
-                <button className={styles.copyPokemonButton}>
-                  Copy Pokémon
-                </button>
+                <div className={styles.copyButtonWrapper}>
+                  {copied === poke.id && (
+                    <span className={styles.copiedToast}>Copied!</span>
+                  )}
+                  <button
+                    className={styles.copyPokemonButton}
+                    onClick={() =>
+                      handleCopyPokemon(poke.id, showdownStringFormat(poke))
+                    }
+                  >
+                    Copy Pokémon
+                  </button>
+                </div>
               </div>
             );
           })}
         </div>
         <div className={styles.modalFooter}>
-          <button className={styles.copyButton}>Copy team</button>
+          <div className={styles.copyButtonWrapper}>
+            {copied === 'team' && (
+              <span className={styles.copiedToast}>Copied!</span>
+            )}
+            <button className={styles.copyButton} onClick={handleCopyTeam}>
+              Copy team
+            </button>
+          </div>
         </div>
       </div>
     </Modal>
