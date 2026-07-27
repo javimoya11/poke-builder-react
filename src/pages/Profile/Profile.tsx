@@ -1,5 +1,6 @@
 import { NewTeam } from 'components/NewTeam/NewTeam';
 import { PageView } from 'components/PageView/PageView';
+import { Spinner } from 'components/Spinner/Spinner';
 import { TeamCard } from 'components/TeamCard/TeamCard';
 import { useTeams } from 'hooks/useTeams';
 import { Plus } from 'lucide-react';
@@ -37,15 +38,17 @@ export const Profile = () => {
               <Plus />
               <span>{'Add Team'}</span>
             </button>
-            <div className={styles.teamsGrid}>
-              {!isLoading && teams && teams.length
-                ? teams.map((team) => (
-                    <TeamCard key={team.id} team={team} />
-                  ))
-                : isLoading
-                  ? 'Loading...'
+            {isLoading ? (
+              <Spinner />
+            ) : (
+              <div className={styles.teamsGrid}>
+                {teams && teams.length
+                  ? teams.map((team) => (
+                      <TeamCard key={team.id} team={team} />
+                    ))
                   : 'No teams found. Add some teams!'}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </PageView>

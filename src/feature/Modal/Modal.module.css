@@ -17,6 +17,7 @@
   padding: var(--space-6);
   border-radius: var(--radius-md);
   box-sizing: border-box;
+  width: min(880px, 100%);
   max-width: min(880px, 100%);
   max-height: calc(100vh - 2 * var(--space-6));
 }

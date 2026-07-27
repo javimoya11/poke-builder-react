@@ -1,4 +1,5 @@
 import { Pokemon } from 'components/Pokemon/Pokemon';
+import { Spinner } from 'components/Spinner/Spinner';
 import { usePokemonList } from 'hooks/usePokemonList';
 import { usePrefetchGen } from 'hooks/usePrefetchGen';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -63,7 +64,7 @@ export const List = () => {
   }, [setScrollY]);
 
   if (isInitialLoading) {
-    return <h1>Loading...</h1>;
+    return <Spinner />;
   }
 
   const query = search.trim().toLowerCase().replaceAll(' ', '-');

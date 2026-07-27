@@ -35,7 +35,14 @@ export const Modal = ({ isOpen, onClose, children, maxWidth }: ModalProps) => {
     <div className={styles.overlay}>
       <div
         className={styles.content}
-        style={maxWidth ? { maxWidth: `min(${maxWidth}px, 100%)` } : undefined}
+        style={
+          maxWidth
+            ? {
+                width: `min(${maxWidth}px, 100%)`,
+                maxWidth: `min(${maxWidth}px, 100%)`
+              }
+            : undefined
+        }
       >
         <button
           type="button"

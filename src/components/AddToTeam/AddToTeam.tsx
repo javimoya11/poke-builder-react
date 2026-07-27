@@ -1,18 +1,24 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { DeleteItem } from 'components/DeleteItem/DeleteItem';
+import { Spinner } from 'components/Spinner/Spinner';
 import { Modal } from 'feature/Modal/Modal';
 import { Switch } from 'feature/Switch/Switch';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Pokemon } from 'pokeapi-js-wrapper';
+import { useMemo, useRef, useState } from 'react';
+import type { TypeIconMap } from 'types';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { idFromUrl } from 'utils/idFromUrl';
 import { statColor } from 'utils/statColor';
 import { prettify, prettifyItem } from 'utils/string-utils';
 import { supabase } from '../../lib/supabase';
+import type { AvailableMove } from '../../shared/hooks/useAvailableMoves';
 import { useAvailableMoves } from '../../shared/hooks/useAvailableMoves';
 import { useHeldItems } from '../../shared/hooks/useHeldItems';
+import type { Nature } from '../../shared/hooks/useNatures';
 import { useNatures } from '../../shared/hooks/useNatures';
 import { usePokemon } from '../../shared/hooks/usePokemon';
 import { useSpecies } from '../../shared/hooks/useSpecies';
+import type { Team, TeamPokemon } from '../../shared/hooks/useTeams';
 import { teamsQueryKey, useTeams } from '../../shared/hooks/useTeams';
 import { useTypeIconMap } from '../../shared/hooks/useTypeIconMap';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
@@ -52,7 +58,6 @@ export const AddToTeam = ({
   editing,
   teamId
 }: IAddToTeam) => {
-  const [deleteOpen, setDeleteOpen] = useState(false);
   const isEditing = !!editing;
 
   const isForcedItem = useMemo(
@@ -66,15 +71,6 @@ export const AddToTeam = ({
   const baseSpeciesName = pokemon?.species.name;
 
   const abilityFormRule = pokemon ? ABILITY_FORM_MAP[pokemon.name] : undefined;
-
-  const [form, setForm] = useState<IAddToTeamForm>({
-    ...INITIAL_FORM,
-    held_item: forcedItem ?? ''
-  });
-  const [errors, setErrors] = useState<IAddToTeamErrors>({});
-  const [loading, setLoading] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
 
   const queryClient = useQueryClient();
   const user = useGlobalStore((s) => s.user);
@@ -96,18 +92,112 @@ export const AddToTeam = ({
       ? basePokemon
       : pokemon;
 
+  const { data: heldItems = [], isLoading: heldItemsLoading } = useHeldItems();
+  const { data: natures = [], isLoading: naturesLoading } = useNatures();
+  const moves = useAvailableMoves(effectivePokemon);
+
+  const speciesEnabled = !isEditing && !!effectivePokemon?.species.name;
+  const { data: species, isLoading: speciesLoading } = useSpecies(
+    effectivePokemon?.species.name,
+    { enabled: speciesEnabled }
+  );
+
+  const { data: typeIconMap = {} } = useTypeIconMap();
+
+  const dataReady = isEditing
+    ? !!editingPokemon
+    : !!effectivePokemon &&
+      !naturesLoading &&
+      (!speciesEnabled || !speciesLoading);
+
+  return (
+    <Modal isOpen={open} onClose={onClose}>
+      {!dataReady ? (
+        <Spinner />
+      ) : (
+        <AddToTeamForm
+          onClose={onClose}
+          editing={editing}
+          teamId={teamId}
+          effectivePokemon={effectivePokemon}
+          abilityFormRule={abilityFormRule}
+          altAbilityFormPokemon={altAbilityFormPokemon}
+          forcedItem={forcedItem}
+          natures={natures}
+          species={species}
+          heldItems={heldItems}
+          heldItemsLoading={heldItemsLoading}
+          moves={moves}
+          typeIconMap={typeIconMap}
+          teams={teams}
+          user={user}
+          queryClient={queryClient}
+        />
+      )}
+    </Modal>
+  );
+};
+
+interface AddToTeamFormProps {
+  onClose: () => void;
+  editing?: TeamPokemon;
+  teamId?: string;
+  effectivePokemon?: Pokemon;
+  abilityFormRule?: { ability: string; form: string };
+  altAbilityFormPokemon?: Pokemon;
+  forcedItem?: string;
+  natures: Nature[];
+  species?: { genderRate: number };
+  heldItems: { name: string; url: string }[];
+  heldItemsLoading: boolean;
+  moves: AvailableMove[];
+  typeIconMap: TypeIconMap;
+  teams: Team[];
+  user: { id: string } | null | undefined;
+  queryClient: ReturnType<typeof useQueryClient>;
+}
+
+const AddToTeamForm = ({
+  onClose,
+  editing,
+  teamId,
+  effectivePokemon,
+  abilityFormRule,
+  altAbilityFormPokemon,
+  forcedItem,
+  natures,
+  species,
+  heldItems,
+  heldItemsLoading,
+  moves,
+  typeIconMap,
+  teams,
+  user,
+  queryClient
+}: AddToTeamFormProps) => {
+  const isEditing = !!editing;
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const [form, setForm] = useState<IAddToTeamForm>(() =>
+    editing
+      ? formFromTeamPokemon(editing, teamId ?? '')
+      : {
+          ...INITIAL_FORM,
+          held_item: forcedItem ?? '',
+          ability: defaultAbility(effectivePokemon),
+          nature: defaultNature(natures),
+          gender: defaultGender(species?.genderRate)
+        }
+  );
+  const [errors, setErrors] = useState<IAddToTeamErrors>({});
+  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
   const pokemonToSave =
     !isEditing && abilityFormRule && form.ability === abilityFormRule.ability
       ? altAbilityFormPokemon
       : effectivePokemon;
-
-  const { data: heldItems = [], isLoading: heldItemsLoading } = useHeldItems();
-  const { data: natures = [] } = useNatures();
-  const moves = useAvailableMoves(effectivePokemon);
-
-  const { data: species } = useSpecies(effectivePokemon?.species.name, {
-    enabled: !isEditing && !!effectivePokemon?.species.name
-  });
 
   const abilityOptions = useMemo(() => {
     const base = effectivePokemon?.abilities ?? [];
@@ -122,7 +212,6 @@ export const AddToTeam = ({
     return altAbility ? [...base, altAbility] : base;
   }, [effectivePokemon, abilityFormRule, altAbilityFormPokemon]);
 
-  const { data: typeIconMap = {} } = useTypeIconMap();
   const typeIcons = effectivePokemon?.types
     ? effectivePokemon.types.map((entry) => ({
         name: entry.type.name,
@@ -169,31 +258,6 @@ export const AddToTeam = ({
     form.ev_spdef +
     form.ev_spd;
   const remainingEv = MAX_TOTAL_EV - totalEv;
-
-  useEffect(() => {
-    if (!open) return;
-    setForm(
-      editing
-        ? formFromTeamPokemon(editing, teamId ?? '')
-        : { ...INITIAL_FORM, held_item: forcedItem ?? '' }
-    );
-    setErrors({});
-    setFormError(null);
-    setLoading(false);
-  }, [open, forcedItem, editing, teamId]);
-
-  useEffect(() => {
-    if (!open || isEditing) return;
-    const ability = defaultAbility(effectivePokemon);
-    const nature = defaultNature(natures);
-    const gender = defaultGender(species?.genderRate);
-    setForm((prev) => ({
-      ...prev,
-      ability: prev.ability || ability,
-      nature: prev.nature || nature,
-      gender: prev.gender || gender
-    }));
-  }, [open, isEditing, effectivePokemon, natures, species]);
 
   const set = <K extends keyof IAddToTeamForm>(
     key: K,
@@ -288,7 +352,7 @@ export const AddToTeam = ({
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose}>
+    <>
       <form
         ref={formRef}
         className={styles.addToTeamForm}
@@ -758,6 +822,6 @@ export const AddToTeam = ({
           onCancel={() => setDeleteOpen(false)}
         />
       )}
-    </Modal>
+    </>
   );
 };
