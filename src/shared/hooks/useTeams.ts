@@ -13,7 +13,7 @@ export interface TeamPokemon {
   nickname: string | null;
   held_item: string | null;
   ability: string;
-  nature: string | null;
+  nature: string;
   level: number;
   gender: string | null;
   shiny: boolean;

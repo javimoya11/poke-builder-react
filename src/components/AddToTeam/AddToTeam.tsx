@@ -156,7 +156,8 @@ export const AddToTeam = ({
 
   const selectedTeam = teams.find((t) => String(t.id) === form.teamId);
   const usedSlots = selectedTeam?.team_pokemon?.map((p) => p.slot) ?? [];
-  const nextSlot = usedSlots.length > 0 ? Math.max(...usedSlots) + 1 : 1;
+  const nextSlot =
+    [1, 2, 3, 4, 5, 6].find((slot) => !usedSlots.includes(slot)) ?? 7;
   const teamFull = usedSlots.length >= 6 && form.teamId !== teamId;
   const isMovingTeam = isEditing && form.teamId !== (teamId ?? '');
 

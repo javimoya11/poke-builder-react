@@ -1,0 +1,85 @@
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pokemonInputs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.pokemonInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+}
+
+.pokemonMain {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.pokemonSprite {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 auto;
+  image-rendering: pixelated;
+}
+
+.pokemonText {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.copyButton {
+  composes: submit from '../../styles/modalForm.module.css';
+}
+
+.copyPokemonButton {
+  composes: copyButton;
+  background-color: rgba(0, 0, 0, 0.25);
+
+  &:hover:not(:disabled) {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .pokemonInputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .modalFooter {
+    position: sticky;
+    bottom: calc(-1 * var(--space-6));
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg);
+  }
+}
+
+@media (max-width: 600px) {
+  .pokemonInputs {
+    grid-template-columns: 1fr;
+  }
+}

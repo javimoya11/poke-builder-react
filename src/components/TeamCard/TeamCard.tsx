@@ -3,6 +3,7 @@ import { AddToTeam } from 'components/AddToTeam/AddToTeam';
 import { PLACEHOLDER_IMG } from 'components/Pokemon/types.Pokemon';
 import { Dropdown } from 'feature/Dropdown/Dropdown';
 import { ExportImageModal } from 'feature/ExportImage/ExportImageModal';
+import { ExportShowdownModal } from 'feature/ExportShowdown/ExportShowdownModal';
 import { Award, FileDown, ImageDown, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
@@ -18,6 +19,7 @@ import { ITeamCard } from './types.TeamCard';
 
 export const TeamCard = ({ team }: ITeamCard) => {
   const [exportOpen, setExportOpen] = useState(false);
+  const [exportShowdownOpen, setExportShowdownOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editing, setEditing] = useState<TeamPokemon | null>(null);
   const user = useGlobalStore((s) => s.user);
@@ -67,7 +69,7 @@ export const TeamCard = ({ team }: ITeamCard) => {
               {
                 label: 'Export Showdown',
                 icon: <Award size={16} />,
-                callback: () => {}
+                callback: () => setExportShowdownOpen(true)
               },
               {
                 label: 'Export image',
@@ -117,6 +119,13 @@ export const TeamCard = ({ team }: ITeamCard) => {
         <ExportImageModal
           open
           onClose={() => setExportOpen(false)}
+          team={team}
+        />
+      )}
+      {exportShowdownOpen && (
+        <ExportShowdownModal
+          open
+          onClose={() => setExportShowdownOpen(false)}
           team={team}
         />
       )}

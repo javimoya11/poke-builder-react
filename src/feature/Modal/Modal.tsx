@@ -7,9 +7,10 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
+  maxWidth?: number;
 }
 
-export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, children, maxWidth }: ModalProps) => {
   useEffect(() => {
     if (!isOpen) return;
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
@@ -32,7 +33,10 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
 
   return createPortal(
     <div className={styles.overlay}>
-      <div className={styles.content}>
+      <div
+        className={styles.content}
+        style={maxWidth ? { maxWidth: `min(${maxWidth}px, 100%)` } : undefined}
+      >
         <button
           type="button"
           className={styles.closeButton}
