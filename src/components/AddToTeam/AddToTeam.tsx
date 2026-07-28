@@ -378,22 +378,26 @@ const AddToTeamForm = ({
                 className={styles.headerSprite}
               />
             )}
-            <span className={styles.headerDex}>
-              #{idFromUrl(effectivePokemon?.species.url ?? '')}
-            </span>
-            <span className={styles.headerName}>
-              {prettify(effectivePokemon?.name ?? '')}
-            </span>
-            {typeIcons.length > 0 && (
-              <span className={styles.headerTypes}>
-                {typeIcons.map(
-                  (type) =>
-                    type.icon && (
-                      <img key={type.name} src={type.icon} alt={type.name} />
-                    )
-                )}
+            <div className={styles.headerNameGroup}>
+              <span className={styles.headerNameLine}>
+                <span className={styles.headerDex}>
+                  #{idFromUrl(effectivePokemon?.species.url ?? '')}
+                </span>
+                <span className={styles.headerName}>
+                  {prettify(effectivePokemon?.name ?? '')}
+                </span>
               </span>
-            )}
+              {typeIcons.length > 0 && (
+                <span className={styles.headerTypes}>
+                  {typeIcons.map(
+                    (type) =>
+                      type.icon && (
+                        <img key={type.name} src={type.icon} alt={type.name} />
+                      )
+                  )}
+                </span>
+              )}
+            </div>
           </div>
 
           <div className={styles.headerFields}>
