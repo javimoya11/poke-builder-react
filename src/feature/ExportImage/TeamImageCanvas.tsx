@@ -46,7 +46,7 @@ export const TeamImageCanvas = forwardRef<
                     const icon = type ? typeIcon[type] : null;
                     return (
                       <span key={mv} className={styles.move}>
-                        {prettify(mv)}
+                        <span className={styles.moveName}>{prettify(mv)}</span>
                         {icon && (
                           <img src={resolve(typeIconUrlFor(icon))} alt="" />
                         )}

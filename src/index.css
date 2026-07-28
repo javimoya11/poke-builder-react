@@ -81,6 +81,10 @@
     font: inherit;
   }
 
+  button {
+    appearance: none;
+  }
+
   p,
   h1,
   h2,

@@ -85,18 +85,13 @@
   top: 0;
   z-index: 1;
   background: var(--color-bg);
-
-  > div {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
 }
 
 .headerIdentity {
   display: flex;
-  align-items: flex-end;
-  gap: var(--space-3);
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
   min-width: 0;
 }
 
@@ -160,7 +155,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  margin-top: 2px;
 
   img {
     height: 16px;
@@ -365,11 +359,6 @@
   .row,
   .movesGrid {
     grid-template-columns: 1fr;
-  }
-
-  .headerTypes {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .formHeader {
