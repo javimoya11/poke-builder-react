@@ -93,6 +93,21 @@
   }
 }
 
+.headerIdentity {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.headerFields {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .formFooter {
   display: flex;
   align-items: center;
@@ -355,5 +370,14 @@
   .headerTypes {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .formHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerFields {
+    justify-content: space-between;
   }
 }

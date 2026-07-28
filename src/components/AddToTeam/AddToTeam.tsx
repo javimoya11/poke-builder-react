@@ -370,68 +370,72 @@ const AddToTeamForm = ({
         }}
       >
         <header className={styles.formHeader}>
-          {effectivePokemon && (
-            <img
-              src={cachedImage(spriteUrl(effectivePokemon.id, form.shiny), 48)}
-              alt={effectivePokemon.name}
-              className={styles.headerSprite}
-            />
-          )}
-          <div>
-            <span className={styles.headerDex}>
-              #{idFromUrl(effectivePokemon?.species.url ?? '')}
-            </span>
-            <span className={styles.headerName}>
-              {prettify(effectivePokemon?.name ?? '')}
-            </span>
-            {typeIcons.length > 0 && (
-              <span className={styles.headerTypes}>
-                {typeIcons.map(
-                  (type) =>
-                    type.icon && (
-                      <img key={type.name} src={type.icon} alt={type.name} />
-                    )
-                )}
-              </span>
+          <div className={styles.headerIdentity}>
+            {effectivePokemon && (
+              <img
+                src={cachedImage(spriteUrl(effectivePokemon.id, form.shiny), 48)}
+                alt={effectivePokemon.name}
+                className={styles.headerSprite}
+              />
             )}
+            <div>
+              <span className={styles.headerDex}>
+                #{idFromUrl(effectivePokemon?.species.url ?? '')}
+              </span>
+              <span className={styles.headerName}>
+                {prettify(effectivePokemon?.name ?? '')}
+              </span>
+              {typeIcons.length > 0 && (
+                <span className={styles.headerTypes}>
+                  {typeIcons.map(
+                    (type) =>
+                      type.icon && (
+                        <img key={type.name} src={type.icon} alt={type.name} />
+                      )
+                  )}
+                </span>
+              )}
+            </div>
           </div>
 
-          <label htmlFor="nickname" className={styles.headerField}>
-            Nickname
-            <input
-              id="nickname"
-              type="text"
-              value={form.nickname}
-              placeholder={prettify(effectivePokemon?.name ?? '')}
-              maxLength={30}
-              onChange={(e) => set('nickname', e.target.value)}
-            />
-          </label>
+          <div className={styles.headerFields}>
+            <label htmlFor="nickname" className={styles.headerField}>
+              Nickname
+              <input
+                id="nickname"
+                type="text"
+                value={form.nickname}
+                placeholder={prettify(effectivePokemon?.name ?? '')}
+                maxLength={30}
+                onChange={(e) => set('nickname', e.target.value)}
+              />
+            </label>
 
-          <label htmlFor="level" className={styles.headerFieldNarrow}>
-            Level
-            <input
-              id="level"
-              type="number"
-              min={MIN_LEVEL}
-              max={MAX_LEVEL}
-              step={1}
-              value={form.level}
-              onChange={(e) =>
-                set(
-                  'level',
-                  Math.min(
-                    MAX_LEVEL,
-                    Math.max(MIN_LEVEL, Number(e.target.value))
+            <label htmlFor="level" className={styles.headerFieldNarrow}>
+              Level
+              <input
+                id="level"
+                type="number"
+                min={MIN_LEVEL}
+                max={MAX_LEVEL}
+                step={1}
+                value={form.level}
+                onChange={(e) =>
+                  set(
+                    'level',
+                    Math.min(
+                      MAX_LEVEL,
+                      Math.max(MIN_LEVEL, Number(e.target.value))
+                    )
                   )
-                )
-              }
-              aria-invalid={!!errors.level}
-            />
-            {errors.level && (
-              <span className={styles.fieldError}>{errors.level}</span>
-            )}
-          </label>
+                }
+                aria-invalid={!!errors.level}
+              />
+              {errors.level && (
+                <span className={styles.fieldError}>{errors.level}</span>
+              )}
+            </label>
+          </div>
         </header>
         <div className={styles.formInputs}>
           <div className={styles.formLeft}>
