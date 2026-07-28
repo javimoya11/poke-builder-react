@@ -36,8 +36,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 48px;
-      height: 48px;
+      width: 100%;
+      aspect-ratio: 1;
       padding: 0;
       border: none;
       border-radius: var(--radius-sm);
@@ -88,8 +88,9 @@
 
 @media (max-width: 431px) {
   .teamCard {
-    padding: var(--space-3);
-    width: 160px;
+    padding: var(--space-2);
+    width: 100%;
+    min-width: 0;
   }
 }
 

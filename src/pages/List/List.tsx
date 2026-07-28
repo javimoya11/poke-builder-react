@@ -11,14 +11,23 @@ import pokedexNumbers from './pokedexNumbers.json';
 const FIRST_GEN = pokedexNumbers[0];
 const LAST_GEN = pokedexNumbers[pokedexNumbers.length - 1];
 
+// Inclusive [start, end] pokedex-number range for each generation (1-indexed).
+const GEN_RANGES = pokedexNumbers.map((end, i) => ({
+  start: i === 0 ? 1 : pokedexNumbers[i - 1] + 1,
+  end
+}));
+
 export const List = () => {
   const search = useListStore((s) => s.search);
   const setSearch = useListStore((s) => s.setSearch);
   const genReady = useListStore((s) => s.genReady);
   const setGenReady = useListStore((s) => s.setGenReady);
+  const selectedGen = useListStore((s) => s.selectedGen);
+  const setSelectedGen = useListStore((s) => s.setSelectedGen);
   const setScrollY = useListStore((s) => s.setScrollY);
 
   const [loadingGen, setLoadingGen] = useState(false);
+  const [loadingSelectedGen, setLoadingSelectedGen] = useState(false);
   const restoredRef = useRef(false);
 
   const pokeResults = usePokemonList();
@@ -42,6 +51,32 @@ export const List = () => {
   }, [allPokemons, genReady, prefetchGen, setGenReady]);
 
   const isInitialLoading = pokeResults.isLoading || genReady === 0;
+
+  useEffect(() => {
+    if (!selectedGen || isInitialLoading) return;
+    const range = GEN_RANGES[selectedGen - 1];
+    const readyNow = useListStore.getState().genReady;
+    if (range.end <= readyNow) return;
+
+    let cancelled = false;
+    setLoadingSelectedGen(true);
+    const toPrefetch = allPokemons.filter((poke) => {
+      const id = Number(idFromUrl(poke.url));
+      return id > readyNow && id <= range.end;
+    });
+
+    prefetchGen(toPrefetch).then(() => {
+      if (cancelled) return;
+      const latestReady = useListStore.getState().genReady;
+      setGenReady(Math.max(latestReady, range.end));
+      setLoadingSelectedGen(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedGen, isInitialLoading]);
 
   useLayoutEffect(() => {
     if (isInitialLoading || restoredRef.current) return;
@@ -68,14 +103,21 @@ export const List = () => {
   }
 
   const query = search.trim().toLowerCase().replaceAll(' ', '-');
-  const filtered = query.length
-    ? allPokemons.filter((poke) => poke.name.includes(query))
-    : allPokemons;
+  const genRange = selectedGen ? GEN_RANGES[selectedGen - 1] : null;
 
-  const limit = query.length ? filtered.length : genReady;
+  const filtered = allPokemons.filter((poke) => {
+    if (query.length && !poke.name.includes(query)) return false;
+    if (genRange) {
+      const id = Number(idFromUrl(poke.url));
+      if (id < genRange.start || id > genRange.end) return false;
+    }
+    return true;
+  });
+
+  const limit = query.length || genRange ? filtered.length : genReady;
   const visible = filtered.slice(0, limit);
 
-  const canLoadMore = !query.length && genReady < LAST_GEN;
+  const canLoadMore = !query.length && !genRange && genReady < LAST_GEN;
 
   const loadNextGen = async () => {
     const nextLimit = pokedexNumbers.find((n) => n > genReady) ?? LAST_GEN;
@@ -94,6 +136,11 @@ export const List = () => {
     return <Pokemon key={pokemon.name} id={id} name={pokemon.name} index={i} />;
   });
 
+  const genOptions = [
+    { value: 0, label: 'All' },
+    ...GEN_RANGES.map((_, i) => ({ value: i + 1, label: `Gen ${i + 1}` }))
+  ];
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.searchContainer}>
@@ -106,6 +153,50 @@ export const List = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+      </div>
+
+      <div className={styles.genFilter}>
+        <nav className={styles.genNav} aria-label="Filter by generation">
+          {genOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={selectedGen === option.value ? styles.active : ''}
+              onClick={() => setSelectedGen(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className={styles.genSelectWrapper}>
+          <select
+            className={styles.genSelect}
+            aria-label="Filter by generation"
+            value={selectedGen}
+            onChange={(e) => setSelectedGen(Number(e.target.value))}
+          >
+            {genOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {selectedGen !== 0 && (
+            <button
+              type="button"
+              className={styles.clearGenButton}
+              aria-label="Clear generation filter"
+              onClick={() => setSelectedGen(0)}
+            >
+              ×
+            </button>
+          )}
+        </div>
+
+        {loadingSelectedGen && (
+          <span className="button-spinner" aria-label="Loading generation" />
+        )}
       </div>
 
       <div className={styles.list}>

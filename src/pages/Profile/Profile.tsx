@@ -13,9 +13,15 @@ export const Profile = () => {
   const navigate = useNavigate();
   const { user, authReady } = useGlobalStore();
   const [newTeam, setNewTeam] = useState(false);
+  const [search, setSearch] = useState('');
   const { data, isLoading } = useTeams(user?.id);
 
   const teams = data ? [...data].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) : []
+
+  const query = search.trim().toLowerCase();
+  const filteredTeams = query.length
+    ? teams.filter((team) => team.name.toLowerCase().includes(query))
+    : teams;
 
   useEffect(() => {
     if (authReady && !user) {
@@ -38,15 +44,30 @@ export const Profile = () => {
               <Plus />
               <span>{'Add Team'}</span>
             </button>
+            {!isLoading && teams.length > 0 && (
+              <div className={styles.searchContainer}>
+                <input
+                  id="team-search"
+                  className={styles.searchInput}
+                  name="team-search"
+                  type="text"
+                  placeholder="Search teams..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+            )}
             {isLoading ? (
               <Spinner />
             ) : (
               <div className={styles.teamsGrid}>
-                {teams && teams.length
-                  ? teams.map((team) => (
-                      <TeamCard key={team.id} team={team} />
-                    ))
-                  : 'No teams found. Add some teams!'}
+                {teams.length === 0
+                  ? 'No teams found. Add some teams!'
+                  : filteredTeams.length
+                    ? filteredTeams.map((team) => (
+                        <TeamCard key={team.id} team={team} />
+                      ))
+                    : 'No teams match your search.'}
               </div>
             )}
           </div>
