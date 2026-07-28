@@ -1,3 +1,8 @@
+.modal {
+  width: min(880px, 100%);
+  max-width: min(880px, 100%);
+}
+
 .canvas {
   width: 900px;
   padding: var(--space-6);

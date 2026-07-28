@@ -1,5 +1,4 @@
 import { AddToTeam } from 'components/AddToTeam/AddToTeam';
-import { AuthForm } from 'components/AuthForm/AuthForm';
 import { usePokemon } from 'hooks/usePokemon';
 import { useSpecies } from 'hooks/useSpecies';
 import { useTypeIconMap } from 'hooks/useTypeIconMap';
@@ -8,7 +7,6 @@ import { useState } from 'react';
 import type { Variety } from 'types';
 import { artworkUrl, cachedImage } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
-import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './Pokemon.module.css';
 import { PLACEHOLDER_IMG, POKEMON_FILTER, type PokemonProps } from './types.Pokemon';
 
@@ -16,10 +14,7 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [formIndex, setFormIndex] = useState(0);
   const [slideDir, setSlideDir] = useState(0);
-  const [authOpen, setAuthOpen] = useState(false);
   const [addTeamOpen, setAddTeamOpen] = useState(false);
-
-  const user = useGlobalStore((s) => s.user);
 
   const { data: species } = useSpecies(id);
   const forms: Variety[] = species?.varieties.filter(
@@ -53,10 +48,6 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
     slideDir === 0 ? '' : slideDir > 0 ? styles.slideNext : styles.slidePrev;
 
   const handleAddToTeam = () => {
-    if (!user) {
-      setAuthOpen(true);
-      return;
-    }
     setAddTeamOpen(true);
   };
 
@@ -111,7 +102,6 @@ export const Pokemon = ({ id, name, index }: PokemonProps) => {
         </div>
       </button>
 
-      <AuthForm isOpen={authOpen} onClose={() => setAuthOpen(false)} />
       {addTeamOpen && (
         <AddToTeam
           open

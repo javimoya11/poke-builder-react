@@ -24,8 +24,9 @@ export const ExportShowdownModal = ({
     setTimeout(() => setCopied(null), 1000);
   };
   return (
-    <Modal isOpen={open} onClose={onClose} maxWidth={1200}>
+    <Modal isOpen={open} onClose={onClose} className={styles.modal}>
       <div className={styles.modalContent}>
+        <h2 className={styles.title}>{team.name}</h2>
         <div className={styles.pokemonInputs}>
           {team.team_pokemon.map((poke) => {
             return (
@@ -60,15 +61,13 @@ export const ExportShowdownModal = ({
             );
           })}
         </div>
-        <div className={styles.modalFooter}>
-          <div className={styles.copyButtonWrapper}>
-            {copied === 'team' && (
-              <span className={styles.copiedToast}>Copied!</span>
-            )}
-            <button className={styles.copyButton} onClick={handleCopyTeam}>
-              Copy team
-            </button>
-          </div>
+        <div className={styles.copyButtonWrapper}>
+          {copied === 'team' && (
+            <span className={styles.copiedToast}>Copied!</span>
+          )}
+          <button className={styles.copyTeamButton} onClick={handleCopyTeam}>
+            Copy team
+          </button>
         </div>
       </div>
     </Modal>

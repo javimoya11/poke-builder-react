@@ -44,7 +44,7 @@ export const NewTeam = ({ open, onClose }: INewTeam) => {
     }
   };
   return (
-    <Modal isOpen={open} onClose={onClose}>
+    <Modal isOpen={open} onClose={onClose} className={styles.modal}>
       <form
         className={styles.newTeamForm}
         onSubmit={async (e) => {

@@ -80,7 +80,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
           return;
         }
         onClose();
-        navigate('/profile');
+        navigate('/teams');
       }
     } finally {
       setLoading(false);
@@ -88,7 +88,7 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} className={styles.modal}>
       <form
         className={styles.authForm}
         noValidate

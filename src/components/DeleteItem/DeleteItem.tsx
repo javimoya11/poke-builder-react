@@ -31,7 +31,7 @@ export const DeleteItem = ({
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose}>
+    <Modal isOpen={open} onClose={onClose} className={styles.modal}>
       <div className={styles.container}>
         <div className={styles.message}>
           <span>Are you sure you want to delete this {itemType}?</span>

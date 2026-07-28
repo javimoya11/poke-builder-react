@@ -1,0 +1,19 @@
+import styles from './Footer.module.css';
+
+export const Footer = () => {
+  return (
+    <footer className={styles.footer}>
+      <p>Poké Builder. MIT license.</p>
+      <p>
+        Designed by{' '}
+        <a
+          href="https://github.com/javimoya11"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Noide
+        </a>
+      </p>
+    </footer>
+  );
+};

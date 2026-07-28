@@ -19,6 +19,20 @@ const IV_LABELS: Record<string, string> = {
   iv_spd: 'Spe'
 };
 
+export const formatEvs = (poke: TeamPokemon): string | null => {
+  const evs = (Object.keys(EV_LABELS) as (keyof typeof EV_LABELS)[])
+    .filter((key) => poke[key as keyof TeamPokemon])
+    .map((key) => `${poke[key as keyof TeamPokemon]} ${EV_LABELS[key]}`);
+  return evs.length > 0 ? evs.join(' / ') : null;
+};
+
+export const formatIvs = (poke: TeamPokemon): string | null => {
+  const ivs = (Object.keys(IV_LABELS) as (keyof typeof IV_LABELS)[])
+    .filter((key) => poke[key as keyof TeamPokemon] !== 31)
+    .map((key) => `${poke[key as keyof TeamPokemon]} ${IV_LABELS[key]}`);
+  return ivs.length > 0 ? ivs.join(' / ') : null;
+};
+
 export const showdownStringFormat = (poke: TeamPokemon) => {
   const lines: string[] = [];
 
@@ -42,20 +56,16 @@ export const showdownStringFormat = (poke: TeamPokemon) => {
     lines.push(`Tera Type: ${prettify(poke.tera_type)}`);
   }
 
-  const evs = (Object.keys(EV_LABELS) as (keyof typeof EV_LABELS)[])
-    .filter((key) => poke[key as keyof TeamPokemon])
-    .map((key) => `${poke[key as keyof TeamPokemon]} ${EV_LABELS[key]}`);
-  if (evs.length > 0) {
-    lines.push(`EVs: ${evs.join(' / ')}`);
+  const evs = formatEvs(poke);
+  if (evs) {
+    lines.push(`EVs: ${evs}`);
   }
 
   lines.push(`${prettify(poke.nature)} Nature`);
 
-  const ivs = (Object.keys(IV_LABELS) as (keyof typeof IV_LABELS)[])
-    .filter((key) => poke[key as keyof TeamPokemon] !== 31)
-    .map((key) => `${poke[key as keyof TeamPokemon]} ${IV_LABELS[key]}`);
-  if (ivs.length > 0) {
-    lines.push(`IVs: ${ivs.join(' / ')}`);
+  const ivs = formatIvs(poke);
+  if (ivs) {
+    lines.push(`IVs: ${ivs}`);
   }
 
   const moves = [poke.move_1, poke.move_2, poke.move_3, poke.move_4].filter(

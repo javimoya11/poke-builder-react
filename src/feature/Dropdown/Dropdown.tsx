@@ -24,7 +24,7 @@ const highestAncestorZIndex = (el: HTMLElement | null): number => {
   return highest;
 };
 
-export const Dropdown = ({ actions, trigger, align = 'right', direction = 'down' }: IDropdownProps) => {
+export const Dropdown = ({ actions, trigger, align = 'right', direction = 'down', header }: IDropdownProps) => {
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
   const [zIndex, setZIndex] = useState<number | undefined>(undefined);
@@ -111,6 +111,11 @@ export const Dropdown = ({ actions, trigger, align = 'right', direction = 'down'
               visibility: coords ? 'visible' : 'hidden'
             }}
           >
+            {header && (
+              <li role="presentation" className={styles.header}>
+                {header}
+              </li>
+            )}
             {actions.map((action, index) => (
               <li role="none" key={`${action.label}-${index}`}>
                 <DropdownOption

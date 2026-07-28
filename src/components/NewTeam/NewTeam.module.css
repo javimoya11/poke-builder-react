@@ -1,3 +1,8 @@
+.modal {
+  width: min(440px, 100%);
+  max-width: min(440px, 100%);
+}
+
 .newTeamForm {
   composes: form from '../../styles/modalForm.module.css';
 }

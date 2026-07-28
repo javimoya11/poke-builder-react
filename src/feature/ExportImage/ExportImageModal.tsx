@@ -36,7 +36,7 @@ export const ExportImageModal = ({
   }, [open]);
 
   return (
-    <Modal isOpen={open} onClose={onClose}>
+    <Modal isOpen={open} onClose={onClose} className={styles.modal}>
       <div className={styles.controls}>
         <button
           onClick={() => setMode('basic')}

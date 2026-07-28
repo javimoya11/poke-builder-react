@@ -1,6 +1,6 @@
 import { AuthForm } from 'components/AuthForm/AuthForm';
 import { Dropdown } from 'feature/Dropdown/Dropdown';
-import { LogOut, UserPen, UserRound } from 'lucide-react';
+import { LogOut, UserPen, UserRound, UsersRound } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from '../../lib/auth';
@@ -40,14 +40,17 @@ export const SignInButton = () => {
     );
   }
 
+  const profileName = user.user_metadata.display_name || user.email;
+
   return (
     <Dropdown
+      header={profileName}
       actions={[
         {
-          label: 'Profile',
-          icon: <UserRound size={16} />,
+          label: 'Teams',
+          icon: <UsersRound size={16} />,
           callback: () => {
-            navigate('/profile');
+            navigate('/teams');
           }
         },
         {

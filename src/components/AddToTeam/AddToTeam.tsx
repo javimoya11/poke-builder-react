@@ -111,7 +111,7 @@ export const AddToTeam = ({
       (!speciesEnabled || !speciesLoading);
 
   return (
-    <Modal isOpen={open} onClose={onClose}>
+    <Modal isOpen={open} onClose={onClose} className={styles.modal}>
       {!dataReady ? (
         <Spinner />
       ) : (
@@ -316,9 +316,7 @@ const AddToTeamForm = ({
             .from('team_pokemon')
             .update({
               ...editableFields,
-              ...(isMovingTeam
-                ? { team_id: form.teamId, slot: nextSlot }
-                : {})
+              ...(isMovingTeam ? { team_id: form.teamId, slot: nextSlot } : {})
             })
             .eq('id', editing.id)
         : await supabase.from('team_pokemon').insert({
@@ -788,6 +786,7 @@ const AddToTeamForm = ({
             className={styles.submit}
             disabled={
               loading ||
+              !user ||
               !effectivePokemon ||
               !pokemonToSave ||
               !form.teamId ||
@@ -803,13 +802,16 @@ const AddToTeamForm = ({
             )}
           </button>
         </div>
+
+        {!user && (
+          <p className={styles.loginHint}>Log in to add Pokémon to a team</p>
+        )}
       </form>
       {deleteOpen && editing && (
         <DeleteItem
           open
           onClose={() => {
             setDeleteOpen(false);
-            onClose();
           }}
           item={{
             ...editing,
