@@ -3,7 +3,7 @@ import styles from './Footer.module.css';
 export const Footer = () => {
   return (
     <footer className={styles.footer}>
-      <p>Poké Builder. MIT license.</p>
+      <p>© 2025-2026 Poké Builder. MIT license.</p>
       <p>
         Designed by{' '}
         <a
