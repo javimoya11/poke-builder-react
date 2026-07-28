@@ -338,6 +338,23 @@ export function defaultGender(genderRate?: number): '' | Gender {
 }
 
 /**
+ * Genders selectable for a species, derived from its gender_rate: genderless
+ * species (-1) only offer "genderless"; single-sex species (0 or 8) only
+ * offer their one possible sex; every other rate can be either male or
+ * female. Returns both when the rate isn't known yet, so the field starts
+ * unrestricted while species data loads.
+ * @param genderRate - The species gender_rate, or undefined while it loads.
+ * @returns The genders selectable in the gender field.
+ */
+export function availableGenders(genderRate?: number): Gender[] {
+  if (genderRate === undefined) return ['male', 'female'];
+  if (genderRate < 0) return ['genderless'];
+  if (genderRate === 0) return ['male'];
+  if (genderRate === 8) return ['female'];
+  return ['male', 'female'];
+}
+
+/**
  * Default ability: the first non-hidden ability by slot. Falls back to the
  * first ability of any kind if a Pokémon somehow only has hidden ones.
  * @param pokemon - The resolved Pokémon, or undefined while it loads.

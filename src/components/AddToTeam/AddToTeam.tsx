@@ -25,6 +25,7 @@ import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './AddToTeam.module.css';
 import {
   ABILITY_FORM_MAP,
+  availableGenders,
   defaultAbility,
   defaultGender,
   defaultNature,
@@ -223,6 +224,10 @@ const AddToTeamForm = ({
         icon: typeIconMap[entry.type.url] ?? null
       }))
     : [];
+
+  const genderOptions = isEditing
+    ? GENDERS
+    : availableGenders(species?.genderRate);
 
   const selectedNature = natures.find((n) => n.name === form.nature);
   const natureIncreasedStat = selectedNature?.increased_stat
@@ -579,7 +584,7 @@ const AddToTeamForm = ({
                   <option value="" disabled hidden>
                     Select a gender...
                   </option>
-                  {GENDERS.map((g) => (
+                  {genderOptions.map((g) => (
                     <option key={g} value={g}>
                       {prettifyItem(g)}
                     </option>
