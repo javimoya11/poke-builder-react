@@ -16,6 +16,8 @@ export interface IAddToTeam {
   editing?: TeamPokemon;
   /** The team id the edited Pokémon belongs to (edit mode only). */
   teamId?: string;
+  /** When true, the team selector is preset to teamId and disabled. */
+  lockTeam?: boolean;
 }
 
 export const STAT_NAMES = [

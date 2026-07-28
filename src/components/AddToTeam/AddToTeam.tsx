@@ -56,7 +56,8 @@ export const AddToTeam = ({
   onClose,
   pokemon,
   editing,
-  teamId
+  teamId,
+  lockTeam
 }: IAddToTeam) => {
   const isEditing = !!editing;
 
@@ -119,6 +120,7 @@ export const AddToTeam = ({
           onClose={onClose}
           editing={editing}
           teamId={teamId}
+          lockTeam={lockTeam}
           effectivePokemon={effectivePokemon}
           abilityFormRule={abilityFormRule}
           altAbilityFormPokemon={altAbilityFormPokemon}
@@ -142,6 +144,7 @@ interface AddToTeamFormProps {
   onClose: () => void;
   editing?: TeamPokemon;
   teamId?: string;
+  lockTeam?: boolean;
   effectivePokemon?: Pokemon;
   abilityFormRule?: { ability: string; form: string };
   altAbilityFormPokemon?: Pokemon;
@@ -161,6 +164,7 @@ const AddToTeamForm = ({
   onClose,
   editing,
   teamId,
+  lockTeam,
   effectivePokemon,
   abilityFormRule,
   altAbilityFormPokemon,
@@ -183,6 +187,7 @@ const AddToTeamForm = ({
       ? formFromTeamPokemon(editing, teamId ?? '')
       : {
           ...INITIAL_FORM,
+          teamId: teamId ?? '',
           held_item: forcedItem ?? '',
           ability: defaultAbility(effectivePokemon),
           nature: defaultNature(natures),
@@ -433,6 +438,7 @@ const AddToTeamForm = ({
                   value={form.teamId}
                   onChange={(e) => set('teamId', e.target.value)}
                   aria-invalid={!!errors.teamId}
+                  disabled={lockTeam}
                 >
                   <option value="" disabled hidden>
                     Select a team...

@@ -4,7 +4,9 @@ import { PLACEHOLDER_IMG } from 'components/Pokemon/types.Pokemon';
 import { Dropdown } from 'feature/Dropdown/Dropdown';
 import { ExportImageModal } from 'feature/ExportImage/ExportImageModal';
 import { ExportShowdownModal } from 'feature/ExportShowdown/ExportShowdownModal';
+import { PokemonSearchModal } from 'feature/PokemonSearchModal/PokemonSearchModal';
 import { Award, FileDown, ImageDown, Trash } from 'lucide-react';
+import type { Pokemon } from 'pokeapi-js-wrapper';
 import { useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { prettify } from 'utils/string-utils';
@@ -22,8 +24,11 @@ export const TeamCard = ({ team }: ITeamCard) => {
   const [exportShowdownOpen, setExportShowdownOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editing, setEditing] = useState<TeamPokemon | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [adding, setAdding] = useState<Pokemon | null>(null);
   const user = useGlobalStore((s) => s.user);
   const queryClient = useQueryClient();
+  const teamFull = team.team_pokemon.length >= 6;
 
   const deleteHandler = async () => {
     if (!user) return;
@@ -46,10 +51,14 @@ export const TeamCard = ({ team }: ITeamCard) => {
               <button
                 key={i}
                 type="button"
-                title={poke ? prettify(poke.pokemon_name) : 'Empty'}
+                title={poke ? prettify(poke.pokemon_name) : 'Add Pokémon'}
                 className={styles.slot}
-                onClick={poke ? () => setEditing(poke) : undefined}
-                disabled={!poke}
+                onClick={
+                  poke
+                    ? () => setEditing(poke)
+                    : () => setSearchOpen(true)
+                }
+                disabled={!poke && (!user || teamFull)}
               >
                 <img
                   src={
@@ -113,6 +122,25 @@ export const TeamCard = ({ team }: ITeamCard) => {
           onClose={() => setEditing(null)}
           editing={editing}
           teamId={String(team.id)}
+        />
+      )}
+      {searchOpen && (
+        <PokemonSearchModal
+          open
+          onClose={() => setSearchOpen(false)}
+          onAccept={(pokemon) => {
+            setSearchOpen(false);
+            setAdding(pokemon);
+          }}
+        />
+      )}
+      {adding && (
+        <AddToTeam
+          open
+          onClose={() => setAdding(null)}
+          pokemon={adding}
+          teamId={String(team.id)}
+          lockTeam
         />
       )}
       {exportOpen && (
