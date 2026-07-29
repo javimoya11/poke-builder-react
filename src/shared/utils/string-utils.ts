@@ -60,3 +60,28 @@ export const prettifyItem = (name: string): string =>
   name
     .replace(/-/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase());
+
+const DAMAGE_CLASS_ABBR: Record<string, string> = {
+  physical: 'Phy',
+  special: 'Spe',
+  status: 'Sta'
+};
+
+/**
+ * Formats a move's type/power/damage-class as a "(Type/Power/Cat)" suffix
+ * for display next to the move name, e.g. "(Fire/90/Spe)" or "(Normal/-/Sta)"
+ * for status moves, which have no power.
+ * @param type - The move's elemental type name, or null if unknown.
+ * @param power - The move's base power, or null (status moves have none).
+ * @param damageClass - The move's damage class ('physical' | 'special' | 'status'), or null if unknown.
+ * @returns The formatted suffix, or an empty string if any detail is missing.
+ */
+export const formatMoveSuffix = (
+  type: string | null,
+  power: number | null,
+  damageClass: string | null
+): string => {
+  if (!type || !damageClass) return '';
+  const abbr = DAMAGE_CLASS_ABBR[damageClass] ?? damageClass;
+  return ` (${prettifyItem(type)}/${power ?? '-'}/${abbr})`;
+};

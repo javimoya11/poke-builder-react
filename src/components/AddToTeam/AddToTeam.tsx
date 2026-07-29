@@ -9,7 +9,7 @@ import type { TypeIconMap } from 'types';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { idFromUrl } from 'utils/idFromUrl';
 import { statColor } from 'utils/statColor';
-import { prettify, prettifyItem } from 'utils/string-utils';
+import { formatMoveSuffix, prettify, prettifyItem } from 'utils/string-utils';
 import { supabase } from '../../lib/supabase';
 import type { AvailableMove } from '../../shared/hooks/useAvailableMoves';
 import { useAvailableMoves } from '../../shared/hooks/useAvailableMoves';
@@ -759,9 +759,13 @@ const AddToTeamForm = ({
                     <option value="">None</option>
                     {moves
                       .filter((m) => !usedMoves(slot).includes(m.name))
+                      .sort((a, b) =>
+                        prettifyItem(a.name).localeCompare(prettifyItem(b.name))
+                      )
                       .map((m) => (
                         <option key={m.name} value={m.name}>
                           {prettifyItem(m.name)}
+                          {formatMoveSuffix(m.type, m.power, m.damageClass)}
                         </option>
                       ))}
                   </select>
