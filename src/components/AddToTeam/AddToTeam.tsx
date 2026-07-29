@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { DeleteItem } from 'components/DeleteItem/DeleteItem';
+import { PokemonArtworkModal } from 'components/PokemonArtworkModal/PokemonArtworkModal';
 import { Spinner } from 'components/Spinner/Spinner';
 import { Modal } from 'feature/Modal/Modal';
 import { Switch } from 'feature/Switch/Switch';
@@ -182,6 +183,7 @@ const AddToTeamForm = ({
 }: AddToTeamFormProps) => {
   const isEditing = !!editing;
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [artworkOpen, setArtworkOpen] = useState(false);
 
   const [form, setForm] = useState<IAddToTeamForm>(() =>
     editing
@@ -372,11 +374,18 @@ const AddToTeamForm = ({
         <header className={styles.formHeader}>
           <div className={styles.headerIdentity}>
             {effectivePokemon && (
-              <img
-                src={cachedImage(spriteUrl(effectivePokemon.id, form.shiny), 48)}
-                alt={effectivePokemon.name}
-                className={styles.headerSprite}
-              />
+              <button
+                type="button"
+                className={styles.headerSpriteButton}
+                onClick={() => setArtworkOpen(true)}
+                aria-label={`View larger image of ${prettify(effectivePokemon.name)}`}
+              >
+                <img
+                  src={cachedImage(spriteUrl(effectivePokemon.id, form.shiny), 48)}
+                  alt={effectivePokemon.name}
+                  className={styles.headerSprite}
+                />
+              </button>
             )}
             <div className={styles.headerNameGroup}>
               <span className={styles.headerNameLine}>
@@ -863,6 +872,15 @@ const AddToTeamForm = ({
           itemType="Pokémon"
           handler={deleteHandler}
           onCancel={() => setDeleteOpen(false)}
+        />
+      )}
+      {effectivePokemon && (
+        <PokemonArtworkModal
+          open={artworkOpen}
+          onClose={() => setArtworkOpen(false)}
+          pokemonId={effectivePokemon.id}
+          name={effectivePokemon.name}
+          shiny={form.shiny}
         />
       )}
     </>

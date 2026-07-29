@@ -146,6 +146,22 @@
   cursor: pointer;
 }
 
+.headerSpriteButton {
+  display: inline-flex;
+  align-self: center;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-scrim);
+  }
+}
+
 .headerSprite {
   width: 48px;
   height: 48px;
