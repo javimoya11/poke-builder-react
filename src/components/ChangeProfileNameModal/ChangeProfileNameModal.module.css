@@ -1,0 +1,20 @@
+.modal {
+  width: min(440px, 100%);
+  max-width: min(440px, 100%);
+}
+
+.form {
+  composes: form from '../../styles/modalForm.module.css';
+}
+
+.banner {
+  composes: banner from '../../styles/modalForm.module.css';
+}
+
+.bannerError {
+  composes: bannerError from '../../styles/modalForm.module.css';
+}
+
+.submit {
+  composes: submit from '../../styles/modalForm.module.css';
+}
