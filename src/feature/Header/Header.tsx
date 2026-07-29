@@ -6,7 +6,8 @@ export const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.titleGroup}>
-        <Link to="/">
+        <Link to="/" className={styles.titleLink}>
+          <img src="/icons/icon.svg" alt="" className={styles.logo} />
           <h1>Poké Builder</h1>
         </Link>
         <p className={styles.tagline}>Pokémon Showdown exporter and Pokémon team builder</p>
