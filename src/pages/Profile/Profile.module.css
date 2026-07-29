@@ -40,14 +40,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: flex-start;
     gap: var(--space-2);
-  }
-}
-
-@media (max-width: 431px) {
-  .teamsContainer .teamsGrid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    justify-items: stretch;
   }
 }

@@ -2,6 +2,7 @@ import { NewTeam } from 'components/NewTeam/NewTeam';
 import { PageView } from 'components/PageView/PageView';
 import { Spinner } from 'components/Spinner/Spinner';
 import { TeamCard } from 'components/TeamCard/TeamCard';
+import { Pagination } from 'feature/Pagination/Pagination';
 import { useTeams } from 'hooks/useTeams';
 import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -9,11 +10,15 @@ import { useNavigate } from 'react-router-dom';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './Profile.module.css';
 
+/** Number of team cards per page; fits one screen at 100% zoom on a 1080p display. */
+const PAGE_SIZE = 14;
+
 export const Profile = () => {
   const navigate = useNavigate();
   const { user, authReady } = useGlobalStore();
   const [newTeam, setNewTeam] = useState(false);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const { data, isLoading } = useTeams(user?.id);
 
   const teams = data ? [...data].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) : []
@@ -22,6 +27,17 @@ export const Profile = () => {
   const filteredTeams = query.length
     ? teams.filter((team) => team.name.toLowerCase().includes(query))
     : teams;
+
+  const totalPages = Math.max(1, Math.ceil(filteredTeams.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pagedTeams = filteredTeams.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   useEffect(() => {
     if (authReady && !user) {
@@ -60,15 +76,25 @@ export const Profile = () => {
             {isLoading ? (
               <Spinner />
             ) : (
-              <div className={styles.teamsGrid}>
-                {teams.length === 0
-                  ? 'No teams found. Add some teams!'
-                  : filteredTeams.length
-                    ? filteredTeams.map((team) => (
-                        <TeamCard key={team.id} team={team} />
-                      ))
-                    : 'No teams match your search.'}
-              </div>
+              <>
+                <div className={styles.teamsGrid}>
+                  {teams.length === 0
+                    ? 'No teams found. Add some teams!'
+                    : pagedTeams.length
+                      ? pagedTeams.map((team) => (
+                          <TeamCard key={team.id} team={team} />
+                        ))
+                      : 'No teams match your search.'}
+                </div>
+                {filteredTeams.length > PAGE_SIZE && (
+                  <Pagination
+                    page={safePage}
+                    totalItems={filteredTeams.length}
+                    pageSize={PAGE_SIZE}
+                    onPageChange={setPage}
+                  />
+                )}
+              </>
             )}
           </div>
         </div>

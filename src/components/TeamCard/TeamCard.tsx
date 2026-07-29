@@ -61,6 +61,7 @@ export const TeamCard = ({ team }: ITeamCard) => {
                 disabled={!poke && (!user || teamFull)}
               >
                 <img
+                  className={poke ? undefined : styles.placeholderImg}
                   src={
                     poke
                       ? cachedImage(spriteUrl(poke.pokemon_id, poke.shiny), 96)
