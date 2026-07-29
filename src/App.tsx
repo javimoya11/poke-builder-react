@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ResetPasswordModal } from 'components/ResetPasswordModal/ResetPasswordModal';
 import { useAuthSync } from 'hooks/useAuthSync';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
@@ -27,10 +28,12 @@ export const App = () => {
           <Header />
           <Routes>
             <Route path="/teams" element={<Profile />} />
+            <Route path="/reset-password" element={<List />} />
             <Route path="/" element={<List />} />
           </Routes>
           <ScrollToTopButton />
           <Footer />
+          <ResetPasswordModal />
         </QueryClientProvider>
       </BrowserRouter>
     </div>

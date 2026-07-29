@@ -1,12 +1,14 @@
 import { Modal } from 'feature/Modal/Modal';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signIn, signUp } from '../../lib/auth';
+import { resetPasswordForEmail, signIn, signUp } from '../../lib/auth';
 import styles from './AuthForm.module.css';
 import { IAuthForm } from './types.AuthForm';
 import { IAuthErrors, validateAuth } from './validation.AuthForm';
 
-type Mode = 'signIn' | 'signUp';
+type Mode = 'signIn' | 'signUp' | 'forgotPassword';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
   const [mode, setMode] = useState<Mode>('signIn');
@@ -46,6 +48,25 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
   const submitHandler = async () => {
     setFormError(null);
     setInfo(null);
+
+    if (mode === 'forgotPassword') {
+      const trimmedEmail = email.trim();
+      if (!trimmedEmail || !EMAIL_RE.test(trimmedEmail)) {
+        setFieldErrors({ email: 'Enter a valid email address.' });
+        return;
+      }
+      setFieldErrors({});
+      setLoading(true);
+      try {
+        await resetPasswordForEmail(trimmedEmail);
+        setInfo(
+          'If an account exists for that email, a reset link has been sent.'
+        );
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     const errors = validateAuth(
       { email, password, passwordRepeat: confirmPassword, displayName },
@@ -97,22 +118,24 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
           await submitHandler();
         }}
       >
-        <nav>
-          <button
-            type="button"
-            className={mode === 'signIn' ? styles.active : ''}
-            onClick={() => switchMode('signIn')}
-          >
-            Log In
-          </button>
-          <button
-            type="button"
-            className={mode === 'signUp' ? styles.active : ''}
-            onClick={() => switchMode('signUp')}
-          >
-            Sign Up
-          </button>
-        </nav>
+        {mode !== 'forgotPassword' && (
+          <nav>
+            <button
+              type="button"
+              className={mode === 'signIn' ? styles.active : ''}
+              onClick={() => switchMode('signIn')}
+            >
+              Log In
+            </button>
+            <button
+              type="button"
+              className={mode === 'signUp' ? styles.active : ''}
+              onClick={() => switchMode('signUp')}
+            >
+              Sign Up
+            </button>
+          </nav>
+        )}
 
         {mode === 'signUp' && (
           <label htmlFor="display-name">
@@ -150,23 +173,37 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
           )}
         </label>
 
-        <label htmlFor="pass">
-          Password
-          <input
-            type="password"
-            name="pass"
-            id="pass"
-            autoComplete={
-              mode === 'signUp' ? 'new-password' : 'current-password'
-            }
-            value={password}
-            aria-invalid={!!fieldErrors.password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {fieldErrors.password && (
-            <span className={styles.fieldError}>{fieldErrors.password}</span>
-          )}
-        </label>
+        {mode !== 'forgotPassword' && (
+          <label htmlFor="pass">
+            Password
+            <input
+              type="password"
+              name="pass"
+              id="pass"
+              autoComplete={
+                mode === 'signUp' ? 'new-password' : 'current-password'
+              }
+              value={password}
+              aria-invalid={!!fieldErrors.password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {fieldErrors.password && (
+              <span className={styles.fieldError}>
+                {fieldErrors.password}
+              </span>
+            )}
+          </label>
+        )}
+
+        {mode === 'signIn' && (
+          <button
+            type="button"
+            className={styles.forgotPassword}
+            onClick={() => switchMode('forgotPassword')}
+          >
+            Forgot password?
+          </button>
+        )}
 
         {mode === 'signUp' && (
           <label htmlFor="pass-confirm">
@@ -210,10 +247,22 @@ export const AuthForm = ({ isOpen, onClose }: IAuthForm) => {
             <span className="button-spinner" aria-label="Loading" />
           ) : mode === 'signUp' ? (
             'Create account'
+          ) : mode === 'forgotPassword' ? (
+            'Send reset link'
           ) : (
             'Log in'
           )}
         </button>
+
+        {mode === 'forgotPassword' && (
+          <button
+            type="button"
+            className={styles.forgotPassword}
+            onClick={() => switchMode('signIn')}
+          >
+            Back to log in
+          </button>
+        )}
       </form>
     </Modal>
   );

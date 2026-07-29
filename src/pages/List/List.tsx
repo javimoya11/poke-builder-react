@@ -157,16 +157,28 @@ export const List = () => {
 
       <div className={styles.genFilter}>
         <nav className={styles.genNav} aria-label="Filter by generation">
-          {genOptions.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className={selectedGen === option.value ? styles.active : ''}
-              onClick={() => setSelectedGen(option.value)}
-            >
-              {option.label}
-            </button>
-          ))}
+          {genOptions.map((option) => {
+            const isLoadingThis =
+              loadingSelectedGen && selectedGen === option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                className={selectedGen === option.value ? styles.active : ''}
+                onClick={() => setSelectedGen(option.value)}
+                disabled={isLoadingThis}
+              >
+                {isLoadingThis ? (
+                  <span
+                    className="button-spinner"
+                    aria-label="Loading generation"
+                  />
+                ) : (
+                  option.label
+                )}
+              </button>
+            );
+          })}
         </nav>
 
         <div className={styles.genSelectWrapper}>
@@ -174,6 +186,7 @@ export const List = () => {
             className={styles.genSelect}
             aria-label="Filter by generation"
             value={selectedGen}
+            disabled={loadingSelectedGen}
             onChange={(e) => setSelectedGen(Number(e.target.value))}
           >
             {genOptions.map((option) => (
@@ -193,10 +206,6 @@ export const List = () => {
             </button>
           )}
         </div>
-
-        {loadingSelectedGen && (
-          <span className="button-spinner" aria-label="Loading generation" />
-        )}
       </div>
 
       <div className={styles.list}>
