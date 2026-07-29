@@ -34,9 +34,16 @@ async function fetchHeldItems(
 
   const berries = berryCategories.flatMap((c) => toItems(c?.items ?? []));
 
-  return [...toItems(heldCategory.items), ...berries].sort((a, b) =>
-    a.name.localeCompare(b.name)
+  const seen = new Set<string>();
+  const deduped = [...toItems(heldCategory.items), ...berries].filter(
+    (item) => {
+      if (seen.has(item.name)) return false;
+      seen.add(item.name);
+      return true;
+    }
   );
+
+  return deduped.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 type HeldItemsQueryOptions = Omit<

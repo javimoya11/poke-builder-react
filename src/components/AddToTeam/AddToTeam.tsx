@@ -9,7 +9,7 @@ import type { TypeIconMap } from 'types';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { idFromUrl } from 'utils/idFromUrl';
 import { statColor } from 'utils/statColor';
-import { formatMoveSuffix, prettify, prettifyItem } from 'utils/string-utils';
+import { damageClassAbbr, prettify, prettifyItem } from 'utils/string-utils';
 import { supabase } from '../../lib/supabase';
 import type { AvailableMove } from '../../shared/hooks/useAvailableMoves';
 import { useAvailableMoves } from '../../shared/hooks/useAvailableMoves';
@@ -739,15 +739,36 @@ const AddToTeamForm = ({
               const moveTypeIcon = selectedMove?.type
                 ? typeIconMap[selectedMove.type]
                 : null;
+              const moveDamageClass = damageClassAbbr(
+                selectedMove?.damageClass ?? null
+              );
               return (
                 <label key={slot} htmlFor={slot}>
                   <span className={styles.labelWithIcon}>
                     Move {i + 1}
-                    {moveTypeIcon && (
-                      <img
-                        src={moveTypeIcon}
-                        alt={selectedMove!.type as string}
-                      />
+                    {(moveTypeIcon ||
+                      selectedMove?.power != null ||
+                      moveDamageClass) && (
+                      <span className={styles.moveTypeInfo}>
+                        {moveTypeIcon && (
+                          <img
+                            src={moveTypeIcon}
+                            alt={selectedMove!.type as string}
+                          />
+                        )}
+                        <span className={styles.moveMeta}>
+                          {selectedMove?.power != null && (
+                            <span className={styles.movePower}>
+                              Pow: {selectedMove.power}
+                            </span>
+                          )}
+                          {moveDamageClass && (
+                            <span className={styles.moveDamageClass}>
+                              {moveDamageClass}
+                            </span>
+                          )}
+                        </span>
+                      </span>
                     )}
                   </span>
                   <select
@@ -765,7 +786,6 @@ const AddToTeamForm = ({
                       .map((m) => (
                         <option key={m.name} value={m.name}>
                           {prettifyItem(m.name)}
-                          {formatMoveSuffix(m.type, m.power, m.damageClass)}
                         </option>
                       ))}
                   </select>

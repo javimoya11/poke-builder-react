@@ -338,14 +338,44 @@
 
 .labelWithIcon {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: var(--space-2);
   width: 100%;
+  min-height: 34px;
 
   img {
     height: 16px;
     width: auto;
   }
+}
+
+.moveTypeInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+  min-height: 34px;
+  justify-content: center;
+}
+
+.moveMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.movePower {
+  font-size: 0.78rem;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+.moveDamageClass {
+  font-size: 0.78rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.5));
 }
 
 .statUp {
