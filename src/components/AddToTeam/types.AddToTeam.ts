@@ -54,7 +54,7 @@ export const MAX_TOTAL_EV = 510;
 export const MAX_IV = 31;
 export const MIN_LEVEL = 1;
 export const MAX_LEVEL = 100;
-export const DEFAULT_LEVEL = 50;
+export const DEFAULT_LEVEL = 100;
 export const MAX_HAPPINESS = 255;
 
 export const GENDERS = ['male', 'female', 'genderless'] as const;

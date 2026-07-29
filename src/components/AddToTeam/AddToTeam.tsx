@@ -30,6 +30,7 @@ import {
   defaultAbility,
   defaultGender,
   defaultNature,
+  DEFAULT_LEVEL,
   EV_FIELD,
   FORCED_FORM_ITEM_MAP,
   formFromTeamPokemon,
@@ -197,6 +198,7 @@ const AddToTeamForm = ({
           gender: defaultGender(species?.genderRate)
         }
   );
+  const [levelInput, setLevelInput] = useState(() => String(form.level));
   const [errors, setErrors] = useState<IAddToTeamErrors>({});
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -430,16 +432,27 @@ const AddToTeamForm = ({
                 min={MIN_LEVEL}
                 max={MAX_LEVEL}
                 step={1}
-                value={form.level}
-                onChange={(e) =>
-                  set(
-                    'level',
-                    Math.min(
-                      MAX_LEVEL,
-                      Math.max(MIN_LEVEL, Number(e.target.value))
+                value={levelInput}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  setLevelInput(raw);
+                  const parsed = Number(raw);
+                  if (raw !== '' && !Number.isNaN(parsed)) {
+                    set('level', parsed);
+                  }
+                }}
+                onBlur={() => {
+                  const parsed = Number(levelInput);
+                  const clamped = Math.min(
+                    MAX_LEVEL,
+                    Math.max(
+                      MIN_LEVEL,
+                      Number.isNaN(parsed) ? DEFAULT_LEVEL : parsed
                     )
-                  )
-                }
+                  );
+                  set('level', clamped);
+                  setLevelInput(String(clamped));
+                }}
                 aria-invalid={!!errors.level}
               />
               {errors.level && (
