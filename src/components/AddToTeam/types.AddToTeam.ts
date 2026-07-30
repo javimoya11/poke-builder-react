@@ -1,6 +1,9 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { AvailableMove } from 'hooks/useAvailableMoves';
 import { Pokemon } from 'pokeapi-js-wrapper';
+import { TypeIconMap } from 'types';
 import type { Nature } from '../../shared/hooks/useNatures';
-import type { TeamPokemon } from '../../shared/hooks/useTeams';
+import type { Team, TeamPokemon } from '../../shared/hooks/useTeams';
 
 export interface IAddToTeam {
   open: boolean;
@@ -18,6 +21,26 @@ export interface IAddToTeam {
   teamId?: string;
   /** When true, the team selector is preset to teamId and disabled. */
   lockTeam?: boolean;
+}
+
+export interface AddToTeamFormProps {
+  onClose: () => void;
+  editing?: TeamPokemon;
+  teamId?: string;
+  lockTeam?: boolean;
+  effectivePokemon?: Pokemon;
+  abilityFormRule?: { ability: string; form: string };
+  altAbilityFormPokemon?: Pokemon;
+  forcedItem?: string;
+  natures: Nature[];
+  species?: { genderRate: number };
+  heldItems: { name: string; url: string }[];
+  heldItemsLoading: boolean;
+  moves: AvailableMove[];
+  typeIconMap: TypeIconMap;
+  teams: Team[];
+  user: { id: string } | null | undefined;
+  queryClient: ReturnType<typeof useQueryClient>;
 }
 
 export const STAT_NAMES = [
@@ -219,6 +242,8 @@ export const formFromTeamPokemon = (
  * (holding the Rusted Sword/Shield). Opening one of these cards resolves to
  * the base species with the item preselected — but still changeable, same
  * as any other held item; picking a different item saves the base form.
+ *
+ * Note: will expand in the future
  */
 export const FORCED_FORM_ITEM_MAP: Record<string, string> = {
   'venusaur-mega': 'venusaurite',
@@ -314,8 +339,14 @@ export const ABILITY_FORM_MAP: Record<
   string,
   { ability: string; form: string }
 > = {
-  'zygarde-10': { ability: 'power-construct', form: 'zygarde-10-power-construct' },
-  'zygarde-50': { ability: 'power-construct', form: 'zygarde-50-power-construct' }
+  'zygarde-10': {
+    ability: 'power-construct',
+    form: 'zygarde-10-power-construct'
+  },
+  'zygarde-50': {
+    ability: 'power-construct',
+    form: 'zygarde-50-power-construct'
+  }
 };
 
 /** A neutral nature (no stat up/down), used as the default when adding. */

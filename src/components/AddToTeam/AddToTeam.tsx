@@ -4,33 +4,29 @@ import { PokemonArtworkModal } from 'components/PokemonArtworkModal/PokemonArtwo
 import { Spinner } from 'components/Spinner/Spinner';
 import { Modal } from 'feature/Modal/Modal';
 import { Switch } from 'feature/Switch/Switch';
-import { Pokemon } from 'pokeapi-js-wrapper';
 import { useMemo, useRef, useState } from 'react';
-import type { TypeIconMap } from 'types';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { idFromUrl } from 'utils/idFromUrl';
 import { statColor } from 'utils/statColor';
 import { damageClassAbbr, prettify, prettifyItem } from 'utils/string-utils';
 import { supabase } from '../../lib/supabase';
-import type { AvailableMove } from '../../shared/hooks/useAvailableMoves';
 import { useAvailableMoves } from '../../shared/hooks/useAvailableMoves';
 import { useHeldItems } from '../../shared/hooks/useHeldItems';
-import type { Nature } from '../../shared/hooks/useNatures';
 import { useNatures } from '../../shared/hooks/useNatures';
 import { usePokemon } from '../../shared/hooks/usePokemon';
 import { useSpecies } from '../../shared/hooks/useSpecies';
-import type { Team, TeamPokemon } from '../../shared/hooks/useTeams';
 import { teamsQueryKey, useTeams } from '../../shared/hooks/useTeams';
 import { useTypeIconMap } from '../../shared/hooks/useTypeIconMap';
 import { useGlobalStore } from '../../shared/stores/useGlobalStore';
 import styles from './AddToTeam.module.css';
 import {
   ABILITY_FORM_MAP,
+  AddToTeamFormProps,
   availableGenders,
+  DEFAULT_LEVEL,
   defaultAbility,
   defaultGender,
   defaultNature,
-  DEFAULT_LEVEL,
   EV_FIELD,
   FORCED_FORM_ITEM_MAP,
   formFromTeamPokemon,
@@ -142,26 +138,6 @@ export const AddToTeam = ({
     </Modal>
   );
 };
-
-interface AddToTeamFormProps {
-  onClose: () => void;
-  editing?: TeamPokemon;
-  teamId?: string;
-  lockTeam?: boolean;
-  effectivePokemon?: Pokemon;
-  abilityFormRule?: { ability: string; form: string };
-  altAbilityFormPokemon?: Pokemon;
-  forcedItem?: string;
-  natures: Nature[];
-  species?: { genderRate: number };
-  heldItems: { name: string; url: string }[];
-  heldItemsLoading: boolean;
-  moves: AvailableMove[];
-  typeIconMap: TypeIconMap;
-  teams: Team[];
-  user: { id: string } | null | undefined;
-  queryClient: ReturnType<typeof useQueryClient>;
-}
 
 const AddToTeamForm = ({
   onClose,
@@ -383,7 +359,10 @@ const AddToTeamForm = ({
                 aria-label={`View larger image of ${prettify(effectivePokemon.name)}`}
               >
                 <img
-                  src={cachedImage(spriteUrl(effectivePokemon.id, form.shiny), 48)}
+                  src={cachedImage(
+                    spriteUrl(effectivePokemon.id, form.shiny),
+                    48
+                  )}
                   alt={effectivePokemon.name}
                   className={styles.headerSprite}
                 />
