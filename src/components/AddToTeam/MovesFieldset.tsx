@@ -1,5 +1,9 @@
 import type { AvailableMove } from 'hooks/useAvailableMoves';
-import { damageClassAbbr, prettifyItem } from 'utils/string-utils';
+import {
+  damageClassAbbr,
+  damageClassIconUrl,
+  prettifyItem
+} from 'utils/string-utils';
 import type { TypeIconMap } from 'types';
 import styles from './AddToTeam.module.css';
 import { IAddToTeamErrors, IAddToTeamForm, MOVE_SLOTS } from './types.AddToTeam';
@@ -30,7 +34,7 @@ export const MovesFieldset = ({
         const moveTypeIcon = selectedMove?.type
           ? typeIconMap[selectedMove.type]
           : null;
-        const moveDamageClass = damageClassAbbr(
+        const moveDamageClassIcon = damageClassIconUrl(
           selectedMove?.damageClass ?? null
         );
         return (
@@ -39,7 +43,7 @@ export const MovesFieldset = ({
               Move {i + 1}
               {(moveTypeIcon ||
                 selectedMove?.power != null ||
-                moveDamageClass) && (
+                moveDamageClassIcon) && (
                 <span className={styles.moveTypeInfo}>
                   {moveTypeIcon && (
                     <img src={moveTypeIcon} alt={selectedMove!.type as string} />
@@ -50,10 +54,15 @@ export const MovesFieldset = ({
                         Pow: {selectedMove.power}
                       </span>
                     )}
-                    {moveDamageClass && (
-                      <span className={styles.moveDamageClass}>
-                        {moveDamageClass}
-                      </span>
+                    {moveDamageClassIcon && (
+                      <img
+                        className={styles.moveDamageClass}
+                        src={moveDamageClassIcon}
+                        alt={
+                          damageClassAbbr(selectedMove?.damageClass ?? null) ??
+                          ''
+                        }
+                      />
                     )}
                   </span>
                 </span>

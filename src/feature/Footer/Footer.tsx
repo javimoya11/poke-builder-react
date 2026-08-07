@@ -11,7 +11,7 @@ export const Footer = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Noide
+          Javi Moya
         </a>
       </p>
     </footer>

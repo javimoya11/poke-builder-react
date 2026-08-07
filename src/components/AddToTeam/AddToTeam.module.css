@@ -354,11 +354,10 @@
 
 .labelWithIcon {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
   width: 100%;
-  min-height: 34px;
 
   img {
     height: 16px;
@@ -389,9 +388,9 @@
 }
 
 .moveDamageClass {
-  font-size: 0.78rem;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-muted, rgba(255, 255, 255, 0.5));
+  height: 0.78rem;
+  width: auto;
+  display: block;
 }
 
 .statUp {

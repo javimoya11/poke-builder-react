@@ -74,3 +74,11 @@ const DAMAGE_CLASS_ABBR: Record<string, string> = {
  */
 export const damageClassAbbr = (damageClass: string | null): string | null =>
   damageClass ? (DAMAGE_CLASS_ABBR[damageClass] ?? damageClass) : null;
+
+/**
+ * URL of the damage class icon (physical/special/status), or null if the
+ * damage class is unknown.
+ * @param damageClass - The move's damage class ('physical' | 'special' | 'status'), or null if unknown.
+ */
+export const damageClassIconUrl = (damageClass: string | null): string | null =>
+  damageClass ? `/img/${damageClass}.png` : null;
