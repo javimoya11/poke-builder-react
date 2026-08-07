@@ -1,9 +1,6 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { AvailableMove } from 'hooks/useAvailableMoves';
 import { Pokemon } from 'pokeapi-js-wrapper';
-import { TypeIconMap } from 'types';
 import type { Nature } from '../../shared/hooks/useNatures';
-import type { Team, TeamPokemon } from '../../shared/hooks/useTeams';
+import type { TeamPokemon } from '../../shared/hooks/useTeams';
 
 export interface IAddToTeam {
   open: boolean;
@@ -21,26 +18,6 @@ export interface IAddToTeam {
   teamId?: string;
   /** When true, the team selector is preset to teamId and disabled. */
   lockTeam?: boolean;
-}
-
-export interface AddToTeamFormProps {
-  onClose: () => void;
-  editing?: TeamPokemon;
-  teamId?: string;
-  lockTeam?: boolean;
-  effectivePokemon?: Pokemon;
-  abilityFormRule?: { ability: string; form: string };
-  altAbilityFormPokemon?: Pokemon;
-  forcedItem?: string;
-  natures: Nature[];
-  species?: { genderRate: number };
-  heldItems: { name: string; url: string }[];
-  heldItemsLoading: boolean;
-  moves: AvailableMove[];
-  typeIconMap: TypeIconMap;
-  teams: Team[];
-  user: { id: string } | null | undefined;
-  queryClient: ReturnType<typeof useQueryClient>;
 }
 
 export const STAT_NAMES = [
@@ -72,7 +49,7 @@ export const IV_FIELD: Record<StatName, keyof IAddToTeamForm> = {
   speed: 'iv_spd'
 };
 
-export const MAX_SINGLE_EV = 255;
+export const MAX_SINGLE_EV = 252;
 export const MAX_TOTAL_EV = 510;
 export const MAX_IV = 31;
 export const MIN_LEVEL = 1;
@@ -324,6 +301,33 @@ export function isUnmappedForcedItemForm(pokemonName?: string): boolean {
   return (
     isForcedItemForm(pokemonName) && !(pokemonName! in FORCED_FORM_ITEM_MAP)
   );
+}
+
+/**
+ * Whether a forced-item form transforms automatically just by holding its
+ * item, with no in-battle choice involved (Primal Reversion, and Zacian/
+ * Zamazenta's Crowned forms). Unlike Mega Evolution — which stays optional
+ * even while holding the Mega Stone — these always show as their
+ * transformed self whenever the item is equipped, and revert the instant
+ * it's removed. Mega forms are the only forced-item forms that need a
+ * manual display toggle.
+ */
+export function isAutoDisplayForm(formName: string): boolean {
+  return formName.includes('-primal') || formName.includes('-crowned');
+}
+
+/**
+ * Forced-item forms (Mega/Primal/Crowned) available for a base species,
+ * e.g. `charizard` -> Mega Charizard X and Y. Used to offer a display-only
+ * form selector once the matching item is held.
+ */
+export function forcedFormsForSpecies(
+  baseSpeciesName?: string
+): { form: string; item: string }[] {
+  if (!baseSpeciesName) return [];
+  return Object.entries(FORCED_FORM_ITEM_MAP)
+    .filter(([formName]) => formName.startsWith(`${baseSpeciesName}-`))
+    .map(([form, item]) => ({ form, item }));
 }
 
 /**

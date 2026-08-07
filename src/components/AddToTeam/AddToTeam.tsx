@@ -1,54 +1,27 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { DeleteItem } from 'components/DeleteItem/DeleteItem';
 import { PokemonArtworkModal } from 'components/PokemonArtworkModal/PokemonArtworkModal';
 import { Spinner } from 'components/Spinner/Spinner';
 import { Modal } from 'feature/Modal/Modal';
 import { Switch } from 'feature/Switch/Switch';
-import { useMemo, useRef, useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { idFromUrl } from 'utils/idFromUrl';
-import { statColor } from 'utils/statColor';
-import { damageClassAbbr, prettify, prettifyItem } from 'utils/string-utils';
-import { supabase } from '../../lib/supabase';
-import { useAvailableMoves } from '../../shared/hooks/useAvailableMoves';
-import { useHeldItems } from '../../shared/hooks/useHeldItems';
-import { useNatures } from '../../shared/hooks/useNatures';
-import { usePokemon } from '../../shared/hooks/usePokemon';
-import { useSpecies } from '../../shared/hooks/useSpecies';
-import { teamsQueryKey, useTeams } from '../../shared/hooks/useTeams';
-import { useTypeIconMap } from '../../shared/hooks/useTypeIconMap';
-import { useGlobalStore } from '../../shared/stores/useGlobalStore';
+import { prettify, prettifyItem } from 'utils/string-utils';
+import { MovesFieldset } from './MovesFieldset';
+import { StatsFieldset } from './StatsFieldset';
 import styles from './AddToTeam.module.css';
 import {
-  ABILITY_FORM_MAP,
-  AddToTeamFormProps,
   availableGenders,
-  DEFAULT_LEVEL,
-  defaultAbility,
-  defaultGender,
-  defaultNature,
-  EV_FIELD,
-  FORCED_FORM_ITEM_MAP,
-  formFromTeamPokemon,
   GENDERS,
-  getForcedItem,
   IAddToTeam,
-  IAddToTeamErrors,
   IAddToTeamForm,
-  INITIAL_FORM,
-  isForcedItemForm,
-  IV_FIELD,
   MAX_HAPPINESS,
-  MAX_IV,
   MAX_LEVEL,
-  MAX_TOTAL_EV,
   MIN_LEVEL,
-  MOVE_SLOTS,
   NATURE_STAT,
-  STAT_NAMES,
   TERA_TYPES
 } from './types.AddToTeam';
-import { validateAddToTeam } from './validation.AddToTeam';
+import { useAddToTeamData } from './useAddToTeamData';
+import { useAddToTeamForm } from './useAddToTeamForm';
 
 export const AddToTeam = ({
   open,
@@ -58,61 +31,11 @@ export const AddToTeam = ({
   teamId,
   lockTeam
 }: IAddToTeam) => {
-  const isEditing = !!editing;
-
-  const isForcedItem = useMemo(
-    () => isForcedItemForm(pokemon?.name),
-    [pokemon?.name]
-  );
-  const forcedItem = useMemo(
-    () => getForcedItem(pokemon?.name),
-    [pokemon?.name]
-  );
-  const baseSpeciesName = pokemon?.species.name;
-
-  const abilityFormRule = pokemon ? ABILITY_FORM_MAP[pokemon.name] : undefined;
-
-  const queryClient = useQueryClient();
-  const user = useGlobalStore((s) => s.user);
-  const { data: teams = [] } = useTeams(user?.id);
-
-  const { data: editingPokemon } = usePokemon(editing?.pokemon_id, {
-    enabled: isEditing && !!editing?.pokemon_id
-  });
-  const { data: basePokemon } = usePokemon(baseSpeciesName, {
-    enabled: !isEditing && isForcedItem && !!baseSpeciesName
-  });
-  const { data: altAbilityFormPokemon } = usePokemon(abilityFormRule?.form, {
-    enabled: !isEditing && !!abilityFormRule
-  });
-
-  const effectivePokemon = isEditing
-    ? editingPokemon
-    : isForcedItem
-      ? basePokemon
-      : pokemon;
-
-  const { data: heldItems = [], isLoading: heldItemsLoading } = useHeldItems();
-  const { data: natures = [], isLoading: naturesLoading } = useNatures();
-  const moves = useAvailableMoves(effectivePokemon);
-
-  const speciesEnabled = !isEditing && !!effectivePokemon?.species.name;
-  const { data: species, isLoading: speciesLoading } = useSpecies(
-    effectivePokemon?.species.name,
-    { enabled: speciesEnabled }
-  );
-
-  const { data: typeIconMap = {} } = useTypeIconMap();
-
-  const dataReady = isEditing
-    ? !!editingPokemon
-    : !!effectivePokemon &&
-      !naturesLoading &&
-      (!speciesEnabled || !speciesLoading);
+  const data = useAddToTeamData(pokemon, editing);
 
   return (
     <Modal isOpen={open} onClose={onClose} className={styles.modal}>
-      {!dataReady ? (
+      {!data.dataReady ? (
         <Spinner />
       ) : (
         <AddToTeamForm
@@ -120,19 +43,7 @@ export const AddToTeam = ({
           editing={editing}
           teamId={teamId}
           lockTeam={lockTeam}
-          effectivePokemon={effectivePokemon}
-          abilityFormRule={abilityFormRule}
-          altAbilityFormPokemon={altAbilityFormPokemon}
-          forcedItem={forcedItem}
-          natures={natures}
-          species={species}
-          heldItems={heldItems}
-          heldItemsLoading={heldItemsLoading}
-          moves={moves}
-          typeIconMap={typeIconMap}
-          teams={teams}
-          user={user}
-          queryClient={queryClient}
+          data={data}
         />
       )}
     </Modal>
@@ -144,62 +55,78 @@ const AddToTeamForm = ({
   editing,
   teamId,
   lockTeam,
-  effectivePokemon,
-  abilityFormRule,
-  altAbilityFormPokemon,
-  forcedItem,
-  natures,
-  species,
-  heldItems,
-  heldItemsLoading,
-  moves,
-  typeIconMap,
-  teams,
-  user,
-  queryClient
-}: AddToTeamFormProps) => {
+  data
+}: {
+  onClose: () => void;
+  editing?: IAddToTeam['editing'];
+  teamId?: string;
+  lockTeam?: boolean;
+  data: ReturnType<typeof useAddToTeamData>;
+}) => {
+  const {
+    effectivePokemon,
+    abilityFormRule,
+    altAbilityFormPokemon,
+    forcedItem,
+    natures,
+    species,
+    heldItems,
+    heldItemsLoading,
+    moves,
+    typeIconMap,
+    teams,
+    user,
+    queryClient
+  } = data;
+
   const isEditing = !!editing;
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [artworkOpen, setArtworkOpen] = useState(false);
 
-  const [form, setForm] = useState<IAddToTeamForm>(() =>
-    editing
-      ? formFromTeamPokemon(editing, teamId ?? '')
-      : {
-          ...INITIAL_FORM,
-          teamId: teamId ?? '',
-          held_item: forcedItem ?? '',
-          ability: defaultAbility(effectivePokemon),
-          nature: defaultNature(natures),
-          gender: defaultGender(species?.genderRate)
-        }
-  );
-  const [levelInput, setLevelInput] = useState(() => String(form.level));
-  const [errors, setErrors] = useState<IAddToTeamErrors>({});
-  const [loading, setLoading] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const {
+    form,
+    set,
+    levelInput,
+    onLevelChange,
+    onLevelBlur,
+    evInputs,
+    onEvChange,
+    onEvBlur,
+    errors,
+    loading,
+    formError,
+    formRef,
+    deleteOpen,
+    setDeleteOpen,
+    artworkOpen,
+    setArtworkOpen,
+    pokemonToSave,
+    abilityOptions,
+    matchedMegaForm,
+    megaViewRequested,
+    setMegaViewRequested,
+    displayPokemon,
+    itemForcedFormItems,
+    teamFull,
+    remainingEv,
+    usedMoves,
+    submitHandler,
+    deleteHandler
+  } = useAddToTeamForm({
+    editing,
+    teamId,
+    effectivePokemon,
+    abilityFormRule,
+    altAbilityFormPokemon,
+    forcedItem,
+    natures,
+    species,
+    teams,
+    user,
+    queryClient,
+    onClose
+  });
 
-  const pokemonToSave =
-    !isEditing && abilityFormRule && form.ability === abilityFormRule.ability
-      ? altAbilityFormPokemon
-      : effectivePokemon;
-
-  const abilityOptions = useMemo(() => {
-    const base = effectivePokemon?.abilities ?? [];
-    if (!abilityFormRule || !altAbilityFormPokemon) return base;
-    const already = base.some(
-      ({ ability }) => ability.name === abilityFormRule.ability
-    );
-    if (already) return base;
-    const altAbility = altAbilityFormPokemon.abilities.find(
-      ({ ability }) => ability.name === abilityFormRule.ability
-    );
-    return altAbility ? [...base, altAbility] : base;
-  }, [effectivePokemon, abilityFormRule, altAbilityFormPokemon]);
-
-  const typeIcons = effectivePokemon?.types
-    ? effectivePokemon.types.map((entry) => ({
+  const typeIcons = displayPokemon?.types
+    ? displayPokemon.types.map((entry) => ({
         name: entry.type.name,
         icon: typeIconMap[entry.type.url] ?? null
       }))
@@ -217,127 +144,13 @@ const AddToTeamForm = ({
     ? (NATURE_STAT[selectedNature.decreased_stat] ?? null)
     : null;
 
-  const baseSpeciesForStones = effectivePokemon?.species.name;
-  const forcedFormItems = useMemo(() => {
-    if (!baseSpeciesForStones) return [];
-    return Object.entries(FORCED_FORM_ITEM_MAP)
-      .filter(([formName]) => formName.startsWith(`${baseSpeciesForStones}-`))
-      .map(([, item]) => item);
-  }, [baseSpeciesForStones]);
-
-  const itemOptions = useMemo(() => {
+  const itemOptions = (() => {
     const extraNames = [
-      ...new Set([...(forcedItem ? [forcedItem] : []), ...forcedFormItems])
+      ...new Set([...(forcedItem ? [forcedItem] : []), ...itemForcedFormItems])
     ].filter((name) => !heldItems.some((i) => i.name === name));
     if (extraNames.length === 0) return heldItems;
     return [...extraNames.map((name) => ({ name, url: '' })), ...heldItems];
-  }, [forcedItem, forcedFormItems, heldItems]);
-
-  const selectedTeam = teams.find((t) => String(t.id) === form.teamId);
-  const usedSlots = selectedTeam?.team_pokemon?.map((p) => p.slot) ?? [];
-  const nextSlot =
-    [1, 2, 3, 4, 5, 6].find((slot) => !usedSlots.includes(slot)) ?? 7;
-  const teamFull = usedSlots.length >= 6 && form.teamId !== teamId;
-  const isMovingTeam = isEditing && form.teamId !== (teamId ?? '');
-
-  const totalEv =
-    form.ev_hp +
-    form.ev_atk +
-    form.ev_def +
-    form.ev_spatk +
-    form.ev_spdef +
-    form.ev_spd;
-  const remainingEv = MAX_TOTAL_EV - totalEv;
-
-  const set = <K extends keyof IAddToTeamForm>(
-    key: K,
-    value: IAddToTeamForm[K]
-  ) => setForm((prev) => ({ ...prev, [key]: value }));
-
-  const usedMoves = (slot: (typeof MOVE_SLOTS)[number]) =>
-    MOVE_SLOTS.filter((s) => s !== slot)
-      .map((s) => form[s])
-      .filter(Boolean);
-
-  const submitHandler = async () => {
-    const errs = validateAddToTeam(form);
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
-      formRef.current
-        ?.closest<HTMLElement>('[class*="body"]')
-        ?.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    if (!effectivePokemon || !pokemonToSave || !user) return;
-
-    const editableFields = {
-      nickname: form.nickname || null,
-      held_item: form.held_item || null,
-      ability: form.ability,
-      nature: form.nature || null,
-      level: form.level,
-      gender: form.gender || null,
-      shiny: form.shiny,
-      happiness: form.happiness,
-      tera_type: form.tera_type || null,
-      ev_hp: form.ev_hp,
-      ev_atk: form.ev_atk,
-      ev_def: form.ev_def,
-      ev_spatk: form.ev_spatk,
-      ev_spdef: form.ev_spdef,
-      ev_spd: form.ev_spd,
-      iv_hp: form.iv_hp,
-      iv_atk: form.iv_atk,
-      iv_def: form.iv_def,
-      iv_spatk: form.iv_spatk,
-      iv_spdef: form.iv_spdef,
-      iv_spd: form.iv_spd,
-      move_1: form.move_1 || null,
-      move_2: form.move_2 || null,
-      move_3: form.move_3 || null,
-      move_4: form.move_4 || null
-    };
-
-    setLoading(true);
-    setFormError(null);
-    try {
-      const { error } = editing
-        ? await supabase
-            .from('team_pokemon')
-            .update({
-              ...editableFields,
-              ...(isMovingTeam ? { team_id: form.teamId, slot: nextSlot } : {})
-            })
-            .eq('id', editing.id)
-        : await supabase.from('team_pokemon').insert({
-            team_id: form.teamId,
-            slot: nextSlot,
-            pokemon_name: pokemonToSave.name,
-            pokemon_id: pokemonToSave.id,
-            ...editableFields
-          });
-      if (error) throw error;
-      await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
-      onClose();
-    } catch (error) {
-      setFormError(
-        error instanceof Error ? error.message : 'Could not save the Pokémon.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteHandler = async () => {
-    if (!user || !editing) return;
-    const { error } = await supabase
-      .from('team_pokemon')
-      .delete()
-      .eq('id', editing.id);
-    if (error) throw error;
-    await queryClient.invalidateQueries({ queryKey: teamsQueryKey(user.id) });
-    onClose();
-  };
+  })();
 
   return (
     <>
@@ -351,19 +164,16 @@ const AddToTeamForm = ({
       >
         <header className={styles.formHeader}>
           <div className={styles.headerIdentity}>
-            {effectivePokemon && (
+            {displayPokemon && (
               <button
                 type="button"
                 className={styles.headerSpriteButton}
                 onClick={() => setArtworkOpen(true)}
-                aria-label={`View larger image of ${prettify(effectivePokemon.name)}`}
+                aria-label={`View larger image of ${prettify(displayPokemon.name)}`}
               >
                 <img
-                  src={cachedImage(
-                    spriteUrl(effectivePokemon.id, form.shiny),
-                    48
-                  )}
-                  alt={effectivePokemon.name}
+                  src={cachedImage(spriteUrl(displayPokemon.id, form.shiny), 48)}
+                  alt={displayPokemon.name}
                   className={styles.headerSprite}
                 />
               </button>
@@ -412,26 +222,8 @@ const AddToTeamForm = ({
                 max={MAX_LEVEL}
                 step={1}
                 value={levelInput}
-                onChange={(e) => {
-                  const raw = e.target.value;
-                  setLevelInput(raw);
-                  const parsed = Number(raw);
-                  if (raw !== '' && !Number.isNaN(parsed)) {
-                    set('level', parsed);
-                  }
-                }}
-                onBlur={() => {
-                  const parsed = Number(levelInput);
-                  const clamped = Math.min(
-                    MAX_LEVEL,
-                    Math.max(
-                      MIN_LEVEL,
-                      Number.isNaN(parsed) ? DEFAULT_LEVEL : parsed
-                    )
-                  );
-                  set('level', clamped);
-                  setLevelInput(String(clamped));
-                }}
+                onChange={(e) => onLevelChange(e.target.value)}
+                onBlur={onLevelBlur}
                 aria-invalid={!!errors.level}
               />
               {errors.level && (
@@ -638,166 +430,32 @@ const AddToTeamForm = ({
           </div>
 
           <div className={styles.formRight}>
-            <fieldset className={styles.statsFieldset}>
-              <legend>Stats</legend>
-              {errors.evTotal && (
-                <span className={styles.fieldError}>{errors.evTotal}</span>
-              )}
-              <div className={styles.statsTable}>
-                <span className={styles.statsHeadCell}>Base</span>
-                <span
-                  className={`${styles.statsHeadCell} ${styles.statsHeadCenter}`}
-                >
-                  EV
-                </span>
-                <span
-                  className={`${styles.statsHeadCell} ${styles.statsHeadCenter}`}
-                >
-                  IV
-                </span>
-
-                {STAT_NAMES.map((statName) => {
-                  const evKey = EV_FIELD[statName];
-                  const ivKey = IV_FIELD[statName];
-                  const baseStat =
-                    effectivePokemon?.stats.find(
-                      (s) => s.stat.name === statName
-                    )?.base_stat ?? 0;
-                  const isUp = natureIncreasedStat === statName;
-                  const isDown = natureDecreasedStat === statName;
-                  return (
-                    <div key={statName} className={styles.statRow}>
-                      <div className={styles.statBase}>
-                        <span
-                          className={`${styles.statName} ${isUp ? styles.statUp : isDown ? styles.statDown : ''}`}
-                        >
-                          {prettifyItem(statName)}
-                        </span>
-                        <span className={styles.baseStat}>{baseStat}</span>
-                        <span className={styles.statBar} aria-hidden="true">
-                          <span
-                            className={styles.statBarFill}
-                            style={{
-                              width: `${Math.min(100, (baseStat / 255) * 100)}%`,
-                              backgroundColor: statColor(baseStat)
-                            }}
-                          />
-                        </span>
-                      </div>
-                      <input
-                        aria-label={`${prettifyItem(statName)} EV`}
-                        type="number"
-                        min={0}
-                        max={255}
-                        step={1}
-                        value={form[evKey] as number}
-                        onChange={(e) =>
-                          set(
-                            evKey,
-                            Math.min(255, Math.max(0, Number(e.target.value)))
-                          )
-                        }
-                        aria-invalid={!!errors[evKey as keyof IAddToTeamErrors]}
-                      />
-                      <input
-                        aria-label={`${prettifyItem(statName)} IV`}
-                        type="number"
-                        min={0}
-                        max={MAX_IV}
-                        step={1}
-                        value={form[ivKey] as number}
-                        onChange={(e) =>
-                          set(
-                            ivKey,
-                            Math.min(
-                              MAX_IV,
-                              Math.max(0, Number(e.target.value))
-                            )
-                          )
-                        }
-                        aria-invalid={!!errors[ivKey as keyof IAddToTeamErrors]}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-              <span
-                className={
-                  remainingEv < 0 ? styles.evCounterError : styles.evCounter
-                }
-              >
-                {remainingEv} EVs remaining
-              </span>
-            </fieldset>
+            <StatsFieldset
+              form={form}
+              set={set}
+              displayPokemon={displayPokemon}
+              natureIncreasedStat={natureIncreasedStat}
+              natureDecreasedStat={natureDecreasedStat}
+              evInputs={evInputs}
+              onEvChange={onEvChange}
+              onEvBlur={onEvBlur}
+              errors={errors}
+              remainingEv={remainingEv}
+              matchedMegaForm={matchedMegaForm}
+              megaViewRequested={megaViewRequested}
+              setMegaViewRequested={setMegaViewRequested}
+            />
           </div>
         </div>
 
-        <fieldset className={styles.movesFieldset}>
-          <legend>Moves</legend>
-          <div className={`${styles.movesGrid} ${styles.movesGridFull}`}>
-            {MOVE_SLOTS.map((slot, i) => {
-              const selectedMove = moves.find((m) => m.name === form[slot]);
-              const moveTypeIcon = selectedMove?.type
-                ? typeIconMap[selectedMove.type]
-                : null;
-              const moveDamageClass = damageClassAbbr(
-                selectedMove?.damageClass ?? null
-              );
-              return (
-                <label key={slot} htmlFor={slot}>
-                  <span className={styles.labelWithIcon}>
-                    Move {i + 1}
-                    {(moveTypeIcon ||
-                      selectedMove?.power != null ||
-                      moveDamageClass) && (
-                      <span className={styles.moveTypeInfo}>
-                        {moveTypeIcon && (
-                          <img
-                            src={moveTypeIcon}
-                            alt={selectedMove!.type as string}
-                          />
-                        )}
-                        <span className={styles.moveMeta}>
-                          {selectedMove?.power != null && (
-                            <span className={styles.movePower}>
-                              Pow: {selectedMove.power}
-                            </span>
-                          )}
-                          {moveDamageClass && (
-                            <span className={styles.moveDamageClass}>
-                              {moveDamageClass}
-                            </span>
-                          )}
-                        </span>
-                      </span>
-                    )}
-                  </span>
-                  <select
-                    id={slot}
-                    value={form[slot]}
-                    onChange={(e) => set(slot, e.target.value)}
-                    aria-invalid={i === 0 && !!errors.moves}
-                  >
-                    <option value="">None</option>
-                    {moves
-                      .filter((m) => !usedMoves(slot).includes(m.name))
-                      .sort((a, b) =>
-                        prettifyItem(a.name).localeCompare(prettifyItem(b.name))
-                      )
-                      .map((m) => (
-                        <option key={m.name} value={m.name}>
-                          {prettifyItem(m.name)}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-              );
-            })}
-          </div>
-          {errors.moves && (
-            <span className={styles.fieldError}>{errors.moves}</span>
-          )}
-        </fieldset>
+        <MovesFieldset
+          form={form}
+          set={set}
+          moves={moves}
+          typeIconMap={typeIconMap}
+          errors={errors}
+          usedMoves={usedMoves}
+        />
 
         {formError && (
           <div
@@ -866,12 +524,12 @@ const AddToTeamForm = ({
           onCancel={() => setDeleteOpen(false)}
         />
       )}
-      {effectivePokemon && (
+      {displayPokemon && (
         <PokemonArtworkModal
           open={artworkOpen}
           onClose={() => setArtworkOpen(false)}
-          pokemonId={effectivePokemon.id}
-          name={effectivePokemon.name}
+          pokemonId={displayPokemon.id}
+          name={displayPokemon.name}
           shiny={form.shiny}
         />
       )}

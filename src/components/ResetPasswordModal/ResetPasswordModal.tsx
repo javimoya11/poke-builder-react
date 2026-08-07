@@ -1,11 +1,10 @@
 import { Modal } from 'feature/Modal/Modal';
 import { useEffect, useState } from 'react';
+import { getPasswordError } from '../AuthForm/validation.AuthForm';
 import { updatePassword } from '../../lib/auth';
 import { supabase } from '../../lib/supabase';
 import styles from './ResetPasswordModal.module.css';
 import { IResetPasswordErrors } from './types.ResetPasswordModal';
-
-const MIN_PASSWORD = 6;
 
 /**
  * Listens for Supabase's `PASSWORD_RECOVERY` event, fired when the user
@@ -47,10 +46,9 @@ export const ResetPasswordModal = () => {
     setFormError(null);
 
     const errors: IResetPasswordErrors = {};
-    if (!password) {
-      errors.password = 'Password is required.';
-    } else if (password.length < MIN_PASSWORD) {
-      errors.password = `Password must be at least ${MIN_PASSWORD} characters.`;
+    const passwordError = getPasswordError(password);
+    if (passwordError) {
+      errors.password = passwordError;
     }
     if (!confirmPassword) {
       errors.confirmPassword = 'Please confirm your password.';
