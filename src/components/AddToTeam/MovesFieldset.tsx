@@ -41,32 +41,27 @@ export const MovesFieldset = ({
           <label key={slot} htmlFor={slot}>
             <span className={styles.labelWithIcon}>
               Move {i + 1}
-              {(moveTypeIcon ||
-                selectedMove?.power != null ||
-                moveDamageClassIcon) && (
-                <span className={styles.moveTypeInfo}>
-                  {moveTypeIcon && (
-                    <img src={moveTypeIcon} alt={selectedMove!.type as string} />
+              <span className={styles.moveTypeInfo}>
+                {moveTypeIcon && (
+                  <img src={moveTypeIcon} alt={selectedMove!.type as string} />
+                )}
+                <span className={styles.moveMeta}>
+                  {selectedMove?.power != null && (
+                    <span className={styles.movePower}>
+                      Pow: {selectedMove.power}
+                    </span>
                   )}
-                  <span className={styles.moveMeta}>
-                    {selectedMove?.power != null && (
-                      <span className={styles.movePower}>
-                        Pow: {selectedMove.power}
-                      </span>
-                    )}
-                    {moveDamageClassIcon && (
-                      <img
-                        className={styles.moveDamageClass}
-                        src={moveDamageClassIcon}
-                        alt={
-                          damageClassAbbr(selectedMove?.damageClass ?? null) ??
-                          ''
-                        }
-                      />
-                    )}
-                  </span>
+                  {moveDamageClassIcon && (
+                    <img
+                      className={styles.moveDamageClass}
+                      src={moveDamageClassIcon}
+                      alt={
+                        damageClassAbbr(selectedMove?.damageClass ?? null) ?? ''
+                      }
+                    />
+                  )}
                 </span>
-              )}
+              </span>
             </span>
             <select
               id={slot}
