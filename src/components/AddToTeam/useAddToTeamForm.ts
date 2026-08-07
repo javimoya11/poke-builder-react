@@ -35,6 +35,7 @@ interface UseAddToTeamFormArgs {
   abilityFormRule?: { ability: string; form: string };
   altAbilityFormPokemon?: Pokemon;
   forcedItem?: string;
+  originForcedForm?: string;
   natures: Nature[];
   species?: { genderRate: number };
   teams: Team[];
@@ -61,6 +62,7 @@ export const useAddToTeamForm = ({
   abilityFormRule,
   altAbilityFormPokemon,
   forcedItem,
+  originForcedForm,
   natures,
   species,
   teams,
@@ -123,9 +125,20 @@ export const useAddToTeamForm = ({
     [availableForcedForms]
   );
 
-  const matchedForm = availableForcedForms.find(
-    ({ item }) => item === form.held_item
-  )?.form;
+  /**
+   * The form whose Mega/Primal/Crowned view should be offered. Prefers a
+   * match on the currently selected held item (the normal, data-accurate
+   * path, driven by FORCED_FORM_ITEM_MAP); falls back to `originForcedForm`
+   * — the Mega/Primal/Crowned card the user actually opened — for newly
+   * released forms that aren't in FORCED_FORM_ITEM_MAP yet (the map is
+   * updated by hand per generation and can lag behind the PokeAPI data), so
+   * the display/switch still works ahead of that map being updated. Once
+   * the form is added to the map this fallback stops being needed, since
+   * the item match above takes priority again.
+   */
+  const matchedForm =
+    availableForcedForms.find(({ item }) => item === form.held_item)?.form ??
+    (!form.held_item ? originForcedForm : undefined);
   const autoDisplayForm =
     matchedForm && isAutoDisplayForm(matchedForm) ? matchedForm : undefined;
   const matchedMegaForm =

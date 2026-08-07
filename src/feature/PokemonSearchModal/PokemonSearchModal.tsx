@@ -35,6 +35,47 @@ export const PokemonSearchModal = ({
 
   const { data: allPokemons = [] } = usePokemonList();
 
+  /**
+   * PokeAPI gives alternate forms (Mega, Primal, regional, etc.) their own
+   * `/pokemon` id starting at 10000+, distinct from their species' national
+   * dex number. For display we want the species number instead (e.g. Mega
+   * Charizard X should show "#6", not "#10034"), without an extra fetch per
+   * suggestion. Since every species is also its own entry in this same list
+   * with a normal (<10000) id, we resolve it by trimming trailing
+   * `-suffix` segments off the form's name until we hit a name that's in
+   * the list with a normal id. Names with a normal id already (including
+   * hyphenated species like "ho-oh") never enter the trimming branch.
+   */
+  const speciesIdByName = useMemo(() => {
+    const idByName = new Map<string, number>();
+    for (const poke of allPokemons) {
+      const id = Number(idFromUrl(poke.url));
+      if (!Number.isNaN(id)) idByName.set(poke.name, id);
+    }
+
+    const resolved = new Map<string, string>();
+    for (const poke of allPokemons) {
+      const ownId = idByName.get(poke.name);
+      if (ownId === undefined) continue;
+      if (ownId < 10000) {
+        resolved.set(poke.name, String(ownId));
+        continue;
+      }
+      let base = poke.name;
+      let speciesId: number | undefined;
+      while (base.includes('-')) {
+        base = base.slice(0, base.lastIndexOf('-'));
+        const candidateId = idByName.get(base);
+        if (candidateId !== undefined && candidateId < 10000) {
+          speciesId = candidateId;
+          break;
+        }
+      }
+      resolved.set(poke.name, speciesId !== undefined ? String(speciesId) : String(ownId));
+    }
+    return resolved;
+  }, [allPokemons]);
+
   useEffect(() => {
     if (!open) return;
     setSearch('');
@@ -195,6 +236,7 @@ export const PokemonSearchModal = ({
                 >
                   {suggestions.map((poke, i) => {
                     const id = idFromUrl(poke.url);
+                    const speciesId = speciesIdByName.get(poke.name) ?? id;
                     return (
                       <li
                         id={`${listboxId}-option-${i}`}
@@ -214,7 +256,7 @@ export const PokemonSearchModal = ({
                           className={styles.suggestionSprite}
                         />
                         <span className={styles.suggestionNumber}>
-                          #{id ?? '???'}
+                          #{speciesId ?? '???'}
                         </span>
                         <span className={styles.suggestionName}>
                           {prettify(poke.name)}

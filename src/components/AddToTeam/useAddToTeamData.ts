@@ -62,6 +62,16 @@ export const useAddToTeamData = (
       ? basePokemon
       : pokemon;
 
+  /**
+   * The exact Mega/Primal/Crowned form name the user opened the form from
+   * (e.g. `charizard-mega-x`), when applicable. Used as a fallback so the
+   * Mega display/switch still works even before its stone/orb exists in
+   * `heldItems` (the item API data can lag behind new-gen additions) — see
+   * `useAddToTeamForm`'s `matchedForm` resolution.
+   */
+  const originForcedForm =
+    !isEditing && isForcedItem ? pokemon?.name : undefined;
+
   const { data: heldItems = [], isLoading: heldItemsLoading } = useHeldItems();
   const { data: natures = [], isLoading: naturesLoading } = useNatures();
   const moves = useAvailableMoves(effectivePokemon);
@@ -85,6 +95,7 @@ export const useAddToTeamData = (
     abilityFormRule,
     altAbilityFormPokemon,
     forcedItem,
+    originForcedForm,
     natures,
     species,
     heldItems,
