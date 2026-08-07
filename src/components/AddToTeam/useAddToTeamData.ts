@@ -74,7 +74,7 @@ export const useAddToTeamData = (
 
   const { data: heldItems = [], isLoading: heldItemsLoading } = useHeldItems();
   const { data: natures = [], isLoading: naturesLoading } = useNatures();
-  const moves = useAvailableMoves(effectivePokemon);
+  const { moves, isLoading: movesLoading } = useAvailableMoves(effectivePokemon);
 
   const speciesEnabled = !isEditing && !!effectivePokemon?.species.name;
   const { data: species, isLoading: speciesLoading } = useSpecies(
@@ -82,13 +82,16 @@ export const useAddToTeamData = (
     { enabled: speciesEnabled }
   );
 
-  const { data: typeIconMap = {} } = useTypeIconMap();
+  const { data: typeIconMap = {}, isLoading: typeIconMapLoading } =
+    useTypeIconMap();
 
-  const dataReady = isEditing
-    ? !!editingPokemon
-    : !!effectivePokemon &&
-      !naturesLoading &&
-      (!speciesEnabled || !speciesLoading);
+  const dataReady =
+    (isEditing ? !!editingPokemon : !!effectivePokemon) &&
+    !naturesLoading &&
+    !heldItemsLoading &&
+    !movesLoading &&
+    !typeIconMapLoading &&
+    (!speciesEnabled || !speciesLoading);
 
   return {
     effectivePokemon,

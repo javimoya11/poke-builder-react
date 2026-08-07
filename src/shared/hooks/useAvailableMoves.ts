@@ -62,15 +62,15 @@ type AvailableMovesQueryOptions = Omit<
  * client, so moves shared across Pokémon are only ever fetched once.
  * @param pokemon - The Pokémon whose moves should be listed.
  * @param options - Additional React Query options (excluding queryKey/queryFn/enabled).
- * @returns The list of available moves (empty while loading or without a Pokémon).
+ * @returns The moves list (empty while loading or without a Pokémon) plus `isLoading`.
  */
 export const useAvailableMoves = (
   pokemon?: Pokemon,
   options: AvailableMovesQueryOptions = {}
-): AvailableMove[] => {
+): { moves: AvailableMove[]; isLoading: boolean } => {
   const moveUrls = pokemon?.moves.map((m) => m.move.url) ?? [];
 
-  const { data = [] } = useQuery({
+  const { data = [], isLoading } = useQuery({
     queryKey: availableMovesQueryKey(moveUrls),
     queryFn: fetchAvailableMoves,
     enabled: moveUrls.length > 0,
@@ -78,5 +78,5 @@ export const useAvailableMoves = (
     ...options
   });
 
-  return data;
+  return { moves: data, isLoading: moveUrls.length > 0 && isLoading };
 };
