@@ -1,0 +1,243 @@
+.modal {
+  width: min(1100px, 100%);
+  max-width: min(1100px, 100%);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.empty {
+  margin: 0;
+  text-align: center;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+.pokemonRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-2);
+}
+
+.pokemonCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  color: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-hover);
+  }
+}
+
+.pokemonCardHighlighted {
+  border-color: var(--color-text);
+  background-color: var(--color-hover);
+}
+
+.addCard {
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 120px;
+  border: 1px dashed var(--color-border);
+  background-color: transparent;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.55));
+
+  .pokemonSprite {
+    object-fit: contain;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--color-text);
+    background-color: var(--color-scrim);
+    color: var(--color-text);
+  }
+}
+
+.pokemonSprite {
+  width: 56px;
+  height: 56px;
+  image-rendering: pixelated;
+}
+
+.pokemonName {
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-bold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.pokemonTypes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+
+  img {
+    height: 14px;
+    width: auto;
+  }
+}
+
+.moveList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.move {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  font-size: 0.7rem;
+
+  img {
+    height: 12px;
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.noMoves {
+  font-size: 0.7rem;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.45));
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-1) var(--space-3);
+}
+
+.typeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.typeLabel {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  width: 62px;
+  font-size: 0.72rem;
+
+  img {
+    height: 16px;
+    width: auto;
+  }
+}
+
+.tallies {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tally {
+  display: block;
+  width: 6px;
+  height: 18px;
+  border-radius: 2px;
+  background-color: var(--color-skeleton);
+  cursor: default;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.tallyHighlighted {
+  transform: scaleY(1.25);
+  box-shadow: 0 0 0 1px var(--color-text);
+}
+
+.weak {
+  background-color: #ff6b6b;
+}
+
+.resist {
+  background-color: #4d96ff;
+}
+
+.neutral {
+  background-color: var(--color-skeleton);
+}
+
+.covers {
+  background-color: #4caf50;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.55));
+  text-align: center;
+}
+
+.legendMark {
+  display: inline-block;
+  width: 5px;
+  height: 12px;
+  border-radius: 1px;
+  vertical-align: middle;
+}
+
+@media (max-width: 600px) {
+  .typeGrid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+}

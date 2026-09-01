@@ -5,7 +5,8 @@ import { Dropdown } from 'feature/Dropdown/Dropdown';
 import { ExportImageModal } from 'feature/ExportImage/ExportImageModal';
 import { ExportShowdownModal } from 'feature/ExportShowdown/ExportShowdownModal';
 import { PokemonSearchModal } from 'feature/PokemonSearchModal/PokemonSearchModal';
-import { Award, FileDown, ImageDown, Trash } from 'lucide-react';
+import { TeamAnalysisModal } from 'feature/TeamAnalysis/TeamAnalysisModal';
+import { Award, ChartColumn, FileDown, ImageDown, Trash } from 'lucide-react';
 import type { Pokemon } from 'pokeapi-js-wrapper';
 import { useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
@@ -26,6 +27,7 @@ export const TeamCard = ({ team }: ITeamCard) => {
   const [editing, setEditing] = useState<TeamPokemon | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [adding, setAdding] = useState<Pokemon | null>(null);
+  const [analysisOpen, setAnalysisOpen] = useState(false);
   const user = useGlobalStore((s) => s.user);
   const queryClient = useQueryClient();
   const teamFull = team.team_pokemon.length >= 6;
@@ -101,6 +103,16 @@ export const TeamCard = ({ team }: ITeamCard) => {
 
           <button
             className={signInStyles.dropdown}
+            type="button"
+            title="Type analysis"
+            onClick={() => setAnalysisOpen(true)}
+            disabled={team.team_pokemon.length === 0}
+          >
+            <ChartColumn size={16} />
+          </button>
+
+          <button
+            className={signInStyles.dropdown}
             onClick={() => setDeleteOpen(true)}
           >
             <Trash size={16} />
@@ -156,6 +168,18 @@ export const TeamCard = ({ team }: ITeamCard) => {
           open
           onClose={() => setExportShowdownOpen(false)}
           team={team}
+        />
+      )}
+      {analysisOpen && (
+        <TeamAnalysisModal
+          open
+          onClose={() => setAnalysisOpen(false)}
+          team={team}
+          // Editing/adding from the analysis stacks its modal on top and
+          // leaves the analysis mounted underneath, so closing it returns to
+          // the analysis — refreshed, since saving invalidates the teams query.
+          onEditPokemon={setEditing}
+          onAddPokemon={teamFull ? undefined : () => setSearchOpen(true)}
         />
       )}
     </>
