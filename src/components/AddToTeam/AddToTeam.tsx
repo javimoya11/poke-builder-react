@@ -1,8 +1,11 @@
 import { DeleteItem } from 'components/DeleteItem/DeleteItem';
+import { NewTeam } from 'components/NewTeam/NewTeam';
 import { PokemonArtworkModal } from 'components/PokemonArtworkModal/PokemonArtworkModal';
 import { Spinner } from 'components/Spinner/Spinner';
 import { Modal } from 'feature/Modal/Modal';
 import { Switch } from 'feature/Switch/Switch';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { idFromUrl } from 'utils/idFromUrl';
 import { prettify, prettifyItem } from 'utils/string-utils';
@@ -81,6 +84,8 @@ const AddToTeamForm = ({
   } = data;
 
   const isEditing = !!editing;
+
+  const [newTeamOpen, setNewTeamOpen] = useState(false);
 
   const {
     form,
@@ -238,7 +243,19 @@ const AddToTeamForm = ({
           <div className={styles.formLeft}>
             <div className={styles.row}>
               <label htmlFor="team-name">
-                Team
+                <span className={styles.labelWithIcon}>
+                  Team
+                  {user && (
+                    <button
+                      type="button"
+                      className={styles.addTeamButton}
+                      onClick={() => setNewTeamOpen(true)}
+                      aria-label="Add a new team"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  )}
+                </span>
                 <select
                   id="team-name"
                   value={form.teamId}
@@ -535,6 +552,7 @@ const AddToTeamForm = ({
           shiny={form.shiny}
         />
       )}
+      <NewTeam open={newTeamOpen} onClose={() => setNewTeamOpen(false)} />
     </>
   );
 };

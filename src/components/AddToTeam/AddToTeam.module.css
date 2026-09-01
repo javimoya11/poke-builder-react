@@ -365,6 +365,24 @@
   }
 }
 
+.addTeamButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-scrim);
+  }
+}
+
 .moveTypeInfo {
   display: flex;
   flex-direction: column;
