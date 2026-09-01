@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ResetPasswordModal } from 'components/ResetPasswordModal/ResetPasswordModal';
 import { useAuthSync } from 'hooks/useAuthSync';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 import './App.css';
 import { Footer } from './feature/Footer/Footer';
 import { Header } from './feature/Header/Header';
+import { useModalBackButton } from './feature/Modal/useModalBackButton';
 import { ScrollToTopButton } from './feature/ScrollToTopButton/ScrollToTopButton';
 import { List } from './pages/List/List';
 import { Profile } from './pages/Profile/Profile';
@@ -18,24 +19,32 @@ const queryClient = new QueryClient({
   }
 });
 
-export const App = () => {
+const Root = () => {
   useAuthSync();
+  useModalBackButton();
 
   return (
     <div className="app-container">
-      <BrowserRouter>
-        <QueryClientProvider client={queryClient}>
-          <Header />
-          <Routes>
-            <Route path="/teams" element={<Profile />} />
-            <Route path="/reset-password" element={<List />} />
-            <Route path="/" element={<List />} />
-          </Routes>
-          <ScrollToTopButton />
-          <Footer />
-          <ResetPasswordModal />
-        </QueryClientProvider>
-      </BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <Header />
+        <Outlet />
+        <ScrollToTopButton />
+        <Footer />
+        <ResetPasswordModal />
+      </QueryClientProvider>
     </div>
   );
 };
+
+const router = createBrowserRouter([
+  {
+    element: <Root />,
+    children: [
+      { path: '/teams', element: <Profile /> },
+      { path: '/reset-password', element: <List /> },
+      { path: '/', element: <List /> }
+    ]
+  }
+]);
+
+export const App = () => <RouterProvider router={router} />;
