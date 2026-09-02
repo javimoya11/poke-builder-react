@@ -5,15 +5,29 @@ import { useMoveTypeMap, useTypeIconMap } from 'hooks/useTypeIconMap';
 import { useState } from 'react';
 import { cachedImage, spriteUrl } from 'utils/cachedImage';
 import { prettify, prettifyItem } from 'utils/string-utils';
+import { abilityAffectedTypes } from './defensiveAbilities';
 import styles from './TeamAnalysis.module.css';
 import type { ITeamAnalysisModal } from './types.TeamAnalysis';
-import type { AnalysedPokemon, DefenseMark } from './useTeamAnalysis';
+import type { AnalysedPokemon, CoverageMark, DefenseMark } from './useTeamAnalysis';
 import { ALL_TYPES, useTeamAnalysis } from './useTeamAnalysis';
 
 const DEFENSE_LABEL: Record<DefenseMark, string> = {
   weak: 'weak to',
   resist: 'resists',
   neutral: 'takes normal damage from'
+};
+
+const COVERAGE_LABEL: Record<CoverageMark, string> = {
+  stab: 'hits super-effectively with STAB against',
+  move: 'hits super-effectively with a move against',
+  none: 'does not hit super-effectively against'
+};
+
+/** Explicit mapping: the mark names would otherwise collide with `.move`. */
+const COVERAGE_CLASS: Record<CoverageMark, string> = {
+  stab: styles.coverStab,
+  move: styles.coverMove,
+  none: styles.coverNone
 };
 
 export const TeamAnalysisModal = ({
@@ -45,6 +59,10 @@ const TeamAnalysisContent = ({
   const [highlighted, setHighlighted] = useState<number | null>(null);
   /** Id of the single tally under the cursor, so only that one lights up. */
   const [hoveredTally, setHoveredTally] = useState<string | null>(null);
+  /** Moves responsible for the hovered coverage tally, outlined on the card. */
+  const [hoveredMoves, setHoveredMoves] = useState<string[]>([]);
+  /** Index of the card being hovered, which lights up all of its tallies. */
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   if (isLoading) return <Spinner />;
 
@@ -77,22 +95,34 @@ const TeamAnalysisContent = ({
   /**
    * Hovering a tally highlights that exact tally plus its Pokémon's card —
    * but not the same Pokémon's other tallies, so the mark being read stays
-   * the only one standing out.
+   * the only one standing out. On a coverage tally, `moves` names the moves
+   * that land the hit, which get outlined on the card. Hovering a card is
+   * the reverse: every tally belonging to that Pokémon lights up.
    */
-  const tallyProps = (id: string, index: number, mark: string, title: string) => ({
+  const tallyProps = (
+    id: string,
+    index: number,
+    mark: string,
+    title: string,
+    moves: string[] = []
+  ) => ({
     title,
     className: [
       styles.tally,
       mark,
-      hoveredTally === id ? styles.tallyHighlighted : ''
+      hoveredTally === id || hoveredCard === index
+        ? styles.tallyHighlighted
+        : ''
     ].join(' '),
     onMouseEnter: () => {
       setHoveredTally(id);
       setHighlighted(index);
+      setHoveredMoves(moves);
     },
     onMouseLeave: () => {
       setHoveredTally(null);
       setHighlighted(null);
+      setHoveredMoves([]);
     }
   });
 
@@ -107,8 +137,12 @@ const TeamAnalysisContent = ({
             poke={poke}
             typeIcons={typeIcons}
             highlighted={highlighted === i}
+            outlinedMoves={highlighted === i ? hoveredMoves : []}
             onEdit={() => onEditPokemon(poke.entry)}
-            onHoverChange={(hovering) => setHighlighted(hovering ? i : null)}
+            onHoverChange={(hovering) => {
+              setHighlighted(hovering ? i : null);
+              setHoveredCard(hovering ? i : null);
+            }}
           />
         ))}
         {onAddPokemon && <AddPokemonCard onAdd={onAddPokemon} />}
@@ -147,16 +181,17 @@ const TeamAnalysisContent = ({
             <div key={type} className={styles.typeRow}>
               {typeLabel(type)}
               <div className={styles.tallies}>
-                {coverage[type].map((covers, i) => (
+                {coverage[type].map((mark, i) => (
                   <span
                     key={pokemon[i].entry.id}
                     {...tallyProps(
                       `coverage-${type}-${i}`,
                       i,
-                      covers ? styles.covers : styles.neutral,
+                      COVERAGE_CLASS[mark],
                       `${prettify(pokemon[i].entry.pokemon_name)} ${
-                        covers ? 'hits' : 'does not hit'
-                      } ${prettifyItem(type)} super-effectively`
+                        COVERAGE_LABEL[mark]
+                      } ${prettifyItem(type)}`,
+                      pokemon[i].coveringMoves[type]
                     )}
                   />
                 ))}
@@ -171,8 +206,11 @@ const TeamAnalysisContent = ({
         <span className={`${styles.legendMark} ${styles.resist}`} /> resists or
         immune, <span className={`${styles.legendMark} ${styles.neutral}`} /> normal
         damage. Coverage:{' '}
-        <span className={`${styles.legendMark} ${styles.covers}`} /> hits
-        super-effectively (moves or STAB).
+        <span className={`${styles.legendMark} ${styles.coverStab}`} />{' '}
+        super-effective by STAB,{' '}
+        <span className={`${styles.legendMark} ${styles.coverMove}`} />{' '}
+        super-effective by a move. Defense accounts for abilities that change
+        type effectiveness, shown on the card when they do.
       </p>
     </div>
   );
@@ -194,12 +232,15 @@ const PokemonCard = ({
   poke,
   typeIcons,
   highlighted,
+  outlinedMoves,
   onEdit,
   onHoverChange
 }: {
   poke: AnalysedPokemon;
   typeIcons: Record<string, string | null>;
   highlighted: boolean;
+  /** Moves to outline, i.e. the ones landing the hovered coverage tally. */
+  outlinedMoves: string[];
   onEdit: () => void;
   onHoverChange: (hovering: boolean) => void;
 }) => {
@@ -239,12 +280,29 @@ const PokemonCard = ({
           )
         )}
       </span>
+      {poke.relevantAbility && (
+        <span
+          className={styles.ability}
+          title={`${prettifyItem(poke.relevantAbility)} changes how ${abilityAffectedTypes(
+            poke.relevantAbility
+          )
+            .map(prettifyItem)
+            .join(' and ')} moves affect this Pokémon`}
+        >
+          {prettifyItem(poke.relevantAbility)}
+        </span>
+      )}
       <ul className={styles.moveList}>
         {moves.length ? (
           moves.map((move) => {
             const moveType = moveTypes[move];
             return (
-              <li key={move} className={styles.move}>
+              <li
+                key={move}
+                className={`${styles.move} ${
+                  outlinedMoves.includes(move) ? styles.moveOutlined : ''
+                }`}
+              >
                 {moveType && typeIcons[moveType] && (
                   <img src={typeIcons[moveType]!} alt={prettifyItem(moveType)} />
                 )}

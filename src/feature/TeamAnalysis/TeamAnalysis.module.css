@@ -103,6 +103,18 @@
   }
 }
 
+/** Shown only when the ability changes type effectiveness. */
+.ability {
+  padding: 1px var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.65rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .moveList {
   display: flex;
   flex-direction: column;
@@ -118,7 +130,15 @@
   align-items: center;
   gap: var(--space-1);
   min-width: 0;
+  padding: 1px var(--space-1);
+  /* Always bordered, transparent until outlined, so highlighting a move
+     never shifts the rest of the list. */
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   font-size: 0.7rem;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
 
   img {
     height: 12px;
@@ -131,6 +151,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+}
+
+/** The move landing the hovered coverage tally. */
+.moveOutlined {
+  border-color: var(--color-text);
+  background-color: var(--color-scrim);
 }
 
 .noMoves {
@@ -212,8 +238,20 @@
   background-color: var(--color-skeleton);
 }
 
-.covers {
+/* Coverage through the Pokémon's own type: the stronger case, so it keeps
+   the solid green. Coverage through a move only gets a warmer amber, which
+   reads as distinct from both the green and the red used for weaknesses.
+   Prefixed to avoid colliding with `.move` (a move row inside a card). */
+.coverStab {
   background-color: #4caf50;
+}
+
+.coverMove {
+  background-color: #d9a441;
+}
+
+.coverNone {
+  background-color: var(--color-skeleton);
 }
 
 .legend {
